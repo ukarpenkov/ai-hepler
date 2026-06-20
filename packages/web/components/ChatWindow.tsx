@@ -5,6 +5,7 @@ import type { QuestionResult, EvaluationResult, CoachResult } from "@/lib/types"
 import { sendAnswer } from "@/lib/api";
 import MessageBubble from "./MessageBubble";
 import FeedbackCard from "./FeedbackCard";
+import ProgressBar from "./ProgressBar";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -22,6 +23,7 @@ export default function ChatWindow({ sessionId, initialQuestion }: ChatWindowPro
   const [isLoading, setIsLoading] = useState(false);
   const [lastFeedback, setLastFeedback] = useState<EvaluationResult | null>(null);
   const [lastCoach, setLastCoach] = useState<CoachResult | null>(null);
+  const [questionCount, setQuestionCount] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function ChatWindow({ sessionId, initialQuestion }: ChatWindowPro
 
       setLastFeedback(response.evaluation);
       setLastCoach(response.coach);
+      setQuestionCount((prev) => prev + 1);
 
       setMessages((prev) => [
         ...prev,
@@ -70,6 +73,10 @@ export default function ChatWindow({ sessionId, initialQuestion }: ChatWindowPro
 
   return (
     <div className="flex flex-col h-full">
+      <div className="p-4 border-b">
+        <ProgressBar current={questionCount} total={10} />
+      </div>
+
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, i) => (
           <MessageBubble key={i} role={msg.role} content={msg.content} />

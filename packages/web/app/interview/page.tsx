@@ -1,11 +1,11 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import type { QuestionResult } from "@/lib/types";
 import ChatWindow from "@/components/ChatWindow";
 
-export default function InterviewPage() {
+function InterviewContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -34,5 +34,13 @@ export default function InterviewPage() {
     <div className="h-screen flex flex-col">
       <ChatWindow sessionId={sessionId} initialQuestion={initialQuestion} />
     </div>
+  );
+}
+
+export default function InterviewPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">Загрузка...</div>}>
+      <InterviewContent />
+    </Suspense>
   );
 }

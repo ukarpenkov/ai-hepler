@@ -6,3 +6,7 @@ coverage/
 .env.deploy
 .DS_Store
 *.log
+.next
+out
+packages/web/.next
+packages/web/.env.example

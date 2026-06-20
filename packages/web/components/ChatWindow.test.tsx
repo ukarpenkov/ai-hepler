@@ -9,6 +9,14 @@ vi.mock("@/lib/api", () => ({
   sendAnswer: (...args: unknown[]) => mockSendAnswer(...args),
 }));
 
+vi.mock("./ProgressBar", () => ({
+  default: ({ current, total }: { current: number; total: number }) => (
+    <div data-testid="progress-bar">
+      Вопрос {current} из {total}
+    </div>
+  ),
+}));
+
 Element.prototype.scrollIntoView = vi.fn();
 
 const mockQuestion: QuestionResult = {
@@ -71,6 +79,27 @@ describe("ChatWindow", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Отличный ответ")).toBeDefined();
+    });
+  });
+
+  it("increments questionCount after answer", async () => {
+    mockSendAnswer.mockResolvedValue({
+      evaluation: { score: 5, strengths: [], weaknesses: [], recommendation: "" },
+      coach: { explanation: "", improvedAnswer: "", tips: [] },
+      memory: { weakTopics: [], progress: {} },
+      nextQuestion: { question: "Следующий", topic: "Техническое", difficulty: "medium" },
+    });
+
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+
+    expect(screen.getByText("Вопрос 1 из 10")).toBeDefined();
+
+    const textarea = screen.getByPlaceholderText("Введите ответ...");
+    fireEvent.change(textarea, { target: { value: "Ответ" } });
+    fireEvent.click(screen.getByText("Отправить"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Вопрос 2 из 10")).toBeDefined();
     });
   });
 });
