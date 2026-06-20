@@ -3,10 +3,15 @@ import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import config from "../config.js";
 import { createRedisClient, closeRedisClient } from "../storage/redis.js";
+import { jobRoutes } from "./routes/job.js";
+import { interviewRoutes } from "./routes/interview.js";
+import { sessionRoutes } from "./routes/session.js";
 
 const redis = createRedisClient(config.redisUrl);
 
 export const server = Fastify({ logger: true });
+
+server.decorate("redis", redis);
 
 await server.register(cors, {
   origin: process.env.CORS_ORIGIN || "http://localhost:3000",
@@ -17,6 +22,10 @@ await server.register(helmet);
 server.get("/health", async () => {
   return { status: "ok" };
 });
+
+await server.register(jobRoutes);
+await server.register(interviewRoutes);
+await server.register(sessionRoutes);
 
 const shutdown = async () => {
   server.log.info("Shutting down...");
