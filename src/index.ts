@@ -7,9 +7,9 @@ import orchestrator from "./agents/orchestrator.js";
 
 import { parseJobDescriptionTool } from "./tools/parse-job-description.tool.js";
 import { generateQuestionTool } from "./tools/generate-question.tool.js";
-import evaluateAnswerTool from "./tools/evaluate-answer.tool.js";
-import updateMemoryTool from "./tools/update-memory.tool.js";
-import fetchWeakTopicsTool from "./tools/fetch-weak-topics.tool.js";
+import { evaluateAnswerTool } from "./tools/evaluate-answer.tool.js";
+import { updateMemoryTool } from "./tools/update-memory.tool.js";
+import { fetchWeakTopicsTool } from "./tools/fetch-weak-topics.tool.js";
 
 import { createRedisClient, closeRedisClient } from "./storage/redis.js";
 import {
