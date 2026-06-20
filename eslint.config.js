@@ -17,6 +17,11 @@ export default [
         process: "readonly",
         fetch: "readonly",
         Response: "readonly",
+        setInterval: "readonly",
+        setTimeout: "readonly",
+        clearInterval: "readonly",
+        clearTimeout: "readonly",
+        console: "readonly",
       },
     },
     plugins: {
