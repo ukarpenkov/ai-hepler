@@ -142,4 +142,17 @@ describe("server", () => {
       expect(body.jobProfile.role).toBe("Dev");
     });
   });
+
+  describe("rate limiter", () => {
+    it("includes rate limit headers", async () => {
+      const response = await server.inject({
+        method: "GET",
+        url: "/health",
+      });
+
+      expect(response.headers["x-ratelimit-limit"]).toBeDefined();
+      expect(response.headers["x-ratelimit-remaining"]).toBeDefined();
+      expect(response.headers["x-ratelimit-reset"]).toBeDefined();
+    });
+  });
 });
