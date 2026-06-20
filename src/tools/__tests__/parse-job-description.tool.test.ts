@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { parseJobDescriptionTool } from "../parse-job-description.tool.js";
+import { validateWithSchema } from "../../security/schemas.js";
+import { JobProfileSchema } from "../../security/schemas.js";
 
 describe("parseJobDescriptionTool", () => {
   const testConfig = { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" };
@@ -46,5 +48,17 @@ describe("parseJobDescriptionTool", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("error", { status: 500, statusText: "Internal Server Error" }));
 
     await expect(parseJobDescriptionTool("test", testConfig)).rejects.toThrow("LLM API error: 500");
+  });
+
+  it("output conforms to JobProfileSchema", async () => {
+    const mockResponse = {
+      choices: [{ message: { content: JSON.stringify({ role: "Dev", level: "middle", skills: ["JS"], keywords: ["dev"], domain: "web" }) } }],
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
+
+    const result = await parseJobDescriptionTool("test text for validation", testConfig);
+    const validated = validateWithSchema(JobProfileSchema, result);
+    expect(validated.role).toBe("Dev");
+    expect(validated.level).toBe("middle");
   });
 });

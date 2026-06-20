@@ -6,6 +6,7 @@ import { createRedisClient, closeRedisClient } from "../storage/redis.js";
 import { jobRoutes } from "./routes/job.js";
 import { interviewRoutes } from "./routes/interview.js";
 import { sessionRoutes } from "./routes/session.js";
+import { createRateLimiter } from "../security/rateLimiter.js";
 
 const redis = config.redisUrl ? createRedisClient(config.redisUrl) : null;
 
@@ -18,6 +19,11 @@ await server.register(cors, {
 });
 
 await server.register(helmet);
+
+await server.register(createRateLimiter, {
+  windowMs: 60000,
+  maxRequests: 30,
+});
 
 server.get("/health", async () => {
   return { status: "ok" };

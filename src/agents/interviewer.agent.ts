@@ -1,5 +1,6 @@
 import type { AgentInput, AgentOutput, ParsedJob } from "./types.js";
 import { generateQuestionTool } from "../tools/generate-question.tool.js";
+import { defaultGuard } from "../security/toolAccess.js";
 
 export async function interviewerAgent(params: {
   input: AgentInput;
@@ -9,6 +10,10 @@ export async function interviewerAgent(params: {
   config: { apiKey: string; baseUrl: string; model: string };
 }): Promise<AgentOutput> {
   const { input, jobProfile, weakSkills, previousQuestions, config } = params;
+
+  if (!defaultGuard.checkAccess("generateQuestionTool", "agent")) {
+    throw new Error("Access denied: generateQuestionTool not allowed in current context");
+  }
 
   const questionResult = await generateQuestionTool({
     jobProfile,

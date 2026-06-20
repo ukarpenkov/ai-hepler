@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { getSession } from "../../storage/session-store.js";
 import { startInterview, processAnswer } from "../../agents/orchestrator.js";
 import { isValidSessionId, isValidAnswer } from "../../utils/validators.js";
-import { sanitizeInput } from "../../utils/sanitize.js";
+import { sanitizeInput, InputValidationError } from "../../security/sanitizer.js";
 import config from "../../config.js";
 
 export async function interviewRoutes(app: FastifyInstance) {
@@ -39,7 +39,16 @@ export async function interviewRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: "Session not found" });
     }
 
-    const sanitized = sanitizeInput(answer);
+    let sanitized: string;
+    try {
+      sanitized = sanitizeInput(answer);
+    } catch (e) {
+      if (e instanceof InputValidationError) {
+        return reply.status(400).send({ error: e.message });
+      }
+      throw e;
+    }
+
     const llmConfig = { apiKey: config.deepseekApiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
     const result = await processAnswer(sessionId, sanitized, app.redis, llmConfig);
     return result;
