@@ -22,7 +22,11 @@ describe("index", () => {
 
   it("exports storage", async () => {
     const mod = await import("./index.js");
-    expect(mod.redis).toBeDefined();
-    expect(mod.sessionStore).toBeDefined();
+    expect(mod.createRedisClient).toBeDefined();
+    expect(mod.closeRedisClient).toBeDefined();
+    expect(mod.createSession).toBeDefined();
+    expect(mod.getSession).toBeDefined();
+    expect(mod.updateSession).toBeDefined();
+    expect(mod.deleteSession).toBeDefined();
   });
 });

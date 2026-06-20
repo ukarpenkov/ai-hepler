@@ -11,8 +11,13 @@ import evaluateAnswerTool from "./tools/evaluate-answer.tool.js";
 import updateMemoryTool from "./tools/update-memory.tool.js";
 import fetchWeakTopicsTool from "./tools/fetch-weak-topics.tool.js";
 
-import redis from "./storage/redis.js";
-import sessionStore from "./storage/session-store.js";
+import { createRedisClient, closeRedisClient } from "./storage/redis.js";
+import {
+  createSession,
+  getSession,
+  updateSession,
+  deleteSession,
+} from "./storage/session-store.js";
 
 export {
   jobParserAgent,
@@ -26,8 +31,12 @@ export {
   evaluateAnswerTool,
   updateMemoryTool,
   fetchWeakTopicsTool,
-  redis,
-  sessionStore,
+  createRedisClient,
+  closeRedisClient,
+  createSession,
+  getSession,
+  updateSession,
+  deleteSession,
 };
 
 export default {};
