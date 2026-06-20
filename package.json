@@ -9,7 +9,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev:api": "tsx watch src/api/server.ts",
-    "dev:web": "cd packages/web && npm run dev"
+    "dev:web": "cd packages/web && npm run dev",
+    "build": "tsc",
+    "start": "node dist/api/server.js",
+    "dev": "tsx watch src/api/server.ts"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",

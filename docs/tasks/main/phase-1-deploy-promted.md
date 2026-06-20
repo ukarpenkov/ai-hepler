@@ -317,7 +317,7 @@ export default config;
 
 ---
 
-## Шаг 9 — Добавить скрипты сборки в package.json
+## Шаг 9 — Добавить скрипты сборки в package.json ✅ Выполнено
 
 **Статус:**
 
@@ -360,7 +360,7 @@ export default config;
 
 ---
 
-## Шаг 10 — Создать Dockerfile
+## Шаг 10 — Создать Dockerfile ✅ Выполнено
 
 **Статус:**
 
@@ -411,7 +411,7 @@ coverage
 *.log
 .DS_Store
 ```
-```
+
 
 ---
 
