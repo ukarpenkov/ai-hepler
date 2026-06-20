@@ -44,7 +44,16 @@ export async function evaluateAnswerTool(params: {
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new Error("Invalid JSON in LLM response");
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch {
+        throw new Error(`Invalid JSON in LLM response: ${content.slice(0, 200)}`);
+      }
+    } else {
+      throw new Error(`No JSON found in LLM response: ${content.slice(0, 200)}`);
+    }
   }
 
   if (
