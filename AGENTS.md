@@ -80,10 +80,10 @@ System stores per session:
 
 ## Detailed Docs
 
-Full specs in `ai-docs/` folder:
-- `ai-docs/idea/main.md` — product concept
-- `ai-docs/tech/main.md` — full technical architecture
-- `ai-docs/specs/capstone.md` — competition requirements
-- `ai-docs/tech/rules/commits.md` — commit conventions
-- `ai-docs/tech/rules/testing-and-quality.md` — testing rules
-- `ai-docs/tech/restrictions/restrictions.md` — AI restrictions
+Full specs in `docs/spec/` folder:
+- `docs/spec/idea/main.md` — product concept
+- `docs/spec/tech/main.md` — full technical architecture
+- `docs/spec/capstone/capstone.md` — competition requirements
+- `docs/spec/tech/rules/commits.md` — commit conventions
+- `docs/spec/tech/rules/testing-and-quality.md` — testing rules
+- `docs/spec/restrictions/restrictions.md` — AI restrictions
