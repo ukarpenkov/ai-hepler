@@ -1,7 +1,7 @@
-import jobParserAgent from "./agents/job-parser.agent.js";
-import interviewerAgent from "./agents/interviewer.agent.js";
-import evaluatorAgent from "./agents/evaluator.agent.js";
-import coachAgent from "./agents/coach.agent.js";
+import { jobParserAgent } from "./agents/job-parser.agent.js";
+import { interviewerAgent } from "./agents/interviewer.agent.js";
+import { evaluatorAgent } from "./agents/evaluator.agent.js";
+import { coachAgent } from "./agents/coach.agent.js";
 import memoryAgent from "./agents/memory.agent.js";
 import orchestrator from "./agents/orchestrator.js";
 
