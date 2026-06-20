@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
 
 if (!deepseekApiKey) {
