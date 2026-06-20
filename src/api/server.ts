@@ -23,6 +23,11 @@ server.get("/health", async () => {
   return { status: "ok" };
 });
 
+server.setErrorHandler((error, _request, reply) => {
+  server.log.error(error);
+  reply.status(500).send({ error: "Internal server error" });
+});
+
 await server.register(jobRoutes);
 await server.register(interviewRoutes);
 await server.register(sessionRoutes);
@@ -46,4 +51,7 @@ const start = async () => {
   }
 };
 
-start();
+const isMain = process.argv[1]?.endsWith("server.ts") || process.argv[1]?.endsWith("server.js");
+if (isMain) {
+  start();
+}
