@@ -135,6 +135,15 @@
 - Firestore — memory
 - Secret Manager — API keys
 
+### Deployment Config
+
+Реального деплой-конфига в проекте пока нет:
+- ❌ Dockerfile
+- ❌ cloudbuild.yaml
+- ❌ CI/CD pipeline
+
+**Подход:** Docker + деплой через gcloud CLI команды вручную, без автоматизации через GitHub Actions.
+
 ---
 
 ## 8. System Architecture Flow
