@@ -12,24 +12,48 @@ describe("config", () => {
     process.env = originalEnv;
   });
 
-  it("returns values from env vars", async () => {
-    process.env.OPENROUTER_API_KEY = "test-key";
-    process.env.REDIS_URL = "redis://custom:6380";
-    process.env.PORT = "4000";
-    process.env.NODE_ENV = "production";
+  it("returns deepseekApiKey from DEEPSEEK_API_KEY", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
 
     const { default: cfg } = await import("../../config.js");
-    expect(cfg.openrouterApiKey).toBe("test-key");
-    expect(cfg.redisUrl).toBe("redis://custom:6380");
-    expect(cfg.port).toBe(4000);
-    expect(cfg.nodeEnv).toBe("production");
+    expect(cfg.deepseekApiKey).toBe("test-key");
   });
 
-  it("throws when OPENROUTER_API_KEY is missing", async () => {
-    delete process.env.OPENROUTER_API_KEY;
+  it("returns default llmBaseUrl", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.llmBaseUrl).toBe("https://api.deepseek.com");
+  });
+
+  it("returns default llmModel", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.llmModel).toBe("deepseek-chat");
+  });
+
+  it("returns redisUrl as undefined when REDIS_URL is not set", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+    delete process.env.REDIS_URL;
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.redisUrl).toBeUndefined();
+  });
+
+  it("returns redisUrl from REDIS_URL when set", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+    process.env.REDIS_URL = "redis://custom:6380";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.redisUrl).toBe("redis://custom:6380");
+  });
+
+  it("throws when DEEPSEEK_API_KEY is missing", async () => {
+    delete process.env.DEEPSEEK_API_KEY;
 
     await expect(import("../../config.js")).rejects.toThrow(
-      "OPENROUTER_API_KEY environment variable is required"
+      "DEEPSEEK_API_KEY environment variable is required"
     );
   });
 });

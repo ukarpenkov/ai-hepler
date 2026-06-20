@@ -28,7 +28,7 @@ describe("jobParserAgent", () => {
       content: "We are looking for a senior frontend developer with React and TypeScript experience for our web platform.",
     };
 
-    const result = await jobParserAgent(input, { apiKey: "test-key" });
+    const result = await jobParserAgent(input, { apiKey: "test-key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });
 
     expect(result.agentName).toBe("job-parser");
     expect(JSON.parse(result.result)).toEqual(mockParsed);
@@ -41,7 +41,7 @@ describe("jobParserAgent", () => {
       content: "short",
     };
 
-    await expect(jobParserAgent(input, { apiKey: "test-key" })).rejects.toThrow(
+    await expect(jobParserAgent(input, { apiKey: "test-key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" })).rejects.toThrow(
       "Invalid job text"
     );
   });

@@ -5,7 +5,7 @@ export async function evaluatorAgent(params: {
   question: string;
   answer: string;
   jobProfile: ParsedJob;
-  config: { apiKey: string };
+  config: { apiKey: string; baseUrl: string; model: string };
 }): Promise<AgentOutput> {
   const { question, answer, jobProfile, config } = params;
 

@@ -6,7 +6,7 @@ export async function updateMemoryTool(params: {
   sessionId: string;
   evaluation: EvaluationResult;
   questionTopic: string;
-  redis: Redis;
+  redis: Redis | null;
 }): Promise<MemoryUpdate> {
   const { sessionId, evaluation, questionTopic, redis } = params;
 

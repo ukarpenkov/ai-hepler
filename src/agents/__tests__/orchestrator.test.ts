@@ -54,7 +54,7 @@ describe("orchestrator", () => {
       result: JSON.stringify({ role: "Dev", level: "middle", skills: ["TS"], keywords: [], domain: "web" }),
     });
 
-    const result = await parseJob("job text here", "s1", {} as never, { apiKey: "key" });
+    const result = await parseJob("job text here", "s1", {} as never, { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });
     expect(result.role).toBe("Dev");
     expect(jobParserAgent).toHaveBeenCalledOnce();
     expect(updateSession).toHaveBeenCalledOnce();
@@ -67,7 +67,7 @@ describe("orchestrator", () => {
       result: JSON.stringify({ question: "Q1?", topic: "TS", difficulty: "medium" }),
     });
 
-    const result = await startInterview("s1", {} as never, { apiKey: "key" });
+    const result = await startInterview("s1", {} as never, { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });
     expect(result.question).toBe("Q1?");
     expect(interviewerAgent).toHaveBeenCalledOnce();
   });
@@ -97,7 +97,7 @@ describe("orchestrator", () => {
       result: JSON.stringify({ question: "Q2?", topic: "React", difficulty: "easy" }),
     });
 
-    const result = await processAnswer("s1", "my answer", {} as never, { apiKey: "key" });
+    const result = await processAnswer("s1", "my answer", {} as never, { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });
     expect(result.evaluation.score).toBe(7);
     expect(result.nextQuestion.question).toBe("Q2?");
     expect(evaluatorAgent).toHaveBeenCalledOnce();

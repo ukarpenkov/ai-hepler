@@ -7,7 +7,7 @@ import { jobRoutes } from "./routes/job.js";
 import { interviewRoutes } from "./routes/interview.js";
 import { sessionRoutes } from "./routes/session.js";
 
-const redis = createRedisClient(config.redisUrl);
+const redis = config.redisUrl ? createRedisClient(config.redisUrl) : null;
 
 export const server = Fastify({ logger: true });
 

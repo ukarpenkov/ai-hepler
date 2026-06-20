@@ -25,7 +25,7 @@ describe("evaluateAnswerTool", () => {
       question: "Explain async/await",
       answer: "Async/await is syntax for promises",
       jobProfile,
-      config: { apiKey: "test" },
+      config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" },
     });
     expect(result.score).toBe(8);
     expect(result.strengths).toEqual(["good"]);
@@ -42,7 +42,7 @@ describe("evaluateAnswerTool", () => {
       question: "q",
       answer: "a",
       jobProfile,
-      config: { apiKey: "test" },
+      config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" },
     });
     expect(result.score).toBe(10);
   });
@@ -57,7 +57,7 @@ describe("evaluateAnswerTool", () => {
       question: "q",
       answer: "a",
       jobProfile,
-      config: { apiKey: "test" },
+      config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" },
     });
     expect(result.score).toBe(1);
   });

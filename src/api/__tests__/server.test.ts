@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 
-process.env.OPENROUTER_API_KEY = "test-key";
+process.env.DEEPSEEK_API_KEY = "test-key";
 
 vi.mock("../../storage/redis.js", () => ({
   createRedisClient: vi.fn(() => ({})),

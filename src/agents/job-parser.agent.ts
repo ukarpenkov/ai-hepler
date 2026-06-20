@@ -5,7 +5,7 @@ import { isValidJobText } from "../utils/validators.js";
 
 export async function jobParserAgent(
   input: AgentInput,
-  config: { apiKey: string }
+  config: { apiKey: string; baseUrl: string; model: string }
 ): Promise<AgentOutput> {
   if (!isValidJobText(input.content)) {
     throw new Error("Invalid job text: must be at least 50 characters");

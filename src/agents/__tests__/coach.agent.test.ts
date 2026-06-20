@@ -42,7 +42,7 @@ describe("coachAgent", () => {
       answer: "Hooks let you use state in function components.",
       evaluation,
       jobProfile,
-      config: { apiKey: "key" },
+      config: { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" },
     });
 
     expect(result.agentName).toBe("coach");

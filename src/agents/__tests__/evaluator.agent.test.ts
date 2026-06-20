@@ -34,7 +34,7 @@ describe("evaluatorAgent", () => {
       question: "Describe your experience with Node.js",
       answer: "I have 5 years of experience with Node.js...",
       jobProfile,
-      config: { apiKey: "key" },
+      config: { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" },
     });
 
     expect(result.agentName).toBe("evaluator");

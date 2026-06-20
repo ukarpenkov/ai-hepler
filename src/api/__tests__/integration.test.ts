@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from "vitest";
 
-process.env.OPENROUTER_API_KEY = "test-key";
+process.env.DEEPSEEK_API_KEY = "test-key";
 
 const mockRedisStore = new Map<string, string>();
 

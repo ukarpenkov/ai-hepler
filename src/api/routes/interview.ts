@@ -18,7 +18,8 @@ export async function interviewRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: "Session not found" });
     }
 
-    const question = await startInterview(sessionId, app.redis, { apiKey: config.openrouterApiKey });
+    const llmConfig = { apiKey: config.deepseekApiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
+    const question = await startInterview(sessionId, app.redis, llmConfig);
     return { question };
   });
 
@@ -39,7 +40,8 @@ export async function interviewRoutes(app: FastifyInstance) {
     }
 
     const sanitized = sanitizeInput(answer);
-    const result = await processAnswer(sessionId, sanitized, app.redis, { apiKey: config.openrouterApiKey });
+    const llmConfig = { apiKey: config.deepseekApiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
+    const result = await processAnswer(sessionId, sanitized, app.redis, llmConfig);
     return result;
   });
 }

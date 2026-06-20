@@ -8,18 +8,18 @@ export async function evaluateAnswerTool(params: {
   question: string;
   answer: string;
   jobProfile: ParsedJob;
-  config: { apiKey: string };
+  config: { apiKey: string; baseUrl: string; model: string };
 }): Promise<EvaluationResult> {
   const { question, answer, jobProfile, config } = params;
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetch(`${config.baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${config.apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "deepseek/deepseek-chat",
+      model: config.model,
       messages: [
         {
           role: "user",
@@ -30,7 +30,7 @@ export async function evaluateAnswerTool(params: {
   });
 
   if (!response.ok) {
-    throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
+    throw new Error(`LLM API error: ${response.status} ${response.statusText}`);
   }
 
   const data = (await response.json()) as LLMResponse;

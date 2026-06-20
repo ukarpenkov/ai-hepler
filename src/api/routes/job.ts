@@ -15,7 +15,8 @@ export async function jobRoutes(app: FastifyInstance) {
 
     const sanitized = sanitizeJobText(text);
     const session = await createSession(app.redis);
-    const jobProfile = await parseJob(sanitized, session.id, app.redis, { apiKey: config.openrouterApiKey });
+    const llmConfig = { apiKey: config.deepseekApiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
+    const jobProfile = await parseJob(sanitized, session.id, app.redis, llmConfig);
 
     return { sessionId: session.id, jobProfile };
   });

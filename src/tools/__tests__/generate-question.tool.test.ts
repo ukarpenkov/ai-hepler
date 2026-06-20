@@ -25,7 +25,7 @@ describe("generateQuestionTool", () => {
       jobProfile,
       weakSkills: ["javascript"],
       previousQuestions: [],
-      config: { apiKey: "test" },
+      config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" },
     });
     expect(result.question).toBe("Explain closures");
     expect(result.topic).toBe("javascript");
@@ -42,7 +42,7 @@ describe("generateQuestionTool", () => {
       jobProfile,
       weakSkills: [],
       previousQuestions: [],
-      config: { apiKey: "test" },
+      config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" },
     });
     expect(result.difficulty).toBe("easy");
   });

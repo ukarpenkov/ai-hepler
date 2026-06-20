@@ -9,26 +9,26 @@ export async function coachAgent(params: {
   answer: string;
   evaluation: EvaluationResult;
   jobProfile: ParsedJob;
-  config: { apiKey: string };
+  config: { apiKey: string; baseUrl: string; model: string };
 }): Promise<AgentOutput> {
   const { question, answer, evaluation, jobProfile, config } = params;
 
   const prompt = `You are an interview coach. For ${jobProfile.role} (${jobProfile.level}) position. Question was: ${question}. Candidate answered: ${answer}. Score: ${evaluation.score}/10. Strengths: ${evaluation.strengths.join(", ")}. Weaknesses: ${evaluation.weaknesses.join(", ")}. Provide: explanation of correct answer, improved version of candidate's answer, 3 practical tips. Return JSON: { explanation: string, improvedAnswer: string, tips: string[] }`;
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetch(`${config.baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${config.apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "deepseek/deepseek-chat",
+      model: config.model,
       messages: [{ role: "user", content: prompt }],
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
+    throw new Error(`LLM API error: ${response.status} ${response.statusText}`);
   }
 
   const data = (await response.json()) as LLMResponse;

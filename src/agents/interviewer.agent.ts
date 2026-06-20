@@ -6,7 +6,7 @@ export async function interviewerAgent(params: {
   jobProfile: ParsedJob;
   weakSkills: string[];
   previousQuestions: string[];
-  config: { apiKey: string };
+  config: { apiKey: string; baseUrl: string; model: string };
 }): Promise<AgentOutput> {
   const { input, jobProfile, weakSkills, previousQuestions, config } = params;
 

@@ -16,8 +16,8 @@ import { getSession, updateSession } from "../storage/session-store.js";
 export async function parseJob(
   text: string,
   sessionId: string,
-  redis: Redis,
-  config: { apiKey: string }
+  redis: Redis | null,
+  config: { apiKey: string; baseUrl: string; model: string }
 ): Promise<ParsedJob> {
   const output = await jobParserAgent(
     { sessionId, content: text },
@@ -31,8 +31,8 @@ export async function parseJob(
 
 export async function startInterview(
   sessionId: string,
-  redis: Redis,
-  config: { apiKey: string }
+  redis: Redis | null,
+  config: { apiKey: string; baseUrl: string; model: string }
 ): Promise<QuestionResult> {
   const session = await getSession(redis, sessionId);
   if (!session) {
@@ -60,8 +60,8 @@ export async function startInterview(
 export async function processAnswer(
   sessionId: string,
   answer: string,
-  redis: Redis,
-  config: { apiKey: string }
+  redis: Redis | null,
+  config: { apiKey: string; baseUrl: string; model: string }
 ): Promise<{
   evaluation: EvaluationResult;
   coach: CoachResult;

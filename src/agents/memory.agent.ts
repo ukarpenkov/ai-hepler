@@ -7,7 +7,7 @@ export async function memoryAgent(params: {
   sessionId: string;
   evaluation: EvaluationResult;
   questionTopic: string;
-  redis: Redis;
+  redis: Redis | null;
 }): Promise<AgentOutput> {
   const { sessionId, evaluation, questionTopic, redis } = params;
 

@@ -3,7 +3,7 @@ import { getSession } from "../storage/session-store.js";
 
 export async function fetchWeakTopicsTool(params: {
   sessionId: string;
-  redis: Redis;
+  redis: Redis | null;
 }): Promise<string[]> {
   const { sessionId, redis } = params;
 
