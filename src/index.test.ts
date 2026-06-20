@@ -8,7 +8,9 @@ describe("index", () => {
     expect(mod.evaluatorAgent).toBeDefined();
     expect(mod.coachAgent).toBeDefined();
     expect(mod.memoryAgent).toBeDefined();
-    expect(mod.orchestrator).toBeDefined();
+    expect(mod.parseJob).toBeDefined();
+    expect(mod.startInterview).toBeDefined();
+    expect(mod.processAnswer).toBeDefined();
   });
 
   it("exports tools", async () => {

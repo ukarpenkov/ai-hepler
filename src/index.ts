@@ -2,8 +2,8 @@ import { jobParserAgent } from "./agents/job-parser.agent.js";
 import { interviewerAgent } from "./agents/interviewer.agent.js";
 import { evaluatorAgent } from "./agents/evaluator.agent.js";
 import { coachAgent } from "./agents/coach.agent.js";
-import memoryAgent from "./agents/memory.agent.js";
-import orchestrator from "./agents/orchestrator.js";
+import { memoryAgent } from "./agents/memory.agent.js";
+import { parseJob, startInterview, processAnswer } from "./agents/orchestrator.js";
 
 import { parseJobDescriptionTool } from "./tools/parse-job-description.tool.js";
 import { generateQuestionTool } from "./tools/generate-question.tool.js";
@@ -25,7 +25,9 @@ export {
   evaluatorAgent,
   coachAgent,
   memoryAgent,
-  orchestrator,
+  parseJob,
+  startInterview,
+  processAnswer,
   parseJobDescriptionTool,
   generateQuestionTool,
   evaluateAnswerTool,
