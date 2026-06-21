@@ -1,13 +1,13 @@
 import "dotenv/config";
 
-const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+const apiKey = process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY;
 
-if (!deepseekApiKey) {
-  throw new Error("DEEPSEEK_API_KEY environment variable is required");
+if (!apiKey) {
+  throw new Error("OPENROUTER_API_KEY or DEEPSEEK_API_KEY environment variable is required");
 }
 
 const config = {
-  deepseekApiKey,
+  apiKey,
   llmBaseUrl: process.env.LLM_BASE_URL || "https://api.deepseek.com",
   llmModel: process.env.LLM_MODEL || "deepseek-chat",
   redisUrl: process.env.REDIS_URL || undefined,

@@ -25,7 +25,7 @@ export async function jobRoutes(app: FastifyInstance) {
     }
 
     const session = await createSession(app.redis);
-    const llmConfig = { apiKey: config.deepseekApiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
+    const llmConfig = { apiKey: config.apiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
     const jobProfile = await parseJob(sanitized, session.id, app.redis, llmConfig);
 
     return { sessionId: session.id, jobProfile };

@@ -12,11 +12,19 @@ describe("config", () => {
     process.env = originalEnv;
   });
 
-  it("returns deepseekApiKey from DEEPSEEK_API_KEY", async () => {
-    process.env.DEEPSEEK_API_KEY = "test-key";
+  it("returns apiKey from OPENROUTER_API_KEY", async () => {
+    process.env.OPENROUTER_API_KEY = "openrouter-key";
 
     const { default: cfg } = await import("../../config.js");
-    expect(cfg.deepseekApiKey).toBe("test-key");
+    expect(cfg.apiKey).toBe("openrouter-key");
+  });
+
+  it("returns apiKey from DEEPSEEK_API_KEY when OPENROUTER_API_KEY not set", async () => {
+    delete process.env.OPENROUTER_API_KEY;
+    process.env.DEEPSEEK_API_KEY = "deepseek-key";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.apiKey).toBe("deepseek-key");
   });
 
   it("returns default llmBaseUrl", async () => {
@@ -49,11 +57,12 @@ describe("config", () => {
     expect(cfg.redisUrl).toBe("redis://custom:6380");
   });
 
-  it("throws when DEEPSEEK_API_KEY is missing", async () => {
+  it("throws when both API keys are missing", async () => {
+    delete process.env.OPENROUTER_API_KEY;
     delete process.env.DEEPSEEK_API_KEY;
 
     await expect(import("../../config.js")).rejects.toThrow(
-      "DEEPSEEK_API_KEY environment variable is required"
+      "OPENROUTER_API_KEY or DEEPSEEK_API_KEY environment variable is required"
     );
   });
 });
