@@ -10,10 +10,10 @@ interface HeaderProps {
 
 export default function Header({ isSidebarOpen, onMenuToggle }: HeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] glass border-b border-[var(--border)] px-6 py-4 flex justify-between items-center">
-      <div className="flex items-center gap-3">
+    <header className="fixed top-0 left-0 right-0 z-[100] glass border-b border-[var(--border)] px-3 py-3 md:px-6 md:py-4 flex justify-between items-center">
+      <div className="flex items-center gap-2 md:gap-3">
         <BurgerMenu isOpen={isSidebarOpen} onClick={onMenuToggle} />
-        <svg width="44" height="44" viewBox="0 0 797 802" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="44" height="44" viewBox="0 0 797 802" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 md:w-11 md:h-11">
           <path d="M398 18C610 18 783 191 783 402C783 613 610 786 398 786C309 786 222 770.5 155 720.5L73 760C58 769 41 755 46 737L68 652C39 592 22 525 22 452C22 211 196 18 398 18Z" fill="url(#paint0_linear)" />
           <path d="M320 380C379.647 380 428 331.647 428 272C428 212.353 379.647 164 320 164C260.353 164 212 212.353 212 272C212 331.647 260.353 380 320 380Z" fill="#F4F4F4" />
           <path d="M116 545C116 474 173 417 244 417H368C439 417 496 474 496 545V605C496 644 464 675 425 675H187C148 675 116 644 116 605V545Z" fill="#F4F4F4" />
@@ -30,7 +30,7 @@ export default function Header({ isSidebarOpen, onMenuToggle }: HeaderProps) {
           HireChat
         </span>
       </div>
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-3 md:gap-5">
         <ThemeToggle />
       </div>
     </header>
