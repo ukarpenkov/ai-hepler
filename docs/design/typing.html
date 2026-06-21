@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: monospace;
+        }
+
+        .typing {
+            color: #fff;
+            font-size: 32px;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid #fff;
+            width: 0;
+            animation:
+                typing 2s steps(6, end) infinite,
+                blink .7s step-end infinite;
+        }
+
+        @keyframes typing {
+            0% {
+                width: 0;
+            }
+
+            40% {
+                width: 6ch;
+            }
+
+            80% {
+                width: 6ch;
+            }
+
+            100% {
+                width: 0;
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="typing">Typing</div>
+
+</body>
+
+</html>

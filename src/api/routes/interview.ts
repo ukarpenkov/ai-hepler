@@ -19,8 +19,13 @@ export async function interviewRoutes(app: FastifyInstance) {
     }
 
     const llmConfig = { apiKey: config.apiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
-    const question = await startInterview(sessionId, app.redis, llmConfig);
-    return { question };
+    try {
+      const question = await startInterview(sessionId, app.redis, llmConfig);
+      return { question };
+    } catch (e) {
+      request.log.error(e, "startInterview failed");
+      return reply.status(500).send({ error: "Failed to start interview. Please try again." });
+    }
   });
 
   app.post("/interview/answer", async (request, reply) => {
@@ -50,7 +55,12 @@ export async function interviewRoutes(app: FastifyInstance) {
     }
 
     const llmConfig = { apiKey: config.apiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
-    const result = await processAnswer(sessionId, sanitized, app.redis, llmConfig);
-    return result;
+    try {
+      const result = await processAnswer(sessionId, sanitized, app.redis, llmConfig);
+      return result;
+    } catch (e) {
+      request.log.error(e, "processAnswer failed");
+      return reply.status(500).send({ error: "Failed to process answer. Please try again." });
+    }
   });
 }

@@ -5,6 +5,7 @@ import type { QuestionResult, EvaluationResult, CoachResult } from "@/lib/types"
 import { sendAnswer } from "@/lib/api";
 import MessageBubble from "./MessageBubble";
 import FeedbackCard from "./FeedbackCard";
+import TypingIndicator from "./TypingIndicator";
 import CustomScrollbar from "./CustomScrollbar";
 
 const TOTAL_QUESTIONS = 10;
@@ -129,6 +130,7 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
             />
           );
         })}
+        {isLoading && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </CustomScrollbar>
 

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview - Результаты</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: rgba(255, 255, 255, 0.7);
+            --text-primary: #1a1a1a;
+            --text-secondary: #6b7280;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --border: rgba(255, 255, 255, 0.3);
+            --shadow: rgba(0, 0, 0, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: rgba(30, 41, 59, 0.7);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #818cf8;
+            --accent-hover: #6366f1;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.3);
+            --glass-bg: rgba(30, 41, 59, 0.6);
+            --success: #34d399;
+            --success-bg: rgba(52, 211, 153, 0.1);
+            --danger: #f87171;
+            --danger-bg: rgba(248, 113, 113, 0.1);
+            --warning: #fbbf24;
+            --warning-bg: rgba(251, 191, 36, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.15;
+            top: -200px;
+            right: -200px;
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+            opacity: 0.1;
+            bottom: -200px;
+            left: -200px;
+            border-radius: 50%;
+            animation: float 25s infinite ease-in-out reverse;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle::before {
+            content: '☀️';
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            content: '🌙';
+            left: 34px;
+        }
+
+        [data-theme="dark"] .theme-toggle::after {
+            left: 31px;
+        }
+
+        .burger-menu {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .burger-menu:hover {
+            background: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .burger-menu span {
+            width: 20px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .burger-menu.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .burger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .burger-menu.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid var(--border);
+            padding: 100px 20px 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 99;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .session-item {
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .session-item:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .session-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .session-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .session-item:hover .session-date {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 30px 50px;
+        }
+
+        .success-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-banner h2 {
+            color: var(--success);
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px var(--shadow);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px var(--shadow);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-value.best {
+            background: linear-gradient(135deg, var(--success), #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-value.worst {
+            background: linear-gradient(135deg, var(--danger), #f87171);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .questions-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .question-btn {
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .question-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .question-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .question-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .question-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .score-display {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .score-value {
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .score-max {
+            font-size: 24px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title.strengths {
+            color: var(--success);
+        }
+
+        .section-title.weaknesses {
+            color: var(--danger);
+        }
+
+        .section-title.recommendation {
+            color: var(--accent);
+        }
+
+        .section-title.analysis {
+            color: var(--warning);
+        }
+
+        .section-title.improved {
+            color: var(--success);
+        }
+
+        .section-title.tips {
+            color: var(--accent);
+        }
+
+        .section-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .section-content ul {
+            list-style-position: inside;
+            margin-left: 10px;
+        }
+
+        .section-content li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+
+        .section-content p {
+            margin-bottom: 12px;
+        }
+
+        .section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 98;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .main-content {
+                padding: 80px 15px 30px;
+            }
+
+            .question-card {
+                padding: 25px 20px;
+            }
+
+            .score-value {
+                font-size: 48px;
+            }
+
+            .stat-value {
+                font-size: 36px;
+            }
+
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+
+            .back-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <span>AI Interview</span>
+        </div>
+        <div class="header-controls">
+            <div class="theme-toggle" onclick="toggleTheme()"></div>
+            <div class="burger-menu" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">История сессий</div>
+        <div class="session-item">
+            <div class="session-title">Frontend Developer</div>
+            <div class="session-date">22 июня 2026</div>
+        </div>
+        <div class="session-item">
+            <div class="session-title">Product Manager</div>
+            <div class="session-date">21 июня 2026</div>
+        </div>
+        <div class="session-item">
+            <div class="session-title">UX Designer</div>
+            <div class="session-date">20 июня 2026</div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="main-content">
+        <div class="success-banner">
+            <h2>Интервью завершено! Все 10 вопросов задано.</h2>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">6.1</div>
+                <div class="stat-label">Средний балл</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value best">7</div>
+                <div class="stat-label">Лучший</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value worst">5</div>
+                <div class="stat-label">Худший</div>
+            </div>
+        </div>
+
+        <div class="questions-nav">
+            <button class="question-btn active" onclick="showQuestion(1)">Вопрос 1</button>
+            <button class="question-btn" onclick="showQuestion(2)">Вопрос 2</button>
+            <button class="question-btn" onclick="showQuestion(3)">Вопрос 3</button>
+            <button class="question-btn" onclick="showQuestion(4)">Вопрос 4</button>
+            <button class="question-btn" onclick="showQuestion(5)">Вопрос 5</button>
+            <button class="question-btn" onclick="showQuestion(6)">Вопрос 6</button>
+            <button class="question-btn" onclick="showQuestion(7)">Вопрос 7</button>
+            <button class="question-btn" onclick="showQuestion(8)">Вопрос 8</button>
+            <button class="question-btn" onclick="showQuestion(9)">Вопрос 9</button>
+            <button class="question-btn" onclick="showQuestion(10)">Вопрос 10</button>
+        </div>
+
+        <div id="questionContent"></div>
+    </div>
+
+    <button class="back-btn" onclick="goBack()" title="Вернуться">←</button>
+
+    <script>
+        const questionsData = [
+            {
+                number: 1,
+                score: 6,
+                strengths: [
+                    "Правильное разделение REST (для аутентификации и управления) и WebSocket (для потоковой передачи данных) — соответствует лучшим практикам для real-time GIS",
+                    "Упомянуто кэширование на React и виртуализация карт — ключевые техники для производительности UI при большом количестве геоданных",
+                    "Использование pgx и пулов соединений для Go — корректный подход к работе с PostgreSQL",
+                    "Указан GitLab CI/CD с тестированием, сборкой и деплоем — базовая структура пайплайна верна"
+                ],
+                weaknesses: [
+                    "Ответ слишком краткий и поверхностный: нет деталей обработки состояний загрузки/ошибок (например, Suspense, ErrorBoundary, статусы WebSocket)",
+                    "Отсутствует архитектура компонентов React: как организованы хуки, контексты, слои (data layer, view layer), нет упоминания Redux/Zustand или RTK Query",
+                    "Ни слова про UX/UI: нет адаптации под разные экраны, нет про PWA (хотя skill указан), нет описания лоадеров, оптимистичного UI, fallback-интерфейсов",
+                    "Упоминание Docker Swarm неоправданно: в задании указан Docker Compose, а не Swarm, что может сигнализировать о невнимательном чтении",
+                    "Не раскрыта синхронизация исторических данных через REST + WebSocket: как подгружаются старые данные при старте, как мержатся с новыми",
+                    "Отсутствует конкретика по CI/CD: нет stages (lint, test, build, deploy), нет описания переменных окружения, Swagger упомянут как тесты, но не как генерация документации"
+                ],
+                recommendation: "Рекомендуется доработать ответ, добавив: (1) детальную структуру React-компонентов с разделением на контейнеры/презентации, (2) обработку всех состояний (loading/empty/error/partial data) через кастомные хуки или библиотеку, (3) стратегию кэширования и обновления карты при stream-данных (например, useWebSocket + useRef для leaflet), (4) четкое разделение CI/CD на этапы с использованием GitLab CI variables и deployment в Docker Compose через registry. Также стоит объяснить, как именно тестируется Swagger-спецификация (например, через pytest + schemathesis или новую утилиту Swagger Inspector в пайплайне).",
+                analysis: "Оценка 6/10 отражает базовое понимание технологий, но не глубину архитектурного мышления, необходимую для middle-разработчика. Ключевые пробелы: (1) отсутствие детальной обработки состояний (загрузка, ошибка, пустое состояние, reconnect WebSocket); (2) неописанная структура React-компонентов и слоев данных; (3) игнорирование UX/UI (адаптивность, PWA, индикаторы); (4) невнимательность к требованиям (Docker Compose вместо Swarm); (5) поверхностное описание синхронизации исторических/реальных данных. Middle-инженер должен продемонстрировать системный подход: как компоненты обмениваются данными, как обрабатываются граничные случаи, как обеспечивается производительность при тысячах точек на карте.",
+                improved: "Архитектура решения:\n\n1. **Разделение API**: REST (Go + chi/gin) для аутентификации (JWT), управления сессиями, CRUD исторических данных и метаданных (границы слоев, стили). WebSocket (gorilla/websocket) для стриминга обновлений геоданных в реальном времени (GeoJSON features). При загрузке приложения REST запрашивает «слепок» текущих данных за последние N минут, затем WebSocket подписывается на инкрементальные обновления. Мерж данных на фронте: хук `useGeoData` использует useReducer + Zustand для атомарного добавления/обновления/удаления точек.\n\n2. **Обработка состояний загрузки и ошибок**:\n   - React: компонент-обертка `<GeoDataProvider>` с ErrorBoundary, Suspense (React.lazy для карты).\n   - Для WebSocket: автомат состояний (connecting, connected, disconnected, error) через useReducer. При разрыве — exponential backoff до 5 попыток, затем показ fallback «Соединение потеряно. Авто-восстановление…».\n   - Для REST: RTK Query с встроенными статусами (isLoading, isError, data) и retry-логикой.\n   - UX: скелетон-лоадеры для исторических данных; для real-time — индикатор «живого» соединения (зеленая точка). При пустом результате — сообщение «Нет данных в выбранном диапазоне».\n\n3. **Производительность**:\n   - Виртуализация через React-Leaflet + canvasLayer для отрисовки >10k точек (избегаем DOM-узлов).\n   - Кэширование: Service Worker (Workbox) для статики, браузерный кэш для tiles карты, Zustand persist для истории (localStorage).\n   - Throttle обновлений карты (requestAnimationFrame) при частых WebSocket-сообщениях (>30/сек).\n   - Go backend: pgx с пулом соединений, batch-обработка вставок (COPY из stdin), индексы на spatial (PostGIS) и временные поля.\n\n4. **UX/UI**:\n   - Адаптивность: mobile-first, карта на всю ширину, панель управления (слои, таймлайн) — выезжающая drawer.\n   - PWA: манифест, offline fallback (показ последнего кэшированного среза), уведомления при reconnect.\n   - Optimistic UI: при выборе исторического периода — моментальный сдвиг на карте, затем подгрузка.\n   - Доступность: клавиатурная навигация, ARIA-метки для кнопок на карте.\n\n5. **CI/CD (GitLab)**:\n   - stages: `lint` (ESLint, golangci-lint), `test` (Jest + React Testing Library, Go unit + integration с Swagger-тестами на основе spec), `build` (Docker multi-stage, образы ~50MB), `deploy` (Docker Compose на staging/prod, переменные из CI variables, deploy via docker-compose up -d, healthcheck после деплоя).\n   - Swagger: генерация из Go-кода (swaggo), в CI валидация spec + тесты что ответы соответствуют spec.\n   - Безопасность: сканирование уязвимостей (trivy) после сборки.",
+                tips: [
+                    "**Детализируйте состояния и граничные случаи**: На собеседовании middle ожидают не просто перечисление технологий, а описание поведения при ошибках сети, перезагрузке WebSocket, конфликте данных. Нарисуйте диаграмму состояний (state machine) для WebSocket и покажите, как React-компоненты реагируют на каждое состояние (Suspense, ErrorBoundary, fallback UI).",
+                    "**Связывайте реальное время и историю**: Обязательно объясните, как приложение «знает», какие данные уже загружены. Упомяните стратегии: инкрементальные обновления (CRDT), дедупликация по ID на фронте, lazy-load исторических «кусков» по мере панорамирования карты (viewport-based fetching). Это покажет глубокое понимание GIS-паттернов.",
+                    "**Не игнорируйте требования к инфраструктуре**: Если в задании указан Docker Compose — не предлагайте Swarm/Kubernetes без объяснения, почему это лучше. В CI/CD акцент делайте не на «сборка и деплой», а на качество: линтеры, типы, тесты по Swagger spec, интеграционные тесты с реальным PostgreSQL в Docker. Покажите, что вы заботитесь о воспроизводимости и безопасности (не храните секреты в коде)."
+                ]
+            }
+        ];
+
+        let currentQuestion = 1;
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const burger = document.querySelector('.burger-menu');
+            const overlay = document.getElementById('overlay');
+
+            sidebar.classList.toggle('active');
+            burger.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function showQuestion(num) {
+            currentQuestion = num;
+
+            document.querySelectorAll('.question-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx + 1 === num);
+            });
+
+            const question = questionsData[0];
+            const content = document.getElementById('questionContent');
+
+            content.innerHTML = `
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-title">Вопрос ${question.number} / 10</div>
+                        <div class="score-display">
+                            <div class="score-value">${question.score}</div>
+                            <div class="score-max">/ 10</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title strengths">Сильные стороны</div>
+                        <div class="section-content">
+                            <ul>
+                                ${question.strengths.map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title weaknesses">Слабые стороны</div>
+                        <div class="section-content">
+                            <ul>
+                                ${question.weaknesses.map(w => `<li>${w}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title recommendation">Рекомендация</div>
+                        <div class="section-content">
+                            <p>${question.recommendation}</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title analysis">Разбор ответа</div>
+                        <div class="section-content">
+                            <p>${question.analysis}</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title improved">Улучшенный ответ</div>
+                        <div class="section-content">
+                            <p style="white-space: pre-wrap;">${question.improved}</p>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title tips">Советы</div>
+                        <div class="section-content">
+                            <ul>
+                                ${question.tips.map(t => `<li>${t}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function goBack() {
+            if (confirm('Вернуться на главную страницу?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        showQuestion(1);
+    </script>
+</body>
+
+</html>
