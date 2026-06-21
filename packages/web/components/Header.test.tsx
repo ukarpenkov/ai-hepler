@@ -18,16 +18,18 @@ vi.mock("./BurgerMenu", () => ({
   ),
 }));
 
+
+
 describe("Header", () => {
   it("renders without errors", () => {
     render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />);
-    expect(screen.getByText("AI Interview")).toBeDefined();
+    expect(screen.getByText("HireChat")).toBeDefined();
   });
 
-  it("displays logo and text", () => {
+  it("displays logo SVG and text", () => {
     render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />);
-    expect(screen.getByText("AI")).toBeDefined();
-    expect(screen.getByText("AI Interview")).toBeDefined();
+    expect(document.querySelector("svg")).toBeDefined();
+    expect(screen.getByText("HireChat")).toBeDefined();
   });
 
   it("contains ThemeToggle and BurgerMenu", () => {

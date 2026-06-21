@@ -5,12 +5,12 @@ import JobInputForm from "./JobInputForm";
 describe("JobInputForm", () => {
   it("renders without errors", () => {
     render(<JobInputForm onSubmit={() => {}} isLoading={false} />);
-    expect(screen.getByText("AI Interview Simulator")).toBeDefined();
+    expect(screen.getByText("Вставте текст вакансии.")).toBeDefined();
   });
 
   it("displays heading and textarea", () => {
     render(<JobInputForm onSubmit={() => {}} isLoading={false} />);
-    expect(screen.getByText("AI Interview Simulator")).toBeDefined();
+    expect(screen.getByText("Вставте текст вакансии.")).toBeDefined();
     expect(
       screen.getByPlaceholderText("Вставьте текст вакансии...")
     ).toBeDefined();

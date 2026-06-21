@@ -28,17 +28,25 @@ describe("ThemeToggle", () => {
 
   it("toggles theme on click", () => {
     render(<ThemeToggle />);
-    const button = screen.getByLabelText("Toggle theme");
-    fireEvent.click(button);
+    const toggle = screen.getByLabelText("Toggle theme");
+    fireEvent.click(toggle);
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
-    fireEvent.click(button);
+    fireEvent.click(toggle);
     expect(document.documentElement.getAttribute("data-theme")).toBe("light");
   });
 
   it("saves theme to localStorage", () => {
     render(<ThemeToggle />);
-    const button = screen.getByLabelText("Toggle theme");
-    fireEvent.click(button);
+    const toggle = screen.getByLabelText("Toggle theme");
+    fireEvent.click(toggle);
     expect(localStorage.getItem("theme")).toBe("dark");
+  });
+
+  it("applies dark class when theme is dark", () => {
+    render(<ThemeToggle />);
+    const toggle = screen.getByLabelText("Toggle theme");
+    expect(toggle.className).not.toContain("theme-switch--dark");
+    fireEvent.click(toggle);
+    expect(toggle.className).toContain("theme-switch--dark");
   });
 });

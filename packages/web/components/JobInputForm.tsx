@@ -12,8 +12,8 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
 
   return (
     <div className="animate-slide-up">
-      <h1 className="text-[42px] font-bold text-center mb-10 bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
-        AI Interview Simulator
+      <h1 className="text-[30px] font-bold text-center mb-10 bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
+        Вставте текст вакансии.
       </h1>
       <div className="relative mb-8">
         <textarea

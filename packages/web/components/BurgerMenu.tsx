@@ -10,13 +10,13 @@ export default function BurgerMenu({ isOpen, onClick }: BurgerMenuProps) {
     <button
       onClick={onClick}
       aria-label="Toggle menu"
-      className="relative w-[34px] h-[34px] cursor-pointer bg-transparent border-none p-0"
+      className="relative w-[28px] h-[28px] cursor-pointer bg-transparent border-none p-0"
     >
       <svg
         fill="none"
         viewBox="0 0 50 50"
-        height="34"
-        width="34"
+        height="28"
+        width="28"
         className="block"
       >
         <path
