@@ -1,14 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { parseJob, startInterview } from "@/lib/api";
-import JobUpload from "@/components/JobUpload";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import JobInputForm from "@/components/JobInputForm";
+import BackgroundEffects from "@/components/BackgroundEffects";
+
+interface Session {
+  id: string;
+  title: string;
+  date: string;
+}
 
 export default function Home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [sessions, setSessions] = useState<Session[]>([]);
+
+  useEffect(() => {
+    fetch("/api/sessions")
+      .then((res) => res.json())
+      .then(setSessions)
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (text: string) => {
     setIsLoading(true);
@@ -34,16 +52,25 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-3xl font-bold text-center mb-8">AI Interview Simulator</h1>
-
-        <JobUpload onSubmit={handleSubmit} isLoading={isLoading} />
-
-        {error && (
-          <p className="mt-4 text-red-500 text-center">{error}</p>
-        )}
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      <BackgroundEffects />
+      <Header
+        isSidebarOpen={isSidebarOpen}
+        onMenuToggle={() => setIsSidebarOpen((prev) => !prev)}
+      />
+      <Sidebar isOpen={isSidebarOpen} sessions={sessions} />
+      <main
+        className={`pt-[100px] px-5 transition-all duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          isSidebarOpen ? "ml-80" : "ml-0"
+        }`}
+      >
+        <div className="max-w-[800px] mx-auto">
+          <JobInputForm onSubmit={handleSubmit} isLoading={isLoading} />
+          {error && (
+            <p className="mt-4 text-red-500 text-center">{error}</p>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
