@@ -2,6 +2,14 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import Header from "./Header";
 
+const mockPush = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
+
 vi.mock("./ThemeToggle", () => ({
   default: () => <div data-testid="theme-toggle" />,
 }));
@@ -17,8 +25,6 @@ vi.mock("./BurgerMenu", () => ({
     <button data-testid="burger-menu" data-is-open={isOpen} onClick={onClick} />
   ),
 }));
-
-
 
 describe("Header", () => {
   it("renders without errors", () => {

@@ -9,14 +9,6 @@ vi.mock("@/lib/api", () => ({
   sendAnswer: (...args: unknown[]) => mockSendAnswer(...args),
 }));
 
-vi.mock("./ProgressBar", () => ({
-  default: ({ current, total }: { current: number; total: number }) => (
-    <div data-testid="progress-bar">
-      Вопрос {current} из {total}
-    </div>
-  ),
-}));
-
 Element.prototype.scrollIntoView = vi.fn();
 
 const mockQuestion: QuestionResult = {
@@ -45,9 +37,9 @@ describe("ChatWindow", () => {
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
 
-    const textarea = screen.getByPlaceholderText("Введите ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Меня зовут Иван" } });
-    fireEvent.click(screen.getByText("Отправить"));
+    fireEvent.keyDown(textarea, { key: "Enter" });
 
     await waitFor(() => {
       expect(screen.getByText("Меня зовут Иван")).toBeDefined();
@@ -73,9 +65,9 @@ describe("ChatWindow", () => {
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
 
-    const textarea = screen.getByPlaceholderText("Введите ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Мой ответ" } });
-    fireEvent.click(screen.getByText("Отправить"));
+    fireEvent.keyDown(textarea, { key: "Enter" });
 
     await waitFor(() => {
       expect(screen.getByText("Добавьте примеры")).toBeDefined();
@@ -90,16 +82,22 @@ describe("ChatWindow", () => {
       nextQuestion: { question: "Следующий", topic: "Техническое", difficulty: "medium" },
     });
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+    const onProgressChange = vi.fn();
 
-    expect(screen.getByText("Вопрос 1 из 10")).toBeDefined();
+    render(
+      <ChatWindow
+        sessionId="test-id"
+        initialQuestion={mockQuestion}
+        onProgressChange={onProgressChange}
+      />
+    );
 
-    const textarea = screen.getByPlaceholderText("Введите ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Ответ" } });
-    fireEvent.click(screen.getByText("Отправить"));
+    fireEvent.keyDown(textarea, { key: "Enter" });
 
     await waitFor(() => {
-      expect(screen.getByText("Вопрос 2 из 10")).toBeDefined();
+      expect(onProgressChange).toHaveBeenCalledWith(2, 10);
     });
   });
 });

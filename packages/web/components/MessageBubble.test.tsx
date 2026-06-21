@@ -6,14 +6,14 @@ describe("MessageBubble", () => {
   it("renders user message on the right", () => {
     const { container } = render(<MessageBubble role="user" content="Hello" />);
     const wrapper = container.firstChild as HTMLElement;
-    expect(wrapper.className).toContain("justify-end");
+    expect(wrapper.className).toContain("self-end");
     expect(screen.getByText("Hello")).toBeDefined();
   });
 
   it("renders assistant message on the left", () => {
     const { container } = render(<MessageBubble role="assistant" content="Hi there" />);
     const wrapper = container.firstChild as HTMLElement;
-    expect(wrapper.className).toContain("justify-start");
+    expect(wrapper.className).toContain("self-start");
     expect(screen.getByText("Hi there")).toBeDefined();
   });
 

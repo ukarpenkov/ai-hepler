@@ -21,6 +21,14 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("@/components/Header", () => ({
+  default: () => <div data-testid="header" />,
+}));
+
+vi.mock("@/components/Sidebar", () => ({
+  default: () => <div data-testid="sidebar" />,
+}));
+
 vi.mock("@/components/ChatWindow", () => ({
   default: ({ sessionId }: { sessionId: string }) => (
     <div data-testid="chat-window">ChatWindow: {sessionId}</div>
@@ -31,5 +39,10 @@ describe("InterviewPage", () => {
   it("renders ChatWindow", () => {
     render(<InterviewPage />);
     expect(screen.getByTestId("chat-window")).toBeDefined();
+  });
+
+  it("renders Header", () => {
+    render(<InterviewPage />);
+    expect(screen.getByTestId("header")).toBeDefined();
   });
 });

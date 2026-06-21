@@ -4,22 +4,39 @@ interface MessageBubbleProps {
   timestamp?: string;
 }
 
+function getCurrentTime() {
+  const now = new Date();
+  return now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
+}
+
 export default function MessageBubble({ role, content, timestamp }: MessageBubbleProps) {
   const isUser = role === "user";
+  const time = timestamp || getCurrentTime();
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
+    <div className={`flex gap-3 max-w-[75%] animate-[messageIn_0.4s_ease] ${isUser ? "self-end flex-row-reverse" : "self-start"}`}>
       <div
-        className={`max-w-[70%] px-4 py-2 rounded-lg ${
-          isUser ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-900"
+        className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 shadow-[0_4px_12px_var(--shadow)] ${
+          isUser
+            ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white"
+            : "bg-gradient-to-br from-primary to-pink-500 text-white"
         }`}
       >
-        <p className="whitespace-pre-wrap">{content}</p>
-        {timestamp && (
-          <p className={`text-xs mt-1 ${isUser ? "text-blue-200" : "text-gray-500"}`}>
-            {timestamp}
-          </p>
-        )}
+        {isUser ? "" : ""}
+      </div>
+      <div>
+        <div
+          className={`px-3.5 py-3.5 rounded-2xl text-[15px] leading-[1.5] backdrop-blur-[10px] border border-[var(--border)] shadow-[0_4px_15px_var(--shadow)] ${
+            isUser
+              ? "bg-gradient-to-br from-primary to-pink-500 text-white border-none rounded-tr-[4px]"
+              : "bg-[var(--msg-ai)] text-content-primary rounded-tl-[4px]"
+          }`}
+        >
+          <p className="whitespace-pre-wrap">{content}</p>
+        </div>
+        <p className={`text-[11px] text-content-secondary mt-1.5 px-2 ${isUser ? "text-right" : ""}`}>
+          {time}
+        </p>
       </div>
     </div>
   );
