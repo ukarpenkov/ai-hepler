@@ -1,8 +1,12 @@
 node_modules
-dist
-coverage
-.env
-.env.local
 .git
+.env
+dist
+.next
+frontend
+docs
+*.md
 *.log
+coverage
+.env.local
 .DS_Store

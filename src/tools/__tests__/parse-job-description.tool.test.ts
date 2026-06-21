@@ -41,7 +41,7 @@ describe("parseJobDescriptionTool", () => {
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 
-    await expect(parseJobDescriptionTool("test", testConfig)).rejects.toThrow("Invalid JSON in LLM response");
+    await expect(parseJobDescriptionTool("test", testConfig)).rejects.toThrow("No JSON found in LLM response");
   });
 
   it("throws on HTTP error", async () => {
