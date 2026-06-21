@@ -28,7 +28,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`${inter.className} min-h-screen bg-gray-50 text-gray-900`}>
+      <body className={inter.className}>
         {children}
       </body>
     </html>

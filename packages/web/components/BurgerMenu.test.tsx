@@ -15,11 +15,26 @@ describe("BurgerMenu", () => {
     expect(handleClick).toHaveBeenCalledOnce();
   });
 
-  it("applies active classes when isOpen=true", () => {
+  it("renders SVG with three paths", () => {
+    const { container } = render(<BurgerMenu isOpen={false} onClick={() => {}} />);
+    const paths = container.querySelectorAll("path");
+    expect(paths.length).toBe(3);
+  });
+
+  it("applies open animation styles when isOpen=true", () => {
     const { container } = render(<BurgerMenu isOpen={true} onClick={() => {}} />);
-    const spans = container.querySelectorAll("span");
-    expect(spans[0].className).toContain("rotate-45");
-    expect(spans[1].className).toContain("opacity-0");
-    expect(spans[2].className).toContain("-rotate-45");
+    const paths = container.querySelectorAll("path");
+    expect(paths[0].getAttribute("stroke")).toContain("primary");
+    expect(paths[0].getAttribute("style")).toContain("rotateZ(45deg)");
+    expect(paths[1].getAttribute("style")).toContain("stroke-dashoffset: 40");
+    expect(paths[2].getAttribute("style")).toContain("rotateZ(-45deg)");
+  });
+
+  it("applies closed animation styles when isOpen=false", () => {
+    const { container } = render(<BurgerMenu isOpen={false} onClick={() => {}} />);
+    const paths = container.querySelectorAll("path");
+    expect(paths[0].getAttribute("style")).toContain("stroke-dashoffset: 25");
+    expect(paths[1].getAttribute("style")).toContain("stroke-dashoffset: 0");
+    expect(paths[2].getAttribute("style")).toContain("stroke-dashoffset: 60");
   });
 });

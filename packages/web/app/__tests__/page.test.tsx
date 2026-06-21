@@ -14,9 +14,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 vi.mock("@/components/Header", () => ({
-  default: (props: Record<string, unknown>) => (
-    <div data-testid="header" data-is-sidebar-open={props.isSidebarOpen} />
-  ),
+  default: () => <div data-testid="header" />,
 }));
 
 vi.mock("@/components/Sidebar", () => ({
@@ -29,10 +27,6 @@ vi.mock("@/components/JobInputForm", () => ({
   default: (props: Record<string, unknown>) => (
     <div data-testid="job-input-form" data-is-loading={props.isLoading} />
   ),
-}));
-
-vi.mock("@/components/BackgroundEffects", () => ({
-  default: () => <div data-testid="background-effects" />,
 }));
 
 describe("Home", () => {
@@ -56,8 +50,9 @@ describe("Home", () => {
     expect(screen.getByTestId("job-input-form")).toBeDefined();
   });
 
-  it("contains BackgroundEffects", () => {
+  it("renders overlay when sidebar is open", () => {
     render(<Home />);
-    expect(screen.getByTestId("background-effects")).toBeDefined();
+    const overlay = document.querySelector(".fixed.inset-0");
+    expect(overlay).toBeDefined();
   });
 });

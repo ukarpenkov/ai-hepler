@@ -25,9 +25,9 @@ describe("Sidebar", () => {
       <Sidebar isOpen={true} sessions={sessions} />
     );
     const aside = container.querySelector("aside")!;
-    expect(aside.className).toContain("left-0");
+    expect(aside.className).toContain("translate-x-0");
 
     rerender(<Sidebar isOpen={false} sessions={sessions} />);
-    expect(aside.className).toContain("-left-80");
+    expect(aside.className).toContain("-translate-x-full");
   });
 });
