@@ -10,3 +10,4 @@ coverage/
 out
 packages/web/.next
 packages/web/.env.example
+mimocode.json

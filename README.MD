@@ -79,31 +79,45 @@ npm run dev:web
 
 ## Деплой
 
+### URLs
+
+| Сервис | URL |
+|--------|-----|
+| **Backend** | https://interview-sim-606232140580.us-central1.run.app |
+| **Frontend** | https://interview-sim-frontend-606232140580.us-central1.run.app |
+
 ### Backend (Cloud Run)
 
 ```bash
-# Сборка и деплой
-docker build -t gcr.io/$PROJECT_ID/interview-sim .
-docker push gcr.io/$PROJECT_ID/interview-sim
-gcloud run deploy interview-sim --image gcr.io/$PROJECT_ID/interview-sim
+# Авторизация и настройка проекта
+gcloud auth login
+gcloud config set project project-045dea81-cef3-4b7e-a28
+
+# Включение API
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com
+
+# Создание secrets
+echo "YOUR_DEEPSEEK_KEY" | gcloud secrets create deepseek-api-key --data-file=-
+gcloud secrets add-iam-policy-binding deepseek-api-key \
+  --member="serviceAccount:606232140580-compute@developer.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+
+# Деплой
+gcloud run deploy interview-sim \
+  --source . \
+  --region us-central1 \
+  --set-secrets "DEEPSEEK_API_KEY=deepseek-api-key:latest"
 ```
 
-### Frontend (Vercel)
-
-1. Подключи GitHub репозиторий к Vercel
-2. Укажи Root Directory: `packages/web`
-3. Build Command: `npm run build`
-4. Добавь переменную `NEXT_PUBLIC_API_URL`
-
-### Secrets Management
+### Frontend (Cloud Run)
 
 ```bash
-# Создание secrets
-echo "YOUR_API_KEY" | gcloud secrets create openrouter-api-key --data-file=-
-
-# Использование в Cloud Run
-gcloud run deploy interview-sim \
-  --set-secrets "OPENROUTER_API_KEY=openrouter-api-key:latest"
+cd packages/web
+gcloud run deploy interview-sim-frontend \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --port 3000
 ```
 
 Подробнее: `docs/deployment/`

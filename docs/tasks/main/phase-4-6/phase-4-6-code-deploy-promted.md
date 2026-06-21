@@ -871,16 +871,171 @@ README должен быть на русском языке, Markdown форма
    - src/types/index.ts (типы)
 
 10. Напиши финальный отчёт в docs/reports/final-checklist.md с чеклистом:
-    - [ ] typecheck — 0 errors
-    - [ ] lint — 0 warnings
-    - [ ] test — все зелёные
-    - [ ] 5 агентов подключены
-    - [ ] 5 tools используются
-    - [ ] Security features работают
-    - [ ] Dockerfile создан
-    - [ ] cloudbuild.yaml создан
-    - [ ] README обновлён
-    - [ ] Frontend готов к деплою
+     - [ ] typecheck — 0 errors
+     - [ ] lint — 0 warnings
+     - [ ] test — все зелёные
+     - [ ] 5 агентов подключены
+     - [ ] 5 tools используются
+     - [ ] Security features работают
+     - [ ] Dockerfile создан
+     - [ ] cloudbuild.yaml создан
+     - [ ] README обновлён
+     - [ ] Frontend готов к деплою
 
 Все пункты должны быть отмечены как ✅.
+```
+
+---
+
+## Шаг 17 — Деплой Backend на Cloud Run
+
+**Статус:** Выполнено
+
+> **Общие правила (действуют для КАЖДОГО шага):**
+> 1. Язык кода — TypeScript.
+> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
+> 3. Не коммить автоматически — жди подтверждения.
+> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
+> 5. Файлы структуры: `src/` — исходники бэкенда.
+> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
+> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
+> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
+> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase6-step-<N>.md`.
+
+**Промт:**
+
+```
+Задеплой Backend на Google Cloud Run.
+
+Действия:
+
+1. Проверь что Google Cloud SDK установлен:
+   gcloud --version
+   Если не установлен — установи: https://cloud.google.com/sdk/docs/install
+
+2. Авторизуйся в Google Cloud:
+   gcloud auth login
+   gcloud config set project YOUR_PROJECT_ID
+
+3. Включи необходимые API:
+   gcloud services enable run.googleapis.com
+   gcloud services enable artifactregistry.googleapis.com
+   gcloud services enable cloudbuild.googleapis.com
+
+4. Создай secrets в Google Cloud:
+   echo "YOUR_OPENROUTER_API_KEY" | gcloud secrets create openrouter-api-key --data-file=-
+   echo "redis://YOUR_REDIS_URL:6379" | gcloud secrets create redis-url --data-file=-
+
+5. Собери Docker образ локально (для проверки):
+   docker build -t interview-sim .
+   docker run -p 3001:3001 -e OPENROUTER_API_KEY=test interview-sim
+
+6. Задеплой на Cloud Run:
+   gcloud run deploy interview-sim \
+     --source . \
+     --platform managed \
+     --region us-central1 \
+     --allow-unauthenticated \
+     --port 3001 \
+     --memory 512Mi \
+     --cpu 1 \
+     --max-instances 10 \
+     --set-secrets "OPENROUTER_API_KEY=openrouter-api-key:latest,REDIS_URL=redis-url:latest"
+
+7. Получи URL сервиса:
+   gcloud run services describe interview-sim --region us-central1 --format 'value(status.url)'
+
+8. Сохрани URL в файл docs/deployment/backend-url.txt
+
+9. Проверь что backend отвечает:
+   curl -X POST <URL>/job/parse -H "Content-Type: application/json" -d '{"text":"Frontend developer React TypeScript"}'
+
+10. Напиши отчёт в docs/reports/ с именем YYYY-MM-DD-phase6-deploy.md:
+    - URL сервиса
+    - Статус деплоя
+    - Результаты smoke test
+```
+
+---
+
+## Шаг 18 — Деплой Frontend и получение финального URL
+
+**Статус:** Выполнено
+
+> **Общие правила (действуют для КАЖДОГО шага):**
+> 1. Язык кода — TypeScript.
+> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
+> 3. Не коммить автоматически — жди подтверждения.
+> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
+> 5. Файлы структуры: `src/` — исходники бэкенда.
+> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
+> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
+> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
+> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase6-step-<N>.md`.
+
+**Промт:**
+
+```
+Задеплой Frontend на Vercel и настрой связь с Backend.
+
+Действия:
+
+1. Убедись что Backend URL сохранён из шага 17
+
+2. Обнови packages/web/.env.production:
+   NEXT_PUBLIC_API_URL=<BACKEND_URL>
+
+3. Обнови packages/web/lib/api.ts если necesario:
+   - Убедись что API_BASE читает NEXT_PUBLIC_API_URL
+   - Добавь fallback на localhost:3001 для dev
+
+4. Проверь что frontend собирается:
+   cd packages/web && npm run build
+
+5. Деплой на Vercel:
+   a) Установи Vercel CLI:
+      npm i -g vercel
+
+   b) Авторизуйся:
+      vercel login
+
+   c) Задеплой из packages/web:
+      cd packages/web && vercel --prod
+
+   d) Следуй инструкциям CLI:
+      - Set up and deploy? Y
+      - Which scope? (выбери аккаунт)
+      - Link to existing project? N
+      - Project name: interview-sim-frontend
+      - Directory: ./
+      - Override settings? N
+
+   e) Добавь переменную окружения:
+      vercel env add NEXT_PUBLIC_API_URL production
+      Вставь Backend URL
+
+6. Получи Vercel URL:
+   vercel inspect --url
+
+7. Сохрани URL в файл docs/deployment/frontend-url.txt
+
+8. Проверь что frontend работает:
+   curl <VERCEL_URL>
+
+9. Проверь что frontend общается с backend:
+   Открой <VERCEL_URL> в браузере
+   Вставь текст вакансии
+   Убедись что получаешь вопрос
+
+10. Напиши финальный отчёт в docs/reports/final-deployment.md:
+    - Backend URL: <BACKEND_URL>
+    - Frontend URL: <FRONTEND_URL>
+    - Статус деплоя
+    - Smoke test результаты
+
+11. Обнови README.md секцию "Деплой":
+    - Backend: <BACKEND_URL>
+    - Frontend: <FRONTEND_URL>
 ```

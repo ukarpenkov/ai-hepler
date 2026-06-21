@@ -15,7 +15,18 @@ export const server = Fastify({ logger: true });
 server.decorate("redis", redis);
 
 await server.register(cors, {
-  origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+  origin: (origin, callback) => {
+    const allowed = [
+      "http://localhost:3000",
+      "https://interview-sim-frontend-606232140580.us-central1.run.app",
+      process.env.CORS_ORIGIN,
+    ].filter(Boolean);
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"), false);
+    }
+  },
 });
 
 await server.register(helmet);
