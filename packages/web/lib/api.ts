@@ -9,8 +9,8 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Unknown error" }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+    const error = await response.json().catch(() => ({ error: "Unknown error" }));
+    throw new Error(error.error || `HTTP ${response.status}`);
   }
 
   return response.json();

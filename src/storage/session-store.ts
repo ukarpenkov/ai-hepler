@@ -88,6 +88,27 @@ export async function updateSession(
   entry.data = { ...entry.data, ...data, updatedAt: new Date().toISOString() };
 }
 
+export async function listSessions(client: Redis | null): Promise<Pick<SessionData, "id" | "jobProfile" | "createdAt">[]> {
+  if (client) {
+    const keys = await client.keys("session:*");
+    if (keys.length === 0) return [];
+    const values = await client.mget(keys);
+    return values
+      .filter(Boolean)
+      .map((raw) => {
+        const s = JSON.parse(raw!) as SessionData;
+        return { id: s.id, jobProfile: s.jobProfile, createdAt: s.createdAt };
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  const now = Date.now();
+  return Array.from(memoryStore.entries())
+    .filter(([, e]) => now <= e.expiresAt)
+    .map(([, e]) => ({ id: e.data.id, jobProfile: e.data.jobProfile, createdAt: e.data.createdAt }))
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
 export async function deleteSession(client: Redis | null, id: string): Promise<void> {
   if (client) {
     await client.del(`session:${id}`);

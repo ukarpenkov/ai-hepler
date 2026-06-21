@@ -85,7 +85,7 @@ describe("API client", () => {
   it("throws on HTTP error", async () => {
     mockFetch.mockResolvedValue({
       ok: false,
-      json: () => Promise.resolve({ message: "Not found" }),
+      json: () => Promise.resolve({ error: "Not found" }),
     });
 
     await expect(getSession("bad")).rejects.toThrow("Not found");

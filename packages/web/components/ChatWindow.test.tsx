@@ -78,7 +78,7 @@ describe("ChatWindow", () => {
     fireEvent.click(screen.getByText("Отправить"));
 
     await waitFor(() => {
-      expect(screen.getByText("Отличный ответ")).toBeDefined();
+      expect(screen.getByText("Добавьте примеры")).toBeDefined();
     });
   });
 

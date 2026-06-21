@@ -19,7 +19,7 @@ export default function Home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
 
@@ -35,8 +35,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/sessions")
-      .then((res) => res.json())
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    fetch(`${apiBase}/sessions`)
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
       .then(setSessions)
       .catch(() => {});
   }, []);

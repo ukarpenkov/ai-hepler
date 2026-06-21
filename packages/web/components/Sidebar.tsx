@@ -1,5 +1,7 @@
 "use client";
 
+import CustomScrollbar from "./CustomScrollbar";
+
 interface Session {
   id: string;
   title: string;
@@ -14,10 +16,11 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, sessions }: SidebarProps) {
   return (
     <aside
-      className={`fixed top-0 left-0 w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[72px] px-5 pb-5 overflow-y-auto transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+      className={`fixed top-0 left-0 w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[72px] px-5 pb-5 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
+      <CustomScrollbar className="h-full overflow-y-auto">
         <div className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-5 px-2.5">
           История сессий
         </div>
@@ -32,6 +35,7 @@ export default function Sidebar({ isOpen, sessions }: SidebarProps) {
             </div>
           ))}
         </div>
-      </aside>
+      </CustomScrollbar>
+    </aside>
   );
 }

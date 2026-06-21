@@ -2,13 +2,13 @@
 
 import { useState, useCallback } from "react";
 
-function getInitialTheme(): "light" | "dark" {
+function readTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
-  return (document.documentElement.getAttribute("data-theme") as "light" | "dark") || "light";
+  return (localStorage.getItem("theme") as "light" | "dark") || "light";
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
+  const [theme, setTheme] = useState<"light" | "dark">(readTheme);
 
   const toggle = useCallback(() => {
     setTheme((prev) => {
@@ -23,6 +23,7 @@ export default function ThemeToggle() {
 
   return (
     <div
+      suppressHydrationWarning
       className={`theme-switch ${isDark ? "theme-switch--dark" : ""}`}
       onClick={toggle}
       role="button"

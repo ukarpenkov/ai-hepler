@@ -13,7 +13,7 @@ describe("JobUpload", () => {
   it("button is disabled when text is empty", () => {
     render(<JobUpload onSubmit={vi.fn()} isLoading={false} />);
 
-    const button = screen.getByText("Начать интервью");
+    const button = screen.getByRole("button", { name: /Начать интервью/ });
     expect(button).toBeDisabled();
   });
 
@@ -23,7 +23,7 @@ describe("JobUpload", () => {
     const textarea = screen.getByPlaceholderText("Вставьте текст вакансии...");
     fireEvent.change(textarea, { target: { value: "a".repeat(50) } });
 
-    const button = screen.getByText("Начать интервью");
+    const button = screen.getByRole("button", { name: /Начать интервью/ });
     expect(button).not.toBeDisabled();
   });
 
@@ -34,7 +34,7 @@ describe("JobUpload", () => {
     const textarea = screen.getByPlaceholderText("Вставьте текст вакансии...");
     fireEvent.change(textarea, { target: { value: "a".repeat(50) } });
 
-    const button = screen.getByText("Начать интервью");
+    const button = screen.getByRole("button", { name: /Начать интервью/ });
     fireEvent.click(button);
 
     expect(onSubmit).toHaveBeenCalledWith("a".repeat(50));

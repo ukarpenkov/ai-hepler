@@ -6,6 +6,7 @@ import { sendAnswer } from "@/lib/api";
 import MessageBubble from "./MessageBubble";
 import FeedbackCard from "./FeedbackCard";
 import ProgressBar from "./ProgressBar";
+import CustomScrollbar from "./CustomScrollbar";
 
 const TOTAL_QUESTIONS = 10;
 
@@ -104,7 +105,7 @@ export default function ChatWindow({ sessionId, initialQuestion }: ChatWindowPro
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <CustomScrollbar className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, i) => {
           if (msg.role === "feedback" && msg.evaluation && msg.coach) {
             return (
@@ -132,11 +133,11 @@ export default function ChatWindow({ sessionId, initialQuestion }: ChatWindowPro
           );
         })}
         <div ref={messagesEndRef} />
-      </div>
+      </CustomScrollbar>
 
       <div className="border-t p-4">
         {isFinished ? (
-          <div className="max-h-[60vh] overflow-y-auto space-y-4">
+          <CustomScrollbar className="max-h-[60vh] overflow-y-auto space-y-4">
             <div className="text-center text-lg font-semibold text-green-700 mb-4">
               Интервью завершено! Все {TOTAL_QUESTIONS} вопросов задано.
             </div>
@@ -173,7 +174,7 @@ export default function ChatWindow({ sessionId, initialQuestion }: ChatWindowPro
                 <FeedbackCard evaluation={fb.evaluation} coach={fb.coach} />
               </div>
             ))}
-          </div>
+          </CustomScrollbar>
         ) : (
           <div className="flex gap-2">
             <textarea
