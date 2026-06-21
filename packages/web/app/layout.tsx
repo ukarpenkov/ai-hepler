@@ -9,13 +9,25 @@ export const metadata: Metadata = {
   description: "Practice interviews with AI",
 };
 
+const themeScript = `
+(function() {
+  try {
+    var theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch(e) {}
+})()
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className={`${inter.className} min-h-screen bg-gray-50 text-gray-900`}>
         {children}
       </body>
