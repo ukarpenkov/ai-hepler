@@ -26,7 +26,7 @@ export default function Header({ isSidebarOpen, onMenuToggle }: HeaderProps) {
             </linearGradient>
           </defs>
         </svg>
-        <span className="text-xl font-semibold text-content-primary">
+        <span className="text-xl font-semibold text-content-primary hidden md:inline">
           HireChat
         </span>
       </div>

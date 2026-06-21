@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { parseJob, startInterview } from "@/lib/api";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import JobInputForm from "@/components/JobInputForm";
+
+const MOBILE_BREAKPOINT = 768;
 
 interface Session {
   id: string;
@@ -18,7 +20,19 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+      if (mobile) setIsSidebarOpen(false);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     fetch("/api/sessions")
@@ -26,6 +40,10 @@ export default function Home() {
       .then(setSessions)
       .catch(() => {});
   }, []);
+
+  const closeSidebar = useCallback(() => {
+    if (isMobile) setIsSidebarOpen(false);
+  }, [isMobile]);
 
   const handleSubmit = async (text: string) => {
     setIsLoading(true);
@@ -54,6 +72,12 @@ export default function Home() {
     <>
       <Header isSidebarOpen={isSidebarOpen} onMenuToggle={() => setIsSidebarOpen((prev) => !prev)} />
       <Sidebar isOpen={isSidebarOpen} sessions={sessions} />
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-[98] transition-opacity duration-300"
+          onClick={closeSidebar}
+        />
+      )}
       <div className="max-w-[800px] w-[90%] p-10 glass rounded-[24px] relative z-[1] animate-slide-up shadow-glass">
         <JobInputForm onSubmit={handleSubmit} isLoading={isLoading} />
         {error && (
