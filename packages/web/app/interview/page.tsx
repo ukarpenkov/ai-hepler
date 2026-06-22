@@ -2,7 +2,8 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
-import type { QuestionResult } from "@/lib/types";
+import type { QuestionResult, SessionData } from "@/lib/types";
+import { getSession } from "@/lib/session-store";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import ChatWindow from "@/components/ChatWindow";
@@ -28,6 +29,7 @@ function InterviewContent() {
   const [isMobile, setIsMobile] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [progress, setProgress] = useState({ current: 1, total: 10 });
+  const [sessionData, setSessionData] = useState<SessionData | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -56,6 +58,11 @@ function InterviewContent() {
       router.push("/");
     }
   }, [sessionId, router]);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    getSession(sessionId).then(setSessionData);
+  }, [sessionId]);
 
   const handleClose = useCallback(() => {
     if (confirm("Вы уверены, что хотите завершить интервью?")) {
@@ -101,6 +108,7 @@ function InterviewContent() {
         <ChatWindow
           sessionId={sessionId}
           initialQuestion={initialQuestion}
+          sessionData={sessionData ?? undefined}
           onProgressChange={handleProgressChange}
         />
       </div>

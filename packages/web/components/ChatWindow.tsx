@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import type { QuestionResult, EvaluationResult, CoachResult } from "@/lib/types";
+import type { QuestionResult, EvaluationResult, CoachResult, SessionData } from "@/lib/types";
 import { sendAnswer } from "@/lib/api";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
@@ -28,10 +28,11 @@ interface ChatMessage {
 interface ChatWindowProps {
   sessionId: string;
   initialQuestion: QuestionResult;
+  sessionData?: SessionData;
   onProgressChange?: (current: number, total: number) => void;
 }
 
-export default function ChatWindow({ sessionId, initialQuestion, onProgressChange }: ChatWindowProps) {
+export default function ChatWindow({ sessionId, initialQuestion, sessionData, onProgressChange }: ChatWindowProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",

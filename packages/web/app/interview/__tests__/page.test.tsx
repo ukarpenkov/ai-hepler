@@ -35,6 +35,10 @@ vi.mock("@/components/ChatWindow", () => ({
   ),
 }));
 
+vi.mock("@/lib/session-store", () => ({
+  getSession: vi.fn().mockResolvedValue(null),
+}));
+
 describe("InterviewPage", () => {
   it("renders ChatWindow", () => {
     render(<InterviewPage />);
