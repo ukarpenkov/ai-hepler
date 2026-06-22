@@ -117,26 +117,13 @@ describe("server", () => {
       expect(body.evaluation.score).toBe(7);
     });
 
-    it("GET /session/:id is available", async () => {
-      const { getSession } = await import("../../storage/session-store.js");
-      vi.mocked(getSession).mockResolvedValue({
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        jobProfile: mockJobProfile,
-        history: [],
-        weakSkills: [],
-        createdAt: "2024-01-01T00:00:00.000Z",
-        updatedAt: "2024-01-01T00:00:00.000Z",
-      });
-
+    it("GET /session/:id returns 404 (sessions are client-side now)", async () => {
       const response = await server.inject({
         method: "GET",
         url: "/session/550e8400-e29b-41d4-a716-446655440000",
       });
 
-      expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.payload);
-      expect(body.id).toBe("550e8400-e29b-41d4-a716-446655440000");
-      expect(body.jobProfile.role).toBe("Dev");
+      expect(response.statusCode).toBe(404);
     });
   });
 
