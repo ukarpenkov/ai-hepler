@@ -6,12 +6,20 @@ import type {
   CoachResult,
   MemoryUpdate,
 } from "./types.js";
+import type { InterviewMessage } from "../storage/session-store.js";
 import { jobParserAgent } from "./job-parser.agent.js";
 import { interviewerAgent } from "./interviewer.agent.js";
 import { evaluatorAgent } from "./evaluator.agent.js";
 import { coachAgent } from "./coach.agent.js";
 import { memoryAgent } from "./memory.agent.js";
 import { getSession, updateSession } from "../storage/session-store.js";
+
+export interface StatelessSessionData {
+  sessionId: string;
+  jobProfile: ParsedJob;
+  history: InterviewMessage[];
+  weakSkills: string[];
+}
 
 export async function parseJob(
   text: string,
@@ -122,4 +130,88 @@ export async function processAnswer(
   });
 
   return { evaluation, coach: coachResult, memory: memoryUpdate, nextQuestion };
+}
+
+export async function startInterviewStateless(
+  sessionData: StatelessSessionData,
+  config: { apiKey: string; baseUrl: string; model: string }
+): Promise<{ question: QuestionResult; updatedHistory: InterviewMessage[] }> {
+  const output = await interviewerAgent({
+    input: { sessionId: sessionData.sessionId, content: "" },
+    jobProfile: sessionData.jobProfile,
+    weakSkills: sessionData.weakSkills,
+    previousQuestions: sessionData.history.map((m) => m.content),
+    config,
+  });
+
+  const question: QuestionResult = JSON.parse(output.result);
+  const updatedHistory: InterviewMessage[] = [
+    ...sessionData.history,
+    { role: "assistant", content: output.result, timestamp: new Date().toISOString() },
+  ];
+
+  return { question, updatedHistory };
+}
+
+export async function processAnswerStateless(
+  sessionData: StatelessSessionData,
+  answer: string,
+  config: { apiKey: string; baseUrl: string; model: string }
+): Promise<{
+  evaluation: EvaluationResult;
+  coach: CoachResult;
+  nextQuestion: QuestionResult;
+  updatedHistory: InterviewMessage[];
+  updatedWeakSkills: string[];
+}> {
+  const lastMessage = sessionData.history.filter((m) => m.role === "assistant").pop();
+  const currentQuestion: QuestionResult = lastMessage
+    ? JSON.parse(lastMessage.content)
+    : { question: "", topic: "", difficulty: "easy" };
+
+  const evalOutput = await evaluatorAgent({
+    question: currentQuestion.question,
+    answer,
+    jobProfile: sessionData.jobProfile,
+    config,
+  });
+  const evaluation: EvaluationResult = JSON.parse(evalOutput.result);
+
+  const coachOutput = await coachAgent({
+    question: currentQuestion.question,
+    answer,
+    evaluation,
+    jobProfile: sessionData.jobProfile,
+    config,
+  });
+  const coachResult: CoachResult = JSON.parse(coachOutput.result);
+
+  const updatedWeakSkills = [...sessionData.weakSkills];
+  if (evaluation.score < 5) {
+    if (!updatedWeakSkills.includes(currentQuestion.topic)) {
+      updatedWeakSkills.push(currentQuestion.topic);
+    }
+  } else if (evaluation.score >= 7) {
+    const index = updatedWeakSkills.indexOf(currentQuestion.topic);
+    if (index !== -1) {
+      updatedWeakSkills.splice(index, 1);
+    }
+  }
+
+  const questionOutput = await interviewerAgent({
+    input: { sessionId: sessionData.sessionId, content: "" },
+    jobProfile: sessionData.jobProfile,
+    weakSkills: updatedWeakSkills,
+    previousQuestions: sessionData.history.map((m) => m.content),
+    config,
+  });
+  const nextQuestion: QuestionResult = JSON.parse(questionOutput.result);
+
+  const updatedHistory: InterviewMessage[] = [
+    ...sessionData.history,
+    { role: "user", content: answer, timestamp: new Date().toISOString() },
+    { role: "assistant", content: questionOutput.result, timestamp: new Date().toISOString() },
+  ];
+
+  return { evaluation, coach: coachResult, nextQuestion, updatedHistory, updatedWeakSkills };
 }
