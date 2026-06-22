@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { createSession } from "../../storage/session-store.js";
+import { randomUUID } from "node:crypto";
 import { parseJob } from "../../agents/orchestrator.js";
 import { isValidJobText } from "../../utils/validators.js";
 import { sanitizeJobText } from "../../utils/sanitize.js";
@@ -24,10 +24,10 @@ export async function jobRoutes(app: FastifyInstance) {
       throw e;
     }
 
-    const session = await createSession(app.redis);
+    const tempId = randomUUID();
     const llmConfig = { apiKey: config.apiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
-    const jobProfile = await parseJob(sanitized, session.id, app.redis, llmConfig);
+    const jobProfile = await parseJob(sanitized, tempId, app.redis, llmConfig);
 
-    return { sessionId: session.id, jobProfile };
+    return { jobProfile };
   });
 }

@@ -2,18 +2,12 @@ import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from "vites
 
 process.env.DEEPSEEK_API_KEY = "test-key";
 
-const mockRedisStore = new Map<string, string>();
-
 vi.mock("ioredis", () => {
   return {
     Redis: vi.fn().mockImplementation(() => ({
-      set: vi.fn(async (key: string, value: string) => {
-        mockRedisStore.set(key, value);
-      }),
-      get: vi.fn(async (key: string) => mockRedisStore.get(key) ?? null),
-      del: vi.fn(async (key: string) => {
-        mockRedisStore.delete(key);
-      }),
+      set: vi.fn(async () => {}),
+      get: vi.fn(async () => null),
+      del: vi.fn(async () => {}),
       quit: vi.fn(async () => {}),
     })),
   };
@@ -58,9 +52,6 @@ describe("API integration test", () => {
   beforeAll(() => {
     vi.stubGlobal("fetch", vi.fn(async () => {
       fetchCallCount++;
-      const body = JSON.stringify({
-        choices: [{ message: { content: "" } }],
-      });
 
       if (fetchCallCount === 1) {
         return new Response(JSON.stringify({
@@ -92,7 +83,9 @@ describe("API integration test", () => {
         }), { status: 200, headers: { "Content-Type": "application/json" } });
       }
 
-      return new Response(body, { status: 200, headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: "" } }],
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
     }) as typeof fetch);
   });
 
@@ -101,7 +94,6 @@ describe("API integration test", () => {
   });
 
   beforeEach(() => {
-    mockRedisStore.clear();
     fetchCallCount = 0;
   });
 
@@ -119,19 +111,17 @@ describe("API integration test", () => {
 
     expect(parseResponse.statusCode).toBe(200);
     const parseBody = JSON.parse(parseResponse.payload);
-    expect(parseBody.sessionId).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-    );
     expect(parseBody.jobProfile.role).toBe("Frontend Developer");
     expect(parseBody.jobProfile.level).toBe("middle");
     expect(parseBody.jobProfile.skills).toEqual(["TypeScript", "React", "CSS"]);
 
-    const sessionId = parseBody.sessionId;
+    const jobProfile = parseBody.jobProfile;
+    const sessionId = "550e8400-e29b-41d4-a716-446655440000";
 
     const startResponse = await server.inject({
       method: "POST",
       url: "/interview/start",
-      payload: { sessionId },
+      payload: { sessionId, jobProfile, weakSkills: [], history: [] },
     });
 
     expect(startResponse.statusCode).toBe(200);
@@ -140,12 +130,15 @@ describe("API integration test", () => {
     expect(startBody.question.topic).toBe("TypeScript");
     expect(startBody.question.difficulty).toBe("medium");
 
+    const updatedHistory = startBody.updatedHistory;
+
     const answerResponse = await server.inject({
       method: "POST",
       url: "/interview/answer",
       payload: {
         sessionId,
         answer: "TypeScript interfaces define object shapes, while types are more flexible and support unions and intersections.",
+        sessionData: { jobProfile, history: updatedHistory, weakSkills: [] },
       },
     });
 
@@ -159,17 +152,8 @@ describe("API integration test", () => {
     expect(answerBody.nextQuestion.question).toBe("What are React hooks?");
     expect(answerBody.nextQuestion.topic).toBe("React");
     expect(answerBody.nextQuestion.difficulty).toBe("easy");
-
-    const sessionResponse = await server.inject({
-      method: "GET",
-      url: `/session/${sessionId}`,
-    });
-
-    expect(sessionResponse.statusCode).toBe(200);
-    const sessionBody = JSON.parse(sessionResponse.payload);
-    expect(sessionBody.id).toBe(sessionId);
-    expect(sessionBody.jobProfile.role).toBe("Frontend Developer");
-    expect(sessionBody.history.length).toBeGreaterThan(0);
+    expect(answerBody.updatedHistory).toBeDefined();
+    expect(answerBody.updatedWeakSkills).toBeDefined();
 
     await server.close();
   });

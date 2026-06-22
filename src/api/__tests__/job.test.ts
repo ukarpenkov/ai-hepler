@@ -16,7 +16,6 @@ vi.mock("../../agents/orchestrator.js", () => ({
 }));
 
 const Fastify = (await import("fastify")).default;
-const { createSession } = await import("../../storage/session-store.js");
 const { parseJob } = await import("../../agents/orchestrator.js");
 const { jobRoutes } = await import("../routes/job.js");
 
@@ -35,15 +34,7 @@ describe("POST /job/parse", () => {
     await app.close();
   });
 
-  it("returns 200 with sessionId and jobProfile on valid input", async () => {
-    vi.mocked(createSession).mockResolvedValue({
-      id: "session-123",
-      jobProfile: null,
-      history: [],
-      weakSkills: [],
-      createdAt: "",
-      updatedAt: "",
-    });
+  it("returns 200 with jobProfile on valid input", async () => {
     vi.mocked(parseJob).mockResolvedValue({
       role: "Dev",
       level: "middle",
@@ -60,8 +51,8 @@ describe("POST /job/parse", () => {
 
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.payload);
-    expect(body.sessionId).toBe("session-123");
     expect(body.jobProfile.role).toBe("Dev");
+    expect(body.sessionId).toBeUndefined();
   });
 
   it("returns 400 for empty text", async () => {

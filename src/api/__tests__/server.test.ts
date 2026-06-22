@@ -14,22 +14,14 @@ vi.mock("../../storage/session-store.js", () => ({
 
 vi.mock("../../agents/orchestrator.js", () => ({
   parseJob: vi.fn(),
-  startInterview: vi.fn(),
-  processAnswer: vi.fn(),
+  startInterviewStateless: vi.fn(),
+  processAnswerStateless: vi.fn(),
 }));
 
 const { server } = await import("../server.js");
-const { createSession, getSession } = await import("../../storage/session-store.js");
-const { parseJob, startInterview, processAnswer } = await import("../../agents/orchestrator.js");
+const { parseJob, startInterviewStateless, processAnswerStateless } = await import("../../agents/orchestrator.js");
 
-const mockSession = {
-  id: "550e8400-e29b-41d4-a716-446655440000",
-  jobProfile: { role: "Dev", level: "middle", skills: ["TS"], keywords: [], domain: "web" },
-  history: [],
-  weakSkills: [],
-  createdAt: "2024-01-01T00:00:00.000Z",
-  updatedAt: "2024-01-01T00:00:00.000Z",
-};
+const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], keywords: [], domain: "web" };
 
 describe("server", () => {
   beforeAll(async () => {
@@ -65,14 +57,7 @@ describe("server", () => {
 
   describe("route registration", () => {
     it("POST /job/parse is available", async () => {
-      vi.mocked(createSession).mockResolvedValue(mockSession);
-      vi.mocked(parseJob).mockResolvedValue({
-        role: "Dev",
-        level: "middle",
-        skills: ["TS"],
-        keywords: [],
-        domain: "web",
-      });
+      vi.mocked(parseJob).mockResolvedValue(mockJobProfile);
 
       const response = await server.inject({
         method: "POST",
@@ -82,22 +67,25 @@ describe("server", () => {
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
-      expect(body.sessionId).toBe("550e8400-e29b-41d4-a716-446655440000");
       expect(body.jobProfile.role).toBe("Dev");
+      expect(body.sessionId).toBeUndefined();
     });
 
     it("POST /interview/start is available", async () => {
-      vi.mocked(getSession).mockResolvedValue(mockSession);
-      vi.mocked(startInterview).mockResolvedValue({
-        question: "What is TypeScript?",
-        topic: "TS",
-        difficulty: "medium",
+      vi.mocked(startInterviewStateless).mockResolvedValue({
+        question: { question: "What is TypeScript?", topic: "TS", difficulty: "medium" },
+        updatedHistory: [],
       });
 
       const response = await server.inject({
         method: "POST",
         url: "/interview/start",
-        payload: { sessionId: "550e8400-e29b-41d4-a716-446655440000" },
+        payload: {
+          sessionId: "550e8400-e29b-41d4-a716-446655440000",
+          jobProfile: mockJobProfile,
+          weakSkills: [],
+          history: [],
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -106,12 +94,12 @@ describe("server", () => {
     });
 
     it("POST /interview/answer is available", async () => {
-      vi.mocked(getSession).mockResolvedValue(mockSession);
-      vi.mocked(processAnswer).mockResolvedValue({
+      vi.mocked(processAnswerStateless).mockResolvedValue({
         evaluation: { score: 7, strengths: [], weaknesses: [], recommendation: "" },
         coach: { explanation: "", improvedAnswer: "", tips: [] },
-        memory: { weakSkills: [], answeredTopics: [] },
         nextQuestion: { question: "Q2?", topic: "React", difficulty: "easy" },
+        updatedHistory: [],
+        updatedWeakSkills: [],
       });
 
       const response = await server.inject({
@@ -120,6 +108,7 @@ describe("server", () => {
         payload: {
           sessionId: "550e8400-e29b-41d4-a716-446655440000",
           answer: "TypeScript is a typed superset of JavaScript.",
+          sessionData: { jobProfile: mockJobProfile, history: [], weakSkills: [] },
         },
       });
 
@@ -128,18 +117,13 @@ describe("server", () => {
       expect(body.evaluation.score).toBe(7);
     });
 
-    it("GET /session/:id is available", async () => {
-      vi.mocked(getSession).mockResolvedValue(mockSession);
-
+    it("GET /session/:id returns 404 (sessions are client-side now)", async () => {
       const response = await server.inject({
         method: "GET",
         url: "/session/550e8400-e29b-41d4-a716-446655440000",
       });
 
-      expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.payload);
-      expect(body.id).toBe("550e8400-e29b-41d4-a716-446655440000");
-      expect(body.jobProfile.role).toBe("Dev");
+      expect(response.statusCode).toBe(404);
     });
   });
 

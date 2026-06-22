@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import type { QuestionResult, EvaluationResult, CoachResult } from "@/lib/types";
+import type { QuestionResult, EvaluationResult, CoachResult, SessionData } from "@/lib/types";
+import type { SessionRecord } from "@/lib/session-store";
 import { sendAnswer } from "@/lib/api";
+import { updateSession } from "@/lib/session-store";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
 import CustomScrollbar from "./CustomScrollbar";
@@ -28,10 +30,12 @@ interface ChatMessage {
 interface ChatWindowProps {
   sessionId: string;
   initialQuestion: QuestionResult;
+  sessionData?: SessionData;
   onProgressChange?: (current: number, total: number) => void;
 }
 
-export default function ChatWindow({ sessionId, initialQuestion, onProgressChange }: ChatWindowProps) {
+export default function ChatWindow({ sessionId, initialQuestion, sessionData, onProgressChange }: ChatWindowProps) {
+  const [currentSessionData, setCurrentSessionData] = useState(sessionData);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
@@ -63,7 +67,26 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
     setIsLoading(true);
 
     try {
-      const response = await sendAnswer(sessionId, answer);
+      const response = await sendAnswer(sessionId, answer, {
+        jobProfile: currentSessionData!.jobProfile!,
+        weakSkills: currentSessionData!.weakSkills,
+        history: currentSessionData!.history,
+      });
+
+      await updateSession(sessionId, {
+        history: response.updatedHistory as SessionRecord["history"],
+        weakSkills: response.updatedWeakSkills,
+      });
+
+      setCurrentSessionData((prev) => ({
+        id: prev!.id,
+        jobProfile: prev?.jobProfile ?? null,
+        history: response.updatedHistory as SessionRecord["history"],
+        weakSkills: response.updatedWeakSkills,
+        createdAt: prev!.createdAt,
+        updatedAt: new Date().toISOString(),
+      }));
+
       const nextCount = questionCount + 1;
 
       const feedbackMsg: ChatMessage = {
@@ -103,7 +126,7 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
     } finally {
       setIsLoading(false);
     }
-  }, [currentInput, isLoading, isFinished, sessionId, questionCount]);
+  }, [currentInput, isLoading, isFinished, sessionId, questionCount, currentSessionData]);
 
   const summaryFeedbacks: QuestionFeedback[] = allFeedbacks.map((fb) => ({
     number: fb.questionNum,
