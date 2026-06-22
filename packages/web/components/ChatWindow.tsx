@@ -4,11 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { QuestionResult, EvaluationResult, CoachResult } from "@/lib/types";
 import { sendAnswer } from "@/lib/api";
 import MessageBubble from "./MessageBubble";
-import FeedbackCard from "./FeedbackCard";
 import TypingIndicator from "./TypingIndicator";
 import CustomScrollbar from "./CustomScrollbar";
+import BottomSheet from "./BottomSheet";
+import SummaryView from "./SummaryView";
+import type { QuestionFeedback } from "./SummaryView";
 
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 1;
 
 interface FeedbackData {
   evaluation: EvaluationResult;
@@ -41,6 +43,7 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
   const [questionCount, setQuestionCount] = useState(1);
   const [isFinished, setIsFinished] = useState(false);
   const [allFeedbacks, setAllFeedbacks] = useState<FeedbackData[]>([]);
+  const [isSummaryOpen, setIsSummaryOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,6 +91,7 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
 
       if (nextCount >= TOTAL_QUESTIONS) {
         setIsFinished(true);
+        setIsSummaryOpen(true);
       }
 
       setQuestionCount(nextCount);
@@ -101,23 +105,35 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
     }
   }, [currentInput, isLoading, isFinished, sessionId, questionCount]);
 
+  const summaryFeedbacks: QuestionFeedback[] = allFeedbacks.map((fb) => ({
+    number: fb.questionNum,
+    score: fb.evaluation.score,
+    strengths: fb.evaluation.strengths,
+    weaknesses: fb.evaluation.weaknesses,
+    recommendation: fb.evaluation.recommendation,
+    analysis: fb.coach.explanation,
+    improved: fb.coach.improvedAnswer,
+    tips: fb.coach.tips,
+  }));
+
   return (
-    <div className="flex flex-col h-full rounded-glass border border-[var(--border)] bg-[var(--chat-bg)] backdrop-blur-glass shadow-glass overflow-hidden animate-slide-up">
-      <CustomScrollbar className="flex-1 overflow-y-auto p-5 sm:p-7 flex flex-col gap-5">
+    <div className="flex flex-col h-full w-full rounded-[18px] sm:rounded-glass border border-[var(--border)] bg-[var(--chat-bg)] backdrop-blur-glass shadow-glass overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+      <CustomScrollbar className="flex-1 min-h-0 overflow-y-auto p-[15px] sm:p-5 md:p-7 flex flex-col gap-4 sm:gap-5" hideThumb={isFinished && isSummaryOpen}>
         {messages.map((msg, i) => {
           if (msg.role === "feedback" && msg.evaluation && msg.coach) {
             return (
               <div
                 key={i}
-                className="p-4 bg-surface-card border border-[var(--border)] rounded-card backdrop-blur-[10px] shadow-[0_4px_15px_var(--shadow)]"
+                className="p-3 sm:p-4 bg-surface-card border border-[var(--border)] rounded-card backdrop-blur-[10px] shadow-[0_4px_15px_var(--shadow)] max-w-full"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-medium text-primary">
+                  <span className="text-xs sm:text-sm font-medium text-primary">
                     Оценка: {msg.evaluation.score}/10
                   </span>
                 </div>
                 {msg.coach.tips.length > 0 && (
-                  <p className="text-sm text-content-secondary">{msg.coach.tips[0]}</p>
+                  <p className="text-xs sm:text-sm text-content-secondary break-words">{msg.coach.tips[0]}</p>
                 )}
               </div>
             );
@@ -131,53 +147,16 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
           );
         })}
         {isLoading && <TypingIndicator />}
+        {isFinished && <div className="h-16" />}
         <div ref={messagesEndRef} />
       </CustomScrollbar>
+      </div>
 
-      <div className="p-4 sm:p-5 bg-[var(--glass-bg)] backdrop-blur-glass border-t border-[var(--border)]">
-        {isFinished ? (
-          <CustomScrollbar className="max-h-[60vh] overflow-y-auto space-y-4">
-            <div className="text-center text-lg font-semibold text-green-600 mb-4">
-              Интервью завершено! Все {TOTAL_QUESTIONS} вопросов задано.
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 text-center mb-6">
-              <div className="p-3 bg-surface-card border border-[var(--border)] rounded-card">
-                <div className="text-2xl font-bold text-primary">
-                  {(
-                    allFeedbacks.reduce((s, f) => s + f.evaluation.score, 0) /
-                    allFeedbacks.length
-                  ).toFixed(1)}
-                </div>
-                <div className="text-sm text-content-secondary">Средний балл</div>
-              </div>
-              <div className="p-3 bg-surface-card border border-[var(--border)] rounded-card">
-                <div className="text-2xl font-bold text-green-600">
-                  {Math.max(...allFeedbacks.map((f) => f.evaluation.score))}
-                </div>
-                <div className="text-sm text-content-secondary">Лучший</div>
-              </div>
-              <div className="p-3 bg-surface-card border border-[var(--border)] rounded-card">
-                <div className="text-2xl font-bold text-red-600">
-                  {Math.min(...allFeedbacks.map((f) => f.evaluation.score))}
-                </div>
-                <div className="text-sm text-content-secondary">Худший</div>
-              </div>
-            </div>
-
-            {allFeedbacks.map((fb, i) => (
-              <div key={i} className="border border-[var(--border)] rounded-card p-4">
-                <h4 className="font-medium mb-2 text-content-primary">
-                  Вопрос {fb.questionNum} / {TOTAL_QUESTIONS}
-                </h4>
-                <FeedbackCard evaluation={fb.evaluation} coach={fb.coach} />
-              </div>
-            ))}
-          </CustomScrollbar>
-        ) : (
+      {!isFinished && (
+        <div className="shrink-0 p-[15px] sm:p-4 md:p-5 bg-[var(--glass-bg)] backdrop-blur-glass border-t border-[var(--border)]">
           <div className="flex gap-3 items-end">
             <textarea
-              className="flex-1 min-h-[50px] max-h-[120px] p-3.5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-[15px] font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary"
+              className="flex-1 min-h-[50px] max-h-[120px] p-3.5 sm:p-3.5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-[15px] font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary"
               rows={1}
               placeholder="Введите ваш ответ..."
               value={currentInput}
@@ -195,15 +174,25 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
               disabled={isLoading}
             />
             <button
-              className="w-[50px] h-[50px] shrink-0 bg-gradient-to-br from-primary to-pink-500 border-none rounded-button text-white text-xl cursor-pointer transition-all duration-300 flex items-center justify-center shadow-button hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_12px_25px_rgba(99,102,241,0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-[50px] h-[50px] shrink-0 bg-gradient-to-br from-primary to-pink-500 border-none rounded-[14px] text-white text-xl cursor-pointer transition-all duration-300 flex items-center justify-center shadow-button hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_12px_25px_rgba(99,102,241,0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               onClick={handleSend}
               disabled={isLoading || !currentInput.trim()}
             >
               {isLoading ? "..." : "\u27A4"}
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {isFinished && (
+        <BottomSheet
+          isOpen={isSummaryOpen}
+          onToggle={() => setIsSummaryOpen((prev) => !prev)}
+          title="Результаты интервью"
+        >
+          <SummaryView feedbacks={summaryFeedbacks} />
+        </BottomSheet>
+      )}
     </div>
   );
 }

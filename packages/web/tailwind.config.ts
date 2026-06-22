@@ -41,6 +41,9 @@ const config: Config = {
       animation: {
         "slide-up": "slideUp 0.6s ease",
         float: "float 20s infinite ease-in-out",
+        "slide-up-bottom-sheet": "slideUpBottomSheet 0.3s ease-in-out",
+        "slide-down-bottom-sheet": "slideDownBottomSheet 0.3s ease-in-out",
+        "fade-in-overlay": "fadeInOverlay 0.3s ease",
       },
       keyframes: {
         slideUp: {
@@ -51,6 +54,18 @@ const config: Config = {
           "0%, 100%": { transform: "translate(0, 0) scale(1)" },
           "33%": { transform: "translate(30px, -30px) scale(1.1)" },
           "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+        },
+        slideUpBottomSheet: {
+          from: { transform: "translateY(100%)" },
+          to: { transform: "translateY(0)" },
+        },
+        slideDownBottomSheet: {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(100%)" },
+        },
+        fadeInOverlay: {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
         },
       },
     },

@@ -66,9 +66,12 @@ export default function Header({ isSidebarOpen, onMenuToggle, progress, totalQue
           <button
             onClick={onClose}
             title="Закрыть чат"
-            className="w-10 h-10 flex items-center justify-center bg-surface-card border border-[var(--border)] rounded-card backdrop-blur-[10px] cursor-pointer transition-all duration-300 text-content-primary text-xl font-light hover:bg-red-500 hover:text-white hover:scale-105 hover:rotate-90 hover:border-transparent"
+            className="w-10 h-10 flex items-center justify-center bg-surface-card border border-[var(--border)] rounded-card backdrop-blur-[10px] cursor-pointer transition-all duration-300 text-content-primary hover:bg-red-500 hover:text-white hover:scale-105 hover:rotate-90 hover:border-transparent"
           >
-            &times;
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="1" y1="1" x2="13" y2="13" />
+              <line x1="13" y1="1" x2="1" y2="13" />
+            </svg>
           </button>
         )}
         <ThemeToggle />

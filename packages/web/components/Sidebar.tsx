@@ -16,7 +16,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, sessions }: SidebarProps) {
   return (
     <aside
-      className={`fixed top-0 left-0 w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[84px] px-5 pb-5 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+      className={`fixed top-0 left-0 w-full sm:w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[84px] px-5 pb-5 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >

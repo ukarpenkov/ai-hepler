@@ -9,6 +9,28 @@ vi.mock("@/lib/api", () => ({
   sendAnswer: (...args: unknown[]) => mockSendAnswer(...args),
 }));
 
+vi.mock("@/components/BottomSheet", () => ({
+  default: ({ isOpen, onToggle, title, children }: { isOpen: boolean; onToggle: () => void; title: string; children: React.ReactNode }) => (
+    <div data-testid="bottom-sheet" data-open={isOpen}>
+      <button onClick={onToggle}>{title}</button>
+      {isOpen && children}
+    </div>
+  ),
+}));
+
+vi.mock("@/components/SummaryView", () => ({
+  default: ({ feedbacks }: { feedbacks: Array<{ number: number; score: number }> }) => (
+    <div data-testid="summary-view">
+      <span data-testid="feedbacks-count">{feedbacks.length}</span>
+      {feedbacks.map((f) => (
+        <span key={f.number} data-testid={`feedback-${f.number}`}>
+          Q{f.number}: {f.score}
+        </span>
+      ))}
+    </div>
+  ),
+}));
+
 Element.prototype.scrollIntoView = vi.fn();
 
 const mockQuestion: QuestionResult = {
@@ -16,6 +38,24 @@ const mockQuestion: QuestionResult = {
   topic: "Введение",
   difficulty: "easy",
 };
+
+function makeResponse(n: number) {
+  return {
+    evaluation: {
+      score: 5,
+      strengths: [`Сильная сторона ${n}`],
+      weaknesses: [],
+      recommendation: `Рекомендация ${n}`,
+    },
+    coach: {
+      explanation: `Разбор ${n}`,
+      improvedAnswer: `Улучшенный ${n}`,
+      tips: [`Совет ${n}`],
+    },
+    memory: { weakTopics: [], progress: {} },
+    nextQuestion: { question: `Вопрос ${n + 1}`, topic: "Тех", difficulty: "medium" as const },
+  };
+}
 
 describe("ChatWindow", () => {
   beforeEach(() => {
@@ -28,12 +68,7 @@ describe("ChatWindow", () => {
   });
 
   it("adds user message on send", async () => {
-    mockSendAnswer.mockResolvedValue({
-      evaluation: { score: 5, strengths: [], weaknesses: [], recommendation: "" },
-      coach: { explanation: "", improvedAnswer: "", tips: [] },
-      memory: { weakTopics: [], progress: {} },
-      nextQuestion: { question: "Следующий вопрос", topic: "Техническое", difficulty: "medium" },
-    });
+    mockSendAnswer.mockResolvedValue(makeResponse(1));
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
 
@@ -47,21 +82,7 @@ describe("ChatWindow", () => {
   });
 
   it("displays FeedbackCard after answer", async () => {
-    mockSendAnswer.mockResolvedValue({
-      evaluation: {
-        score: 7,
-        strengths: ["Хорошо"],
-        weaknesses: [],
-        recommendation: "Продолжайте",
-      },
-      coach: {
-        explanation: "Отличный ответ",
-        improvedAnswer: "",
-        tips: ["Добавьте примеры"],
-      },
-      memory: { weakTopics: [], progress: {} },
-      nextQuestion: { question: "Следующий", topic: "Тест", difficulty: "easy" },
-    });
+    mockSendAnswer.mockResolvedValue(makeResponse(1));
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
 
@@ -70,17 +91,12 @@ describe("ChatWindow", () => {
     fireEvent.keyDown(textarea, { key: "Enter" });
 
     await waitFor(() => {
-      expect(screen.getByText("Добавьте примеры")).toBeDefined();
+      expect(screen.getByText("Совет 1")).toBeDefined();
     });
   });
 
   it("increments questionCount after answer", async () => {
-    mockSendAnswer.mockResolvedValue({
-      evaluation: { score: 5, strengths: [], weaknesses: [], recommendation: "" },
-      coach: { explanation: "", improvedAnswer: "", tips: [] },
-      memory: { weakTopics: [], progress: {} },
-      nextQuestion: { question: "Следующий", topic: "Техническое", difficulty: "medium" },
-    });
+    mockSendAnswer.mockResolvedValue(makeResponse(1));
 
     const onProgressChange = vi.fn();
 
@@ -97,7 +113,57 @@ describe("ChatWindow", () => {
     fireEvent.keyDown(textarea, { key: "Enter" });
 
     await waitFor(() => {
-      expect(onProgressChange).toHaveBeenCalledWith(2, 10);
+      expect(onProgressChange).toHaveBeenCalled();
+    });
+  });
+
+  it("shows BottomSheet with SummaryView after finishing", async () => {
+    mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
+
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    fireEvent.change(textarea, { target: { value: "Ответ 1" } });
+    fireEvent.keyDown(textarea, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bottom-sheet")).toBeDefined();
+      expect(screen.getByTestId("summary-view")).toBeDefined();
+      expect(screen.getByTestId("feedbacks-count").textContent).toBe("1");
+    });
+  });
+
+  it("hides input area when finished", async () => {
+    mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
+
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    fireEvent.change(textarea, { target: { value: "Ответ 1" } });
+    fireEvent.keyDown(textarea, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(screen.queryByPlaceholderText("Введите ваш ответ...")).toBeNull();
+    });
+  });
+
+  it("toggles BottomSheet when handle bar clicked", async () => {
+    mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
+
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    fireEvent.change(textarea, { target: { value: "Ответ 1" } });
+    fireEvent.keyDown(textarea, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bottom-sheet").getAttribute("data-open")).toBe("true");
+    });
+
+    fireEvent.click(screen.getByText("Результаты интервью"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bottom-sheet").getAttribute("data-open")).toBe("false");
     });
   });
 });

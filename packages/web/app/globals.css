@@ -9,7 +9,8 @@
 }
 
 html {
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100%;
 }
 
 :root {
@@ -22,6 +23,12 @@ html {
   --border: rgba(255, 255, 255, 0.3);
   --shadow: rgba(0, 0, 0, 0.08);
   --glass-bg: rgba(255, 255, 255, 0.6);
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.1);
   --chat-bg: rgba(245, 247, 250, 0.8);
   --msg-ai: rgba(255, 255, 255, 0.9);
   --msg-user: linear-gradient(135deg, #6366f1, #ec4899);
@@ -38,6 +45,12 @@ html {
   --border: rgba(255, 255, 255, 0.1);
   --shadow: rgba(0, 0, 0, 0.3);
   --glass-bg: rgba(30, 41, 59, 0.6);
+  --success: #34d399;
+  --success-bg: rgba(52, 211, 153, 0.1);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.1);
+  --warning: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.1);
   --chat-bg: rgba(15, 23, 42, 0.8);
   --msg-ai: rgba(30, 41, 59, 0.9);
   --msg-user: linear-gradient(135deg, #6366f1, #ec4899);
@@ -50,12 +63,13 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
 }
 
 body::before {
@@ -176,23 +190,22 @@ body::after {
   background-color: var(--accent);
   transition: background-color 0.1s ease-out;
   pointer-events: all;
-  cursor: initial;
+  cursor: grab;
+}
+
+.custom-scroll-thumb:active {
+  cursor: grabbing;
 }
 
 .custom-scroll-thumb::after {
   content: "";
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: calc(100% + 8px);
   border-radius: 100px;
-  background-color: var(--accent);
-  transition: background-color 0.1s ease-out;
-}
-
-.custom-scroll-thumb:hover::after {
-  background-color: var(--accent-hover);
+  background: transparent;
 }
 
 .scroll-overlay::-webkit-scrollbar {

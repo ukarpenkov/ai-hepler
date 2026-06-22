@@ -97,7 +97,7 @@ function InterviewContent() {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      <div className="fixed top-[80px] left-5 right-5 bottom-5 sm:left-5 sm:right-5 z-[1]">
+      <div className="fixed top-[70px] sm:top-[80px] left-[10px] right-[10px] bottom-[90px] sm:left-5 sm:right-5 sm:bottom-5 z-[1] sm:rounded-glass rounded-[18px]">
         <ChatWindow
           sessionId={sessionId}
           initialQuestion={initialQuestion}

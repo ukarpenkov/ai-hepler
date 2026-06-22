@@ -9,15 +9,16 @@ export default function InterviewLayout({
 }>) {
   useEffect(() => {
     const body = document.body;
-    body.style.overflow = "visible";
     body.style.display = "block";
     body.style.alignItems = "";
     body.style.justifyContent = "";
+    body.style.height = "100vh";
+    body.style.height = "100dvh";
     return () => {
-      body.style.overflow = "";
       body.style.display = "";
       body.style.alignItems = "";
       body.style.justifyContent = "";
+      body.style.height = "";
     };
   }, []);
 
