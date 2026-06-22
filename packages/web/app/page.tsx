@@ -3,6 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { parseJob, startInterview } from "@/lib/api";
+import {
+  createSession,
+  updateSession,
+  listSessions,
+  getSession,
+} from "@/lib/session-store";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import JobInputForm from "@/components/JobInputForm";
@@ -35,13 +41,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-    fetch(`${apiBase}/sessions`)
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(setSessions)
+    listSessions()
+      .then((rows) =>
+        setSessions(
+          rows.map((s) => ({
+            id: s.id,
+            title: s.jobProfile?.title ?? "Новая сессия",
+            date: new Date(s.createdAt).toLocaleDateString("ru-RU"),
+          }))
+        )
+      )
       .catch(() => {});
   }, []);
 
@@ -54,11 +63,17 @@ export default function Home() {
     setError("");
 
     try {
-      const { sessionId } = await parseJob(text);
-      const { question } = await startInterview(sessionId);
+      const { jobProfile } = await parseJob(text);
+      const session = await createSession();
+      await updateSession(session.id, { jobProfile });
+      const { question } = await startInterview(session.id, {
+        jobProfile,
+        weakSkills: [],
+        history: [],
+      });
 
       const params = new URLSearchParams({
-        sessionId,
+        sessionId: session.id,
         question: question.question,
         topic: question.topic,
         difficulty: question.difficulty,
@@ -72,10 +87,49 @@ export default function Home() {
     }
   };
 
+  const handleSessionClick = async (sessionId: string) => {
+    try {
+      const session = await getSession(sessionId);
+      if (!session) return;
+
+      const lastAssistant = [...session.history]
+        .reverse()
+        .find((m) => m.role === "assistant");
+      if (!lastAssistant) return;
+
+      let questionData: { question: string; topic: string; difficulty: string };
+      try {
+        const parsed = JSON.parse(lastAssistant.content);
+        questionData = {
+          question: parsed.question,
+          topic: parsed.topic,
+          difficulty: parsed.difficulty,
+        };
+      } catch {
+        questionData = {
+          question: lastAssistant.content,
+          topic: session.jobProfile?.title ?? "",
+          difficulty: "medium",
+        };
+      }
+
+      const params = new URLSearchParams({
+        sessionId,
+        question: questionData.question,
+        topic: questionData.topic,
+        difficulty: questionData.difficulty,
+      });
+
+      router.push(`/interview?${params.toString()}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Произошла ошибка");
+    }
+  };
+
   return (
     <>
       <Header isSidebarOpen={isSidebarOpen} onMenuToggle={() => setIsSidebarOpen((prev) => !prev)} />
-      <Sidebar isOpen={isSidebarOpen} sessions={sessions} />
+      <Sidebar isOpen={isSidebarOpen} sessions={sessions} onSessionClick={handleSessionClick} />
       {isMobile && isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-[98] transition-opacity duration-300"

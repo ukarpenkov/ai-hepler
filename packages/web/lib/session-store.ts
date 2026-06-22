@@ -1,4 +1,5 @@
 import { openDB, type IDBPDatabase } from "idb";
+import type { ParsedJob } from "./types";
 
 const DB_NAME = "interview-simulator";
 const DB_VERSION = 1;
@@ -6,13 +7,7 @@ const STORE_NAME = "sessions";
 
 interface SessionRecord {
   id: string;
-  jobProfile: {
-    role: string;
-    level: string;
-    skills: string[];
-    keywords: string[];
-    domain: string;
-  } | null;
+  jobProfile: ParsedJob | null;
   history: Array<{
     role: "user" | "assistant";
     content: string;

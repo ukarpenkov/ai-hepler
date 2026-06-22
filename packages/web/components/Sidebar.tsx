@@ -11,9 +11,10 @@ interface Session {
 interface SidebarProps {
   isOpen: boolean;
   sessions: Session[];
+  onSessionClick?: (sessionId: string) => void;
 }
 
-export default function Sidebar({ isOpen, sessions }: SidebarProps) {
+export default function Sidebar({ isOpen, sessions, onSessionClick }: SidebarProps) {
   return (
     <aside
       className={`fixed top-0 left-0 w-full sm:w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[84px] px-5 pb-5 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
@@ -28,6 +29,7 @@ export default function Sidebar({ isOpen, sessions }: SidebarProps) {
           {sessions.map((session) => (
             <div
               key={session.id}
+              onClick={() => onSessionClick?.(session.id)}
               className="p-3.5 px-4 rounded-xl bg-surface-card border border-[var(--border)] cursor-pointer transition-all duration-300 hover:bg-primary hover:text-white hover:translate-x-1.5 hover:shadow-lg hover:shadow-primary/30"
             >
               <div className="text-sm font-medium mb-1">{session.title}</div>
