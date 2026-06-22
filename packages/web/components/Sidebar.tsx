@@ -16,12 +16,12 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, sessions }: SidebarProps) {
   return (
     <aside
-      className={`fixed top-0 left-0 w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[72px] px-5 pb-5 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+      className={`fixed top-0 left-0 w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[84px] px-5 pb-5 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
       <CustomScrollbar className="h-full overflow-y-auto">
-        <div className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-5 px-2.5">
+        <div className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-5 mt-1 px-2.5">
           История сессий
         </div>
         <div className="space-y-2">

@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
+
+const blackOpsOne = localFont({
+  src: "../public/fonts/BlackOpsOne-Regular.ttf",
+  variable: "--font-black-ops-one",
+});
 
 export const metadata: Metadata = {
   title: "HireChat",
@@ -28,7 +34,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={`${inter.className} ${blackOpsOne.variable}`} suppressHydrationWarning>
         {children}
       </body>
     </html>

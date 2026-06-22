@@ -8,6 +8,13 @@ vi.mock("next/font/google", () => ({
   }),
 }));
 
+vi.mock("next/font/local", () => ({
+  default: () => ({
+    className: "black-ops-one",
+    variable: "--font-black-ops-one",
+  }),
+}));
+
 describe("RootLayout", () => {
   it("renders children", () => {
     render(
