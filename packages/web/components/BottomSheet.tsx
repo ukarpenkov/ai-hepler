@@ -84,7 +84,7 @@ export default function BottomSheet({ isOpen, onToggle, title, children }: Botto
       </div>
       {isOpen && (
         <div style={{ height: `calc(100% - ${closedHeight}px)` }}>
-          <CustomScrollbar className="h-full overflow-y-auto">
+          <CustomScrollbar className="h-full">
             <div className="p-[15px] sm:p-[30px]">{children}</div>
           </CustomScrollbar>
         </div>

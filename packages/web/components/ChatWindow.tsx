@@ -119,7 +119,7 @@ export default function ChatWindow({ sessionId, initialQuestion, onProgressChang
   return (
     <div className="flex flex-col h-full w-full rounded-[18px] sm:rounded-glass border border-[var(--border)] bg-[var(--chat-bg)] backdrop-blur-glass shadow-glass overflow-hidden">
       <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-      <CustomScrollbar className="flex-1 min-h-0 overflow-y-auto p-[15px] sm:p-5 md:p-7 flex flex-col gap-4 sm:gap-5" hideThumb={isFinished && isSummaryOpen}>
+      <CustomScrollbar className="flex-1 min-h-0" contentClassName="p-[15px] sm:p-5 md:p-7 flex flex-col gap-4 sm:gap-5" hideThumb={isFinished && isSummaryOpen}>
         {messages.map((msg, i) => {
           if (msg.role === "feedback" && msg.evaluation && msg.coach) {
             return (

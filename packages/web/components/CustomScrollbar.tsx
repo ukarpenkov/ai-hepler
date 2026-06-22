@@ -5,10 +5,11 @@ import { useRef, useCallback, useEffect, useState, type PointerEvent } from "rea
 interface CustomScrollbarProps {
   children: React.ReactNode;
   className?: string;
+  contentClassName?: string;
   hideThumb?: boolean;
 }
 
-export default function CustomScrollbar({ children, className = "", hideThumb = false }: CustomScrollbarProps) {
+export default function CustomScrollbar({ children, className = "", contentClassName = "", hideThumb = false }: CustomScrollbarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [thumbStyle, setThumbStyle] = useState<{ top: number; height: number } | null>(null);
   const isDragging = useRef(false);
@@ -80,8 +81,10 @@ export default function CustomScrollbar({ children, className = "", hideThumb = 
   }, []);
 
   return (
-    <div className={`scroll-overlay ${className}`} ref={containerRef}>
-      {children}
+    <div className={`${className} relative`}>
+      <div className={`scroll-overlay h-full overflow-y-auto ${contentClassName}`} ref={containerRef}>
+        {children}
+      </div>
       {thumbStyle && !hideThumb && (
         <div className="custom-scroll-track">
           <div

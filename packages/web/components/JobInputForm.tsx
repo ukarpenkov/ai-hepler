@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, type PointerEvent } from "react";
 
 interface JobInputFormProps {
   onSubmit: (jobText: string) => void;
@@ -12,6 +12,9 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
   const [error, setError] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [thumbStyle, setThumbStyle] = useState<{ top: number; height: number } | null>(null);
+  const isDragging = useRef(false);
+  const dragStartY = useRef(0);
+  const dragStartScroll = useRef(0);
 
   const autoResize = useCallback(() => {
     const el = textareaRef.current;
@@ -45,6 +48,37 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
     return () => el.removeEventListener("scroll", updateThumb);
   }, [updateThumb]);
 
+  const handleThumbPointerDown = useCallback((e: PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragging.current = true;
+    dragStartY.current = e.clientY;
+    const el = textareaRef.current;
+    if (el) {
+      dragStartScroll.current = el.scrollTop;
+    }
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handleThumbPointerMove = useCallback((e: PointerEvent) => {
+    if (!isDragging.current) return;
+    const el = textareaRef.current;
+    if (!el) return;
+    const { scrollHeight, clientHeight } = el;
+    const trackHeight = clientHeight - 24;
+    const ratio = trackHeight / scrollHeight;
+    const h = Math.max(20, trackHeight * ratio);
+    const maxTop = trackHeight - h;
+    const maxScroll = scrollHeight - clientHeight;
+    const delta = e.clientY - dragStartY.current;
+    const scrollDelta = maxScroll > 0 ? (delta / maxTop) * maxScroll : 0;
+    el.scrollTop = dragStartScroll.current + scrollDelta;
+  }, []);
+
+  const handleThumbPointerUp = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
   const handleSubmit = () => {
     if (jobText.length < 50) {
       setError("Минимум 50 символов");
@@ -75,7 +109,10 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
           <div className="custom-scroll-track">
             <div
               className="custom-scroll-thumb"
-              style={{ top: thumbStyle.top, height: thumbStyle.height }}
+              style={{ top: thumbStyle.top, height: thumbStyle.height, cursor: "grab" }}
+              onPointerDown={handleThumbPointerDown}
+              onPointerMove={handleThumbPointerMove}
+              onPointerUp={handleThumbPointerUp}
             />
           </div>
         )}

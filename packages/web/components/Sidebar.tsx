@@ -20,7 +20,7 @@ export default function Sidebar({ isOpen, sessions }: SidebarProps) {
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <CustomScrollbar className="h-full overflow-y-auto">
+      <CustomScrollbar className="h-full">
         <div className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-5 mt-1 px-2.5">
           История сессий
         </div>
