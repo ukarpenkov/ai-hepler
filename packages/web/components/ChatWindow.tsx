@@ -134,13 +134,12 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
         coach: response.coach,
       };
 
-      const nextQuestionMsg: ChatMessage = {
-        role: "assistant",
-        content: response.nextQuestion.question,
-        topic: response.nextQuestion.topic,
-      };
+      const nextQuestionMsg: ChatMessage | null =
+        nextCount < TOTAL_QUESTIONS
+          ? { role: "assistant", content: response.nextQuestion.question, topic: response.nextQuestion.topic }
+          : null;
 
-      setMessages((prev) => [...prev, feedbackMsg, nextQuestionMsg]);
+      setMessages((prev) => [...prev, feedbackMsg, ...(nextQuestionMsg ? [nextQuestionMsg] : [])]);
 
       setAllFeedbacks((prev) => [
         ...prev,
