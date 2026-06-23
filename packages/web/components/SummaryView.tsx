@@ -11,6 +11,7 @@ export interface QuestionFeedback {
   analysis: string;
   improved: string;
   tips: string[];
+  answer: string;
 }
 
 interface SummaryViewProps {
@@ -148,6 +149,18 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
             <span className="text-[18px] sm:text-2xl font-medium" style={{ color: "var(--text-secondary)" }}>
               / 10
             </span>
+          </div>
+        </div>
+
+        <div className="mb-5 sm:mb-7">
+          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
+            Ваш ответ
+          </h3>
+          <div
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
+          >
+            <p style={{ whiteSpace: "pre-wrap" }}>{active.answer}</p>
           </div>
         </div>
 

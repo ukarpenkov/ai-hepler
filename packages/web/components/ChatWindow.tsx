@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import type { QuestionResult, EvaluationResult, CoachResult, SessionData } from "@/lib/types";
-import type { SessionRecord } from "@/lib/session-store";
+import type { QuestionResult, EvaluationResult, CoachResult } from "@/lib/types";
+import type { SessionRecord, ChatMessage as StoredChatMessage, FeedbackData as StoredFeedbackData } from "@/lib/session-store";
 import { sendAnswer } from "@/lib/api";
 import { updateSession } from "@/lib/session-store";
 import MessageBubble from "./MessageBubble";
@@ -18,6 +18,7 @@ interface FeedbackData {
   evaluation: EvaluationResult;
   coach: CoachResult;
   questionNum: number;
+  answer: string;
 }
 
 interface ChatMessage {
@@ -31,31 +32,73 @@ interface ChatMessage {
 interface ChatWindowProps {
   sessionId: string;
   initialQuestion: QuestionResult;
-  sessionData?: SessionData;
+  sessionData?: SessionRecord;
+  storedChatMessages?: StoredChatMessage[];
+  storedFeedbacks?: StoredFeedbackData[];
   onProgressChange?: (current: number, total: number) => void;
 }
 
-export default function ChatWindow({ sessionId, initialQuestion, sessionData, onProgressChange }: ChatWindowProps) {
-  const [currentSessionData, setCurrentSessionData] = useState(sessionData);
-  const [messages, setMessages] = useState<ChatMessage[]>([
+function buildInitialMessages(
+  initialQuestion: QuestionResult,
+  stored?: StoredChatMessage[]
+): ChatMessage[] {
+  if (stored && stored.length > 0) return stored;
+  return [
     {
       role: "assistant",
       content: initialQuestion.question,
       topic: initialQuestion.topic,
     },
-  ]);
+  ];
+}
+
+function buildInitialFeedbacks(stored?: StoredFeedbackData[]): FeedbackData[] {
+  if (stored && stored.length > 0) return stored;
+  return [];
+}
+
+export default function ChatWindow({
+  sessionId,
+  initialQuestion,
+  sessionData,
+  storedChatMessages,
+  storedFeedbacks,
+  onProgressChange,
+}: ChatWindowProps) {
+  const [currentSessionData, setCurrentSessionData] = useState(sessionData);
+  const [messages, setMessages] = useState<ChatMessage[]>(() =>
+    buildInitialMessages(initialQuestion, storedChatMessages)
+  );
 
   useEffect(() => {
     if (sessionData) {
       setCurrentSessionData(sessionData);
     }
   }, [sessionData]);
+
+  useEffect(() => {
+    if (storedChatMessages && storedChatMessages.length > 0) {
+      setMessages(storedChatMessages);
+    }
+    if (storedFeedbacks && storedFeedbacks.length > 0) {
+      setAllFeedbacks(storedFeedbacks);
+      setQuestionCount(storedFeedbacks.length + 1);
+      setIsSummaryOpen(true);
+    }
+  }, [storedChatMessages, storedFeedbacks]);
+
   const [currentInput, setCurrentInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [questionCount, setQuestionCount] = useState(1);
+  const [questionCount, setQuestionCount] = useState(
+    storedFeedbacks && storedFeedbacks.length > 0
+      ? storedFeedbacks.length + 1
+      : 1
+  );
   const [isFinished, setIsFinished] = useState(false);
-  const [allFeedbacks, setAllFeedbacks] = useState<FeedbackData[]>([]);
-  const [isSummaryOpen, setIsSummaryOpen] = useState(true);
+  const [allFeedbacks, setAllFeedbacks] = useState<FeedbackData[]>(() =>
+    buildInitialFeedbacks(storedFeedbacks)
+  );
+  const [isSummaryOpen, setIsSummaryOpen] = useState(!!(storedFeedbacks && storedFeedbacks.length > 0));
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [inputThumbStyle, setInputThumbStyle] = useState<{ top: number; height: number } | null>(null);
@@ -111,20 +154,6 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
         history: currentSessionData!.history,
       });
 
-      await updateSession(sessionId, {
-        history: response.updatedHistory as SessionRecord["history"],
-        weakSkills: response.updatedWeakSkills,
-      });
-
-      setCurrentSessionData((prev) => ({
-        id: prev!.id,
-        jobProfile: prev?.jobProfile ?? null,
-        history: response.updatedHistory as SessionRecord["history"],
-        weakSkills: response.updatedWeakSkills,
-        createdAt: prev!.createdAt,
-        updatedAt: new Date().toISOString(),
-      }));
-
       const nextCount = questionCount + 1;
 
       const feedbackMsg: ChatMessage = {
@@ -139,16 +168,37 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
           ? { role: "assistant", content: response.nextQuestion.question, topic: response.nextQuestion.topic }
           : null;
 
-      setMessages((prev) => [...prev, feedbackMsg, ...(nextQuestionMsg ? [nextQuestionMsg] : [])]);
+      const userMsg: ChatMessage = { role: "user", content: answer };
 
-      setAllFeedbacks((prev) => [
-        ...prev,
+      const updatedFeedbacks = [
+        ...allFeedbacks,
         {
           evaluation: response.evaluation,
           coach: response.coach,
           questionNum: questionCount,
+          answer,
         },
-      ]);
+      ];
+
+      const updatedMessages = [...messages, userMsg, feedbackMsg, ...(nextQuestionMsg ? [nextQuestionMsg] : [])];
+
+      await updateSession(sessionId, {
+        history: response.updatedHistory as SessionRecord["history"],
+        weakSkills: response.updatedWeakSkills,
+        chatMessages: updatedMessages as StoredChatMessage[],
+        allFeedbacks: updatedFeedbacks as StoredFeedbackData[],
+      });
+
+      setCurrentSessionData((prev) => ({
+        ...prev!,
+        history: response.updatedHistory as SessionRecord["history"],
+        weakSkills: response.updatedWeakSkills,
+        updatedAt: new Date().toISOString(),
+      }));
+
+      setMessages((prev) => [...prev, feedbackMsg, ...(nextQuestionMsg ? [nextQuestionMsg] : [])]);
+
+      setAllFeedbacks(updatedFeedbacks);
 
       if (nextCount >= TOTAL_QUESTIONS) {
         setIsFinished(true);
@@ -176,6 +226,7 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
     analysis: fb.coach.explanation,
     improved: fb.coach.improvedAnswer,
     tips: fb.coach.tips,
+    answer: fb.answer,
   }));
 
   return (

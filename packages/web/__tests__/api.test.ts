@@ -32,13 +32,14 @@ describe("API client", () => {
       json: () => Promise.resolve({ question: {} }),
     });
 
-    await startInterview("s1");
+    const sessionData = { jobProfile: { role: "Dev" } as any, weakSkills: [], history: [] };
+    await startInterview("s1", sessionData);
 
     expect(mockFetch).toHaveBeenCalledWith(
       "http://localhost:3001/interview/start",
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ sessionId: "s1" }),
+        body: JSON.stringify({ sessionId: "s1", jobProfile: sessionData.jobProfile, weakSkills: [], history: [] }),
       })
     );
   });
@@ -55,13 +56,14 @@ describe("API client", () => {
         }),
     });
 
-    await sendAnswer("s1", "my answer");
+    const sessionData = { jobProfile: { role: "Dev" } as any, weakSkills: [], history: [] };
+    await sendAnswer("s1", "my answer", sessionData);
 
     expect(mockFetch).toHaveBeenCalledWith(
       "http://localhost:3001/interview/answer",
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ sessionId: "s1", answer: "my answer" }),
+        body: JSON.stringify({ sessionId: "s1", answer: "my answer", sessionData }),
       })
     );
   });

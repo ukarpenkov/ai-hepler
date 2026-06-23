@@ -9,6 +9,10 @@ vi.mock("@/lib/api", () => ({
   sendAnswer: (...args: unknown[]) => mockSendAnswer(...args),
 }));
 
+vi.mock("@/lib/session-store", () => ({
+  updateSession: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("@/components/BottomSheet", () => ({
   default: ({ isOpen, onToggle, title, children }: { isOpen: boolean; onToggle: () => void; title: string; children: React.ReactNode }) => (
     <div data-testid="bottom-sheet" data-open={isOpen}>

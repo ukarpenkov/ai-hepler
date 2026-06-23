@@ -12,6 +12,7 @@ const mockFeedbacks: QuestionFeedback[] = [
     analysis: "Ответ был хорошим, но не хватало глубины.",
     improved: "Улучшенный ответ: React + TypeScript — мощная комбинация.",
     tips: ["Практикуйтесь в TypeScript"],
+    answer: "Я знаю React и использую его в проектах.",
   },
   {
     number: 2,
@@ -22,6 +23,7 @@ const mockFeedbacks: QuestionFeedback[] = [
     analysis: "Ответ был слишком кратким.",
     improved: "Улучшенный ответ: раскройте тему подробнее.",
     tips: ["Говорите подробнее"],
+    answer: "TypeScript — это типизация для JavaScript.",
   },
 ];
 
@@ -55,6 +57,7 @@ describe("SummaryView", () => {
 
   it("displays all feedback sections for active question", () => {
     render(<SummaryView feedbacks={mockFeedbacks} />);
+    expect(screen.getByText("Ваш ответ")).toBeDefined();
     expect(screen.getByText("Сильные стороны")).toBeDefined();
     expect(screen.getByText("Слабые стороны")).toBeDefined();
     expect(screen.getByText("Рекомендация")).toBeDefined();

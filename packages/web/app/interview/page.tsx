@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
 import type { QuestionResult, SessionData } from "@/lib/types";
+import type { SessionRecord } from "@/lib/session-store";
 import { getSession, listSessions } from "@/lib/session-store";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -29,7 +30,7 @@ function InterviewContent() {
   const [isMobile, setIsMobile] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [progress, setProgress] = useState({ current: 1, total: 10 });
-  const [sessionData, setSessionData] = useState<SessionData | null>(null);
+  const [sessionData, setSessionData] = useState<SessionRecord | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -151,6 +152,8 @@ function InterviewContent() {
           sessionId={sessionId}
           initialQuestion={initialQuestion}
           sessionData={sessionData ?? undefined}
+          storedChatMessages={sessionData?.chatMessages}
+          storedFeedbacks={sessionData?.allFeedbacks}
           onProgressChange={handleProgressChange}
         />
       </div>
