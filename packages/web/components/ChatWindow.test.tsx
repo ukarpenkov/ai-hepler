@@ -43,6 +43,23 @@ const mockQuestion: QuestionResult = {
   difficulty: "easy",
 };
 
+const mockSessionData = {
+  id: "test-id",
+  jobProfile: {
+    role: "Frontend Developer",
+    level: "middle" as const,
+    skills: ["React", "TypeScript"],
+    keywords: ["frontend"],
+    domain: "IT",
+  },
+  history: [],
+  weakSkills: [],
+  chatMessages: [],
+  allFeedbacks: [],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
 function makeResponse(n: number) {
   return {
     evaluation: {
@@ -58,6 +75,11 @@ function makeResponse(n: number) {
     },
     memory: { weakTopics: [], progress: {} },
     nextQuestion: { question: `Вопрос ${n + 1}`, topic: "Тех", difficulty: "medium" as const },
+    updatedHistory: [
+      { role: "assistant", content: "Расскажите о себе", timestamp: new Date().toISOString() },
+      { role: "user", content: `Ответ ${n}`, timestamp: new Date().toISOString() },
+    ],
+    updatedWeakSkills: [],
   };
 }
 
@@ -75,7 +97,7 @@ describe("ChatWindow", () => {
   it("adds user message on send", async () => {
     mockSendAnswer.mockResolvedValue(makeResponse(1));
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
     const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Меня зовут Иван" } });
@@ -89,7 +111,7 @@ describe("ChatWindow", () => {
   it("displays FeedbackCard after answer", async () => {
     mockSendAnswer.mockResolvedValue(makeResponse(1));
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
     const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Мой ответ" } });
@@ -109,6 +131,7 @@ describe("ChatWindow", () => {
       <ChatWindow
         sessionId="test-id"
         initialQuestion={mockQuestion}
+        sessionData={mockSessionData}
         onProgressChange={onProgressChange}
       />
     );
@@ -125,7 +148,7 @@ describe("ChatWindow", () => {
   it("shows BottomSheet with SummaryView after finishing", async () => {
     mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
     const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Ответ 1" } });
@@ -138,24 +161,25 @@ describe("ChatWindow", () => {
     });
   });
 
-  it("hides input area when finished", async () => {
+  it("disables input area when finished", async () => {
     mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
     const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Ответ 1" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
     await waitFor(() => {
-      expect(screen.queryByPlaceholderText("Введите ваш ответ...")).toBeNull();
+      const disabledTextarea = screen.getByPlaceholderText("Интервью завершено");
+      expect(disabledTextarea).toBeDisabled();
     });
   });
 
   it("toggles BottomSheet when handle bar clicked", async () => {
     mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
     const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
     fireEvent.change(textarea, { target: { value: "Ответ 1" } });

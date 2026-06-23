@@ -83,6 +83,9 @@ export default function ChatWindow({
     if (storedFeedbacks && storedFeedbacks.length > 0) {
       setAllFeedbacks(storedFeedbacks);
       setQuestionCount(storedFeedbacks.length + 1);
+      if (storedFeedbacks.length >= TOTAL_QUESTIONS) {
+        setIsFinished(true);
+      }
       setIsSummaryOpen(true);
     }
   }, [storedChatMessages, storedFeedbacks]);
@@ -266,73 +269,71 @@ export default function ChatWindow({
       </CustomScrollbar>
       </div>
 
-      {!isFinished && (
-        <div className="shrink-0 p-4 sm:p-5 md:p-6 bg-[var(--glass-bg)] backdrop-blur-glass border-t border-[var(--border)]">
-          <div className="flex gap-3 items-end">
-            <div className="relative flex-1 min-h-[50px] max-h-[120px]">
-              <textarea
-                ref={textareaRef}
-                className="scrollbar-hidden w-full h-full min-h-[50px] max-h-[120px] p-4 pr-5 sm:p-4 sm:pr-5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-[15px] font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary"
-                rows={1}
-                placeholder="Введите ваш ответ..."
-                value={currentInput}
-                onChange={(e) => {
-                  setCurrentInput(e.target.value);
-                  e.target.style.height = "auto";
-                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
-                  requestAnimationFrame(() => updateInputThumb());
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
+      <div className="shrink-0 p-4 sm:p-5 md:p-6 bg-[var(--glass-bg)] backdrop-blur-glass border-t border-[var(--border)]">
+        <div className="flex gap-3 items-end">
+          <div className="relative flex-1 min-h-[50px] max-h-[120px]">
+            <textarea
+              ref={textareaRef}
+              className="scrollbar-hidden w-full h-full min-h-[50px] max-h-[120px] p-4 pr-5 sm:p-4 sm:pr-5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-[15px] font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              rows={1}
+              placeholder={isFinished ? "Интервью завершено" : "Введите ваш ответ..."}
+              value={currentInput}
+              onChange={(e) => {
+                setCurrentInput(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                requestAnimationFrame(() => updateInputThumb());
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              disabled={isLoading || isFinished}
+            />
+            {!isFinished && inputThumbStyle && (
+              <div className="absolute top-2 right-1 bottom-2 w-[4px] pointer-events-none z-10">
+                <div
+                  className="custom-scroll-thumb !w-[4px]"
+                  style={{ top: inputThumbStyle.top, height: inputThumbStyle.height, cursor: "grab" }}
+                  onPointerDown={(e) => {
                     e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                disabled={isLoading}
-              />
-              {inputThumbStyle && (
-                <div className="absolute top-2 right-1 bottom-2 w-[4px] pointer-events-none z-10">
-                  <div
-                    className="custom-scroll-thumb !w-[4px]"
-                    style={{ top: inputThumbStyle.top, height: inputThumbStyle.height, cursor: "grab" }}
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      inputDragging.current = true;
-                      inputDragStartY.current = e.clientY;
-                      const el = textareaRef.current;
-                      if (el) inputDragStartScroll.current = el.scrollTop;
-                      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-                    }}
-                    onPointerMove={(e) => {
-                      if (!inputDragging.current) return;
-                      const el = textareaRef.current;
-                      if (!el) return;
-                      const { scrollHeight, clientHeight } = el;
-                      const trackHeight = clientHeight - 16;
-                      const ratio = trackHeight / scrollHeight;
-                      const h = Math.max(16, trackHeight * ratio);
-                      const maxTop = trackHeight - h;
-                      const maxScroll = scrollHeight - clientHeight;
-                      const delta = e.clientY - inputDragStartY.current;
-                      const scrollDelta = maxScroll > 0 ? (delta / maxTop) * maxScroll : 0;
-                      el.scrollTop = inputDragStartScroll.current + scrollDelta;
-                    }}
-                    onPointerUp={() => { inputDragging.current = false; }}
-                  />
-                </div>
-              )}
-            </div>
-            <button
-              className="w-[50px] h-[50px] shrink-0 bg-gradient-to-br from-primary to-pink-500 border-none rounded-[14px] text-white text-xl cursor-pointer transition-all duration-300 flex items-center justify-center shadow-button hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_12px_25px_rgba(99,102,241,0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              onClick={handleSend}
-              disabled={isLoading || !currentInput.trim()}
-            >
-              {isLoading ? "..." : "\u27A4"}
-            </button>
+                    e.stopPropagation();
+                    inputDragging.current = true;
+                    inputDragStartY.current = e.clientY;
+                    const el = textareaRef.current;
+                    if (el) inputDragStartScroll.current = el.scrollTop;
+                    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+                  }}
+                  onPointerMove={(e) => {
+                    if (!inputDragging.current) return;
+                    const el = textareaRef.current;
+                    if (!el) return;
+                    const { scrollHeight, clientHeight } = el;
+                    const trackHeight = clientHeight - 16;
+                    const ratio = trackHeight / scrollHeight;
+                    const h = Math.max(16, trackHeight * ratio);
+                    const maxTop = trackHeight - h;
+                    const maxScroll = scrollHeight - clientHeight;
+                    const delta = e.clientY - inputDragStartY.current;
+                    const scrollDelta = maxScroll > 0 ? (delta / maxTop) * maxScroll : 0;
+                    el.scrollTop = inputDragStartScroll.current + scrollDelta;
+                  }}
+                  onPointerUp={() => { inputDragging.current = false; }}
+                />
+              </div>
+            )}
           </div>
+          <button
+            className="w-[50px] h-[50px] shrink-0 bg-gradient-to-br from-primary to-pink-500 border-none rounded-[14px] text-white text-xl cursor-pointer transition-all duration-300 flex items-center justify-center shadow-button hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_12px_25px_rgba(99,102,241,0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            onClick={handleSend}
+            disabled={isLoading || !currentInput.trim() || isFinished}
+          >
+            {isLoading ? "..." : "\u27A4"}
+          </button>
         </div>
-      )}
+      </div>
 
       {isFinished && (
         <BottomSheet
