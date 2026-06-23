@@ -64,7 +64,8 @@ describe("ChatWindow", () => {
 
   it("renders initial question", () => {
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
-    expect(screen.getByText(/\[Введение\] Расскажите о себе/)).toBeDefined();
+    expect(screen.getByText("Введение")).toBeDefined();
+    expect(screen.getByText("Расскажите о себе")).toBeDefined();
   });
 
   it("adds user message on send", async () => {

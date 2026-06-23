@@ -1,6 +1,7 @@
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
+  topic?: string;
   timestamp?: string;
 }
 
@@ -9,7 +10,7 @@ function getCurrentTime() {
   return now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
 }
 
-export default function MessageBubble({ role, content, timestamp }: MessageBubbleProps) {
+export default function MessageBubble({ role, content, topic, timestamp }: MessageBubbleProps) {
   const isUser = role === "user";
   const time = timestamp || getCurrentTime();
 
@@ -32,6 +33,11 @@ export default function MessageBubble({ role, content, timestamp }: MessageBubbl
               : "bg-[var(--msg-ai)] text-content-primary rounded-tl-[4px]"
           }`}
         >
+          {topic && (
+            <span className="inline-block px-2.5 py-0.5 mb-2 text-xs font-medium rounded-full bg-primary/15 text-primary border border-primary/20">
+              {topic}
+            </span>
+          )}
           <p className="whitespace-pre-wrap break-words">{content}</p>
         </div>
         <p className={`text-[11px] text-content-secondary mt-1.5 px-2 ${isUser ? "text-right" : ""}`}>

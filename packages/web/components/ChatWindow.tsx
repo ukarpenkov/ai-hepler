@@ -23,6 +23,7 @@ interface FeedbackData {
 interface ChatMessage {
   role: "user" | "assistant" | "feedback";
   content: string;
+  topic?: string;
   evaluation?: EvaluationResult;
   coach?: CoachResult;
 }
@@ -39,7 +40,8 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: `[${initialQuestion.topic}] ${initialQuestion.question}`,
+      content: initialQuestion.question,
+      topic: initialQuestion.topic,
     },
   ]);
 
@@ -55,6 +57,36 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
   const [allFeedbacks, setAllFeedbacks] = useState<FeedbackData[]>([]);
   const [isSummaryOpen, setIsSummaryOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [inputThumbStyle, setInputThumbStyle] = useState<{ top: number; height: number } | null>(null);
+  const inputDragging = useRef(false);
+  const inputDragStartY = useRef(0);
+  const inputDragStartScroll = useRef(0);
+
+  const updateInputThumb = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    if (scrollHeight <= clientHeight) {
+      setInputThumbStyle(null);
+      return;
+    }
+    const trackHeight = clientHeight - 16;
+    const ratio = trackHeight / scrollHeight;
+    const h = Math.max(16, trackHeight * ratio);
+    const maxTop = trackHeight - h;
+    const maxScroll = scrollHeight - clientHeight;
+    const top = maxScroll > 0 ? (scrollTop / maxScroll) * maxTop : 0;
+    setInputThumbStyle({ top, height: h });
+  }, []);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    updateInputThumb();
+    el.addEventListener("scroll", updateInputThumb, { passive: true });
+    return () => el.removeEventListener("scroll", updateInputThumb);
+  }, [updateInputThumb]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -104,7 +136,8 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
 
       const nextQuestionMsg: ChatMessage = {
         role: "assistant",
-        content: `[${response.nextQuestion.topic}] ${response.nextQuestion.question}`,
+        content: response.nextQuestion.question,
+        topic: response.nextQuestion.topic,
       };
 
       setMessages((prev) => [...prev, feedbackMsg, nextQuestionMsg]);
@@ -173,6 +206,7 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
               key={i}
               role={msg.role as "user" | "assistant"}
               content={msg.content}
+              topic={msg.topic}
             />
           );
         })}
@@ -183,26 +217,62 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
       </div>
 
       {!isFinished && (
-        <div className="shrink-0 p-[15px] sm:p-4 md:p-5 bg-[var(--glass-bg)] backdrop-blur-glass border-t border-[var(--border)]">
+        <div className="shrink-0 p-4 sm:p-5 md:p-6 bg-[var(--glass-bg)] backdrop-blur-glass border-t border-[var(--border)]">
           <div className="flex gap-3 items-end">
-            <textarea
-              className="flex-1 min-h-[50px] max-h-[120px] p-3.5 sm:p-3.5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-[15px] font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary"
-              rows={1}
-              placeholder="Введите ваш ответ..."
-              value={currentInput}
-              onChange={(e) => {
-                setCurrentInput(e.target.value);
-                e.target.style.height = "auto";
-                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              disabled={isLoading}
-            />
+            <div className="relative flex-1 min-h-[50px] max-h-[120px]">
+              <textarea
+                ref={textareaRef}
+                className="scrollbar-hidden w-full h-full min-h-[50px] max-h-[120px] p-4 pr-5 sm:p-4 sm:pr-5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-[15px] font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary"
+                rows={1}
+                placeholder="Введите ваш ответ..."
+                value={currentInput}
+                onChange={(e) => {
+                  setCurrentInput(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                  requestAnimationFrame(() => updateInputThumb());
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                disabled={isLoading}
+              />
+              {inputThumbStyle && (
+                <div className="absolute top-2 right-1 bottom-2 w-[4px] pointer-events-none z-10">
+                  <div
+                    className="custom-scroll-thumb !w-[4px]"
+                    style={{ top: inputThumbStyle.top, height: inputThumbStyle.height, cursor: "grab" }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      inputDragging.current = true;
+                      inputDragStartY.current = e.clientY;
+                      const el = textareaRef.current;
+                      if (el) inputDragStartScroll.current = el.scrollTop;
+                      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+                    }}
+                    onPointerMove={(e) => {
+                      if (!inputDragging.current) return;
+                      const el = textareaRef.current;
+                      if (!el) return;
+                      const { scrollHeight, clientHeight } = el;
+                      const trackHeight = clientHeight - 16;
+                      const ratio = trackHeight / scrollHeight;
+                      const h = Math.max(16, trackHeight * ratio);
+                      const maxTop = trackHeight - h;
+                      const maxScroll = scrollHeight - clientHeight;
+                      const delta = e.clientY - inputDragStartY.current;
+                      const scrollDelta = maxScroll > 0 ? (delta / maxTop) * maxScroll : 0;
+                      el.scrollTop = inputDragStartScroll.current + scrollDelta;
+                    }}
+                    onPointerUp={() => { inputDragging.current = false; }}
+                  />
+                </div>
+              )}
+            </div>
             <button
               className="w-[50px] h-[50px] shrink-0 bg-gradient-to-br from-primary to-pink-500 border-none rounded-[14px] text-white text-xl cursor-pointer transition-all duration-300 flex items-center justify-center shadow-button hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_12px_25px_rgba(99,102,241,0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               onClick={handleSend}
