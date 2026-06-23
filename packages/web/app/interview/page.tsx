@@ -69,9 +69,7 @@ function InterviewContent() {
   }, [sessionId]);
 
   const handleClose = useCallback(() => {
-    if (confirm("Вы уверены, что хотите завершить интервью?")) {
-      router.push("/");
-    }
+    router.push("/");
   }, [router]);
 
   const handleProgressChange = useCallback((current: number, total: number) => {
