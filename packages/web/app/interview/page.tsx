@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
 import type { QuestionResult, SessionData } from "@/lib/types";
-import { getSession } from "@/lib/session-store";
+import { getSession, listSessions } from "@/lib/session-store";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import ChatWindow from "@/components/ChatWindow";
@@ -43,13 +43,16 @@ function InterviewContent() {
   }, []);
 
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-    fetch(`${apiBase}/sessions`)
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(setSessions)
+    listSessions()
+      .then((rows) =>
+        setSessions(
+          rows.map((s) => ({
+            id: s.id,
+            title: s.jobProfile?.role ?? "Новая сессия",
+            date: new Date(s.createdAt).toLocaleDateString("ru-RU"),
+          }))
+        )
+      )
       .catch(() => {});
   }, []);
 
@@ -74,6 +77,45 @@ function InterviewContent() {
     setProgress({ current, total });
   }, []);
 
+  const handleSessionClick = useCallback(async (targetSessionId: string) => {
+    if (targetSessionId === sessionId) return;
+    try {
+      const session = await getSession(targetSessionId);
+      if (!session) return;
+
+      const lastAssistant = [...session.history]
+        .reverse()
+        .find((m) => m.role === "assistant");
+      if (!lastAssistant) return;
+
+      let questionData: { question: string; topic: string; difficulty: string };
+      try {
+        const parsed = JSON.parse(lastAssistant.content);
+        questionData = {
+          question: parsed.question,
+          topic: parsed.topic,
+          difficulty: parsed.difficulty,
+        };
+      } catch {
+        questionData = {
+          question: lastAssistant.content,
+          topic: session.jobProfile?.role ?? "",
+          difficulty: "medium",
+        };
+      }
+
+      const params = new URLSearchParams({
+        sessionId: targetSessionId,
+        question: questionData.question,
+        topic: questionData.topic,
+        difficulty: questionData.difficulty,
+      });
+
+      router.push(`/interview?${params.toString()}`);
+    } catch {
+    }
+  }, [sessionId, router]);
+
   if (!sessionId || !question || !topic || !difficulty) {
     return (
       <div className="flex items-center justify-center h-screen text-content-primary">
@@ -97,7 +139,7 @@ function InterviewContent() {
         totalQuestions={progress.total}
         onClose={handleClose}
       />
-      <Sidebar isOpen={isSidebarOpen} sessions={sessions} />
+      <Sidebar isOpen={isSidebarOpen} sessions={sessions} onSessionClick={handleSessionClick} />
       {isMobile && isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-[98] transition-opacity duration-300"
