@@ -1,10 +1,9 @@
 export interface ParsedJob {
-  title: string;
-  company: string;
-  seniority: string;
-  domain: string;
+  role: string;
+  level: "junior" | "middle" | "senior";
   skills: string[];
-  requirements: string[];
+  keywords: string[];
+  domain: string;
 }
 
 export interface QuestionResult {

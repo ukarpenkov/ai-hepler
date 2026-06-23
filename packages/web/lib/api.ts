@@ -23,20 +23,24 @@ export function parseJob(text: string): Promise<{ sessionId: string; jobProfile:
   });
 }
 
-export function startInterview(sessionId: string): Promise<{ question: QuestionResult }> {
+export function startInterview(
+  sessionId: string,
+  sessionData: { jobProfile: ParsedJob; weakSkills: string[]; history: Array<{ role: string; content: string }> }
+): Promise<{ question: QuestionResult }> {
   return request("/interview/start", {
     method: "POST",
-    body: JSON.stringify({ sessionId }),
+    body: JSON.stringify({ sessionId, jobProfile: sessionData.jobProfile, weakSkills: sessionData.weakSkills, history: sessionData.history }),
   });
 }
 
 export function sendAnswer(
   sessionId: string,
-  answer: string
-): Promise<{ evaluation: EvaluationResult; coach: CoachResult; memory: MemoryUpdate; nextQuestion: QuestionResult }> {
+  answer: string,
+  sessionData: { jobProfile: ParsedJob; weakSkills: string[]; history: Array<{ role: string; content: string }> }
+): Promise<{ evaluation: EvaluationResult; coach: CoachResult; memory: MemoryUpdate; nextQuestion: QuestionResult; updatedHistory: unknown[]; updatedWeakSkills: string[] }> {
   return request("/interview/answer", {
     method: "POST",
-    body: JSON.stringify({ sessionId, answer }),
+    body: JSON.stringify({ sessionId, answer, sessionData }),
   });
 }
 

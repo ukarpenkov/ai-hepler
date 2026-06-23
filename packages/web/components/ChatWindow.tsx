@@ -42,6 +42,12 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
       content: `[${initialQuestion.topic}] ${initialQuestion.question}`,
     },
   ]);
+
+  useEffect(() => {
+    if (sessionData) {
+      setCurrentSessionData(sessionData);
+    }
+  }, [sessionData]);
   const [currentInput, setCurrentInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
@@ -60,7 +66,7 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
 
   const handleSend = useCallback(async () => {
     const answer = currentInput.trim();
-    if (!answer || isLoading || isFinished) return;
+    if (!answer || isLoading || isFinished || !currentSessionData?.jobProfile) return;
 
     setCurrentInput("");
     setMessages((prev) => [...prev, { role: "user", content: answer }]);
@@ -118,10 +124,11 @@ export default function ChatWindow({ sessionId, initialQuestion, sessionData, on
       }
 
       setQuestionCount(nextCount);
-    } catch {
+    } catch (err) {
+      console.error("sendAnswer error:", err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Произошла ошибка. Попробуйте ещё раз." },
+        { role: "assistant", content: `Ошибка: ${err instanceof Error ? err.message : "Неизвестная ошибка"}` },
       ]);
     } finally {
       setIsLoading(false);

@@ -46,7 +46,7 @@ export default function Home() {
         setSessions(
           rows.map((s) => ({
             id: s.id,
-            title: s.jobProfile?.title ?? "Новая сессия",
+            title: s.jobProfile?.role ?? "Новая сессия",
             date: new Date(s.createdAt).toLocaleDateString("ru-RU"),
           }))
         )
@@ -108,7 +108,7 @@ export default function Home() {
       } catch {
         questionData = {
           question: lastAssistant.content,
-          topic: session.jobProfile?.title ?? "",
+          topic: session.jobProfile?.role ?? "",
           difficulty: "medium",
         };
       }
