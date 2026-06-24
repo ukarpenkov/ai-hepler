@@ -102,6 +102,12 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
             autoResize();
             if (error) setError("");
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && jobText.length >= 50 && !isLoading) {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
           placeholder="Вставьте текст вакансии..."
           className="w-full min-h-[200px] max-h-[400px] p-5 bg-surface-card border-2 border-[var(--border)] rounded-card text-base text-content-primary transition-all duration-300 glass focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] focus:-translate-y-0.5 overflow-y-auto resize-none scroll-overlay"
         />
