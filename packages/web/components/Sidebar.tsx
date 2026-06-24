@@ -17,20 +17,20 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, sessions, onSessionClick }: SidebarProps) {
   return (
     <aside
-      className={`fixed top-0 left-0 w-full sm:w-80 h-screen glass border-r border-[var(--border)] z-[99] pt-[84px] px-5 pb-5 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+      className={`fixed top-0 left-0 w-full sm:w-96 h-screen glass border-r border-[var(--border)] z-[99] pt-[84px] px-2 pb-8 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <CustomScrollbar className="h-full">
+      <CustomScrollbar className="h-full" contentClassName="overflow-x-hidden">
         <div className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-5 mt-1 px-2.5">
           История сессий
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 pb-4">
           {sessions.map((session) => (
             <div
               key={session.id}
               onClick={() => onSessionClick?.(session.id)}
-              className="p-3.5 px-4 rounded-xl bg-surface-card border border-[var(--border)] cursor-pointer transition-all duration-300 hover:bg-primary hover:text-white hover:translate-x-1.5 hover:shadow-lg hover:shadow-primary/30"
+              className="w-[95%] p-3 rounded-xl bg-surface-card border border-[var(--border)] cursor-pointer transition-all duration-300 hover:bg-primary hover:text-white hover:translate-x-1 hover:shadow-lg hover:shadow-primary/30"
             >
               <div className="text-sm font-medium mb-1">{session.title}</div>
               <div className="text-xs text-content-secondary">{session.date}</div>
