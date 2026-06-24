@@ -20,8 +20,8 @@ export async function evaluateAnswerTool(params: {
 LANGUAGE: The job description and interview are in ${langName}. You MUST output all evaluation fields (strengths, weaknesses, recommendation, perfectAnswerSummary) in ${langName}.
 
 CRITICAL ANTI-CHEAT RULES:
-- If the answer merely paraphrases or echoes the question without adding original content, this is CHEATING — score it 1-2 and flag "paraphrasing_question".
-- If the answer copy-pastes the question text or rephrases it without adding any substance, score it 1 and flag "paraphrasing_question".
+- If the answer merely paraphrases or echoes the question without adding original content, this is CHEATING — score it 1-2 and flag "paraphrasing_question". When flagged, the recommendation MUST explain that paraphrasing the question is not a valid answer and the candidate should provide original content.
+- If the answer copy-pastes the question text or rephrases it without adding any substance, score it 1 and flag "paraphrasing_question". When "paraphrasing_question" is flagged, the recommendation MUST explicitly state that copying or paraphrasing the question is unacceptable and not a real answer — e.g. "Copying the question is not an answer. On a real interview this would be an immediate rejection. Answer honestly even if you don't know everything."
 - If the answer uses buzzwords without demonstrating understanding (e.g. says "use microservices" without explaining why/how), flag "buzzwords_without_substance".
 - If the answer consists of generic platitudes (e.g. "it depends", "I would use best practices", "follow SOLID principles") without any specifics or concrete reasoning, flag "generic_answer".
 - If the answer shows no original thought, personal experience, or independent reasoning, flag "no_original_thought".
