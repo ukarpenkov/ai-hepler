@@ -12,7 +12,7 @@ import BottomSheet from "./BottomSheet";
 import SummaryView from "./SummaryView";
 import type { QuestionFeedback } from "./SummaryView";
 
-const TOTAL_QUESTIONS = 1;
+const TOTAL_QUESTIONS = 6;
 
 interface FeedbackData {
   evaluation: EvaluationResult;
@@ -139,7 +139,7 @@ export default function ChatWindow({
   }, [messages]);
 
   useEffect(() => {
-    onProgressChange?.(Math.min(questionCount, TOTAL_QUESTIONS), TOTAL_QUESTIONS);
+    onProgressChange?.(Math.min(questionCount, TOTAL_QUESTIONS - 1), TOTAL_QUESTIONS - 1);
   }, [questionCount, onProgressChange]);
 
   const handleSend = useCallback(async () => {

@@ -29,7 +29,7 @@ function InterviewContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [progress, setProgress] = useState({ current: 1, total: 10 });
+  const [progress, setProgress] = useState({ current: 1, total: 5 });
   const [sessionData, setSessionData] = useState<SessionRecord | null>(null);
 
   useEffect(() => {
