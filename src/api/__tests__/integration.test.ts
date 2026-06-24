@@ -20,7 +20,7 @@ const jobProfileResponse = {
   softSkills: [],
   keywords: ["frontend", "web"],
   domain: "web",
-  minYearsExperience: null,
+  language: "en", minYearsExperience: null,
 };
 
 const questionResponse = {

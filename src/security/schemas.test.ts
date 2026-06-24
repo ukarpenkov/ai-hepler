@@ -18,7 +18,7 @@ describe("JobProfileSchema", () => {
     softSkills: [],
     domain: "Web Development",
     keywords: ["frontend", "ui"],
-    minYearsExperience: null,
+    language: "en", minYearsExperience: null,
   };
 
   it("accepts valid data", () => {
@@ -123,7 +123,7 @@ describe("MemoryUpdateSchema", () => {
 
 describe("validateWithSchema", () => {
   it("returns parsed data on success", () => {
-    const data = { role: "Dev", level: "junior", skills: [], softSkills: [], domain: "web", keywords: [], minYearsExperience: null };
+    const data = { role: "Dev", level: "junior", skills: [], softSkills: [], domain: "web", keywords: [], language: "en", minYearsExperience: null };
     const result = validateWithSchema(JobProfileSchema, data);
     expect(result.role).toBe("Dev");
   });

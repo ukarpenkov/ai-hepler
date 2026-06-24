@@ -8,6 +8,7 @@ export const JobProfileSchema = z
     softSkills: z.array(z.string()),
     domain: z.string().min(1),
     keywords: z.array(z.string()),
+    language: z.string().min(1),
     minYearsExperience: z.number().int().positive().nullable(),
   })
   .strict();

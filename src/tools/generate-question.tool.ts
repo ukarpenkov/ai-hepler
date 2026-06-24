@@ -23,7 +23,12 @@ export async function generateQuestionTool(params: {
   const weakText = weakSkills.length > 0 ? weakSkills.join(", ") : "none";
   const previousText = previousQuestions.length > 0 ? previousQuestions.join("; ") : "none";
 
+  const langNames: Record<string, string> = { ru: "Russian", de: "German", fr: "French", es: "Spanish", zh: "Chinese" };
+  const langName = langNames[jobProfile.language] || "English";
+
   const systemPrompt = `You are a seasoned technical interviewer at a top tech company. You conduct interviews for ${jobProfile.level} ${jobProfile.role} positions. Your questions should be challenging, relevant, and reveal true competence — not just memorized answers.
+
+LANGUAGE: The job description is in ${langName}. You MUST generate the question, topic, and expectedAnswerCriteria in ${langName}.
 
 QUESTION DESIGN PRINCIPLES:
 1. Ask questions that require THINKING, not recall. Avoid "What is X?" — prefer "When would you use X over Y?" or "How would you design a system for..."

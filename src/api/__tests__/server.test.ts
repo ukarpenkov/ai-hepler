@@ -21,7 +21,7 @@ vi.mock("../../agents/orchestrator.js", () => ({
 const { server } = await import("../server.js");
 const { parseJob, startInterviewStateless, processAnswerStateless } = await import("../../agents/orchestrator.js");
 
-const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null };
+const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", language: "en", minYearsExperience: null };
 
 describe("server", () => {
   beforeAll(async () => {

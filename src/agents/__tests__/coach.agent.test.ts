@@ -30,7 +30,7 @@ describe("coachAgent", () => {
       softSkills: [],
       keywords: ["frontend"],
       domain: "web",
-      minYearsExperience: null,
+      language: "en", minYearsExperience: null,
     };
     const evaluation: EvaluationResult = {
       score: 6,

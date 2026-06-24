@@ -11,7 +11,7 @@ const jobProfile: ParsedJob = {
   softSkills: [],
   keywords: ["api", "rest"],
   domain: "tech",
-  minYearsExperience: null,
+  language: "en", minYearsExperience: null,
 };
 
 describe("generateQuestionTool", () => {

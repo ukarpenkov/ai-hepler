@@ -22,7 +22,7 @@ describe("agents/types", () => {
     const output: AgentOutput = { agentName: "coach", result: "{}" };
     expect(output.agentName).toBe("coach");
 
-    const job: ParsedJob = { role: "dev", level: "senior", skills: [], softSkills: [], keywords: [], domain: "tech", minYearsExperience: null };
+    const job: ParsedJob = { role: "dev", level: "senior", skills: [], softSkills: [], keywords: [], domain: "tech", language: "en", minYearsExperience: null };
     expect(job.level).toBe("senior");
 
     const eval_: EvaluationResult = { score: 8, accuracy: 3, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "good", antiCheatFlags: [], perfectAnswerSummary: "good" };

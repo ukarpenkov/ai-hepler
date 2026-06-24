@@ -20,6 +20,7 @@ Be precise. Extract exact technology names as they appear. Separate hard/technic
 - softSkills: soft skills / interpersonal requirements (e.g. "communication", "team leadership", "agile methodology", "mentoring")
 - keywords: key phrases from the description (e.g. "CI/CD", "microservices", "test-driven development")
 - domain: industry or domain (e.g. fintech, healthcare, e-commerce, web, cloud, gaming, etc.)
+- language: ISO 639-1 code of the language the job description is written in (e.g. "en", "ru", "de", "fr", "es", "zh", etc.)
 - minYearsExperience: number of years of experience required if explicitly mentioned, null otherwise
 
 Return ONLY valid JSON (no markdown, no explanation outside the JSON):
@@ -30,6 +31,7 @@ Return ONLY valid JSON (no markdown, no explanation outside the JSON):
   "softSkills": string[],
   "keywords": string[],
   "domain": string,
+  "language": string,
   "minYearsExperience": number|null
 }
 
@@ -88,6 +90,10 @@ ${text}`;
     throw new Error("Missing required fields in parsed job");
   }
 
+  const language = typeof parsed.language === "string" && parsed.language.length > 0
+    ? parsed.language
+    : "en";
+
   const softSkills: string[] = Array.isArray(parsed.softSkills)
     ? parsed.softSkills.filter((s: unknown): s is string => typeof s === "string")
     : [];
@@ -104,6 +110,7 @@ ${text}`;
     softSkills,
     keywords: parsed.keywords,
     domain: parsed.domain,
+    language,
     minYearsExperience,
   };
 }

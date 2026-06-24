@@ -8,6 +8,7 @@ export interface JobProfile {
   softSkills: string[];
   keywords: string[];
   domain: string;
+  language: string;
   minYearsExperience: number | null;
 }
 

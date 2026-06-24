@@ -99,7 +99,7 @@ describe("ChatWindow", () => {
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
     fireEvent.change(textarea, { target: { value: "Меня зовут Иван" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -113,7 +113,7 @@ describe("ChatWindow", () => {
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
     fireEvent.change(textarea, { target: { value: "Мой ответ" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -136,7 +136,7 @@ describe("ChatWindow", () => {
       />
     );
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
     fireEvent.change(textarea, { target: { value: "Ответ" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -150,7 +150,7 @@ describe("ChatWindow", () => {
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
     fireEvent.change(textarea, { target: { value: "Ответ 1" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -166,7 +166,7 @@ describe("ChatWindow", () => {
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
     fireEvent.change(textarea, { target: { value: "Ответ 1" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -181,7 +181,7 @@ describe("ChatWindow", () => {
 
     render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ...");
+    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
     fireEvent.change(textarea, { target: { value: "Ответ 1" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 

@@ -35,7 +35,7 @@ describe("evaluatorAgent", () => {
       softSkills: [],
       keywords: ["api"],
       domain: "backend",
-      minYearsExperience: null,
+      language: "en", minYearsExperience: null,
     };
 
     const result = await evaluatorAgent({

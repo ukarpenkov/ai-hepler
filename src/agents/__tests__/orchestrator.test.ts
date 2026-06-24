@@ -36,7 +36,7 @@ import { getSession, updateSession } from "../../storage/session-store.js";
 
 const mockSession: SessionData = {
   id: "s1",
-  jobProfile: { role: "Dev", level: "middle", skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null },
+  jobProfile: { role: "Dev", level: "middle", skills: ["TS"], softSkills: [], keywords: [], domain: "web", language: "en", minYearsExperience: null },
   history: [],
   weakSkills: [],
   createdAt: new Date().toISOString(),
@@ -51,7 +51,7 @@ describe("orchestrator", () => {
   it("parseJob calls jobParserAgent and saves to session", async () => {
     vi.mocked(jobParserAgent).mockResolvedValue({
       agentName: "job-parser",
-      result: JSON.stringify({ role: "Dev", level: "middle", skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null }),
+      result: JSON.stringify({ role: "Dev", level: "middle", skills: ["TS"], softSkills: [], keywords: [], domain: "web", language: "en", minYearsExperience: null }),
     });
 
     const result = await parseJob("job text here", "s1", {} as never, { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });

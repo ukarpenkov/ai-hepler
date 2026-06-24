@@ -21,7 +21,7 @@ describe("jobParserAgent", () => {
       softSkills: [],
       keywords: ["frontend"],
       domain: "web",
-      minYearsExperience: null,
+      language: "en", minYearsExperience: null,
     };
     vi.mocked(parseJobDescriptionTool).mockResolvedValue(mockParsed);
 

@@ -12,7 +12,12 @@ export async function evaluateAnswerTool(params: {
 }): Promise<EvaluationResult> {
   const { question, answer, jobProfile, config } = params;
 
+  const langNames: Record<string, string> = { ru: "Russian", de: "German", fr: "French", es: "Spanish", zh: "Chinese" };
+  const langName = langNames[jobProfile.language] || "English";
+
   const systemPrompt = `You are a strict technical interviewer and evaluator for a ${jobProfile.level} ${jobProfile.role} position. You must evaluate candidate answers ruthlessly and honestly. Your goal is to identify real competence, not just fluent-sounding text.
+
+LANGUAGE: The job description and interview are in ${langName}. You MUST output all evaluation fields (strengths, weaknesses, recommendation, perfectAnswerSummary) in ${langName}.
 
 CRITICAL ANTI-CHEAT RULES:
 - If the answer merely paraphrases or echoes the question without adding original content, this is CHEATING — score it 1-2 and flag "paraphrasing_question".

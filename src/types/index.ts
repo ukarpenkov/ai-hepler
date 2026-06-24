@@ -11,6 +11,7 @@ export const SessionSchema = z
         softSkills: z.array(z.string()),
         keywords: z.array(z.string()),
         domain: z.string(),
+        language: z.string(),
         minYearsExperience: z.number().nullable(),
       })
       .nullable(),

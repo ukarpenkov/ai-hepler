@@ -276,7 +276,7 @@ export default function ChatWindow({
               ref={textareaRef}
               className="scrollbar-hidden w-full h-full min-h-[50px] max-h-[120px] p-4 pr-5 sm:p-4 sm:pr-5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-lg font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               rows={1}
-              placeholder={isFinished ? "Интервью завершено" : "Введите ваш ответ..."}
+              placeholder={isFinished ? "Интервью завершено" : "Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)"}
               value={currentInput}
               onChange={(e) => {
                 setCurrentInput(e.target.value);

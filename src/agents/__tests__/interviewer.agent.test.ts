@@ -31,7 +31,7 @@ describe("interviewerAgent", () => {
       softSkills: [],
       keywords: ["frontend"],
       domain: "web",
-      minYearsExperience: null,
+      language: "en", minYearsExperience: null,
     };
 
     const result = await interviewerAgent({

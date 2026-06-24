@@ -16,7 +16,7 @@ const Fastify = (await import("fastify")).default;
 const { startInterviewStateless, processAnswerStateless } = await import("../../agents/orchestrator.js");
 const { interviewRoutes } = await import("../routes/interview.js");
 
-const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null };
+const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", language: "en", minYearsExperience: null };
 
 describe("interview routes", () => {
   let app: ReturnType<typeof Fastify>;

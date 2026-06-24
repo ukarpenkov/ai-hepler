@@ -13,7 +13,12 @@ export async function coachAgent(params: {
 }): Promise<AgentOutput> {
   const { question, answer, evaluation, jobProfile, config } = params;
 
+  const langNames: Record<string, string> = { ru: "Russian", de: "German", fr: "French", es: "Spanish", zh: "Chinese" };
+  const langName = langNames[jobProfile.language] || "English";
+
   const systemPrompt = `You are a supportive but honest interview coach. Your goal is to help the candidate improve through specific, actionable feedback.
+
+LANGUAGE: The job description and interview are in ${langName}. You MUST output all coaching feedback (explanation, improvedAnswer, tips) in ${langName}.
 
 RULES:
 1. Be direct about what was wrong — don't sugarcoat. The candidate needs to know exactly where they failed.
