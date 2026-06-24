@@ -244,12 +244,12 @@ export default function ChatWindow({
                 className="p-3 sm:p-4 bg-surface-card border border-[var(--border)] rounded-card backdrop-blur-[10px] shadow-[0_4px_15px_var(--shadow)] max-w-full"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs sm:text-sm font-medium text-primary">
+                  <span className="text-sm sm:text-lg font-medium text-primary">
                     Оценка: {msg.evaluation.score}/10
                   </span>
                 </div>
                 {msg.coach.tips.length > 0 && (
-                  <p className="text-xs sm:text-sm text-content-secondary break-words">{msg.coach.tips[0]}</p>
+                  <p className="text-sm sm:text-lg text-content-secondary break-words">{msg.coach.tips[0]}</p>
                 )}
               </div>
             );
@@ -274,7 +274,7 @@ export default function ChatWindow({
           <div className="relative flex-1 min-h-[50px] max-h-[120px]">
             <textarea
               ref={textareaRef}
-              className="scrollbar-hidden w-full h-full min-h-[50px] max-h-[120px] p-4 pr-5 sm:p-4 sm:pr-5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-[15px] font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="scrollbar-hidden w-full h-full min-h-[50px] max-h-[120px] p-4 pr-5 sm:p-4 sm:pr-5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-lg font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               rows={1}
               placeholder={isFinished ? "Интервью завершено" : "Введите ваш ответ..."}
               value={currentInput}

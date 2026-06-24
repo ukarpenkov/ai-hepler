@@ -27,20 +27,20 @@ export default function MessageBubble({ role, content, topic, timestamp }: Messa
       </div>
       <div className="min-w-0">
         <div
-          className={`px-[18px] py-3.5 rounded-[18px] text-[15px] leading-[1.5] backdrop-blur-[10px] border border-[var(--border)] shadow-[0_4px_15px_var(--shadow)] break-words ${
+          className={`px-[18px] py-3.5 rounded-[18px] text-lg leading-[1.5] backdrop-blur-[10px] border border-[var(--border)] shadow-[0_4px_15px_var(--shadow)] break-words ${
             isUser
               ? "bg-gradient-to-br from-primary to-pink-500 text-white border-none rounded-tr-[4px]"
               : "bg-[var(--msg-ai)] text-content-primary rounded-tl-[4px]"
           }`}
         >
           {topic && (
-            <span className="inline-block px-2.5 py-0.5 mb-2 text-xs font-medium rounded-full bg-primary/15 text-primary border border-primary/20">
+            <span className="inline-block px-2.5 py-0.5 mb-2 text-sm font-medium rounded-full bg-primary/15 text-primary border border-primary/20">
               {topic}
             </span>
           )}
           <p className="whitespace-pre-wrap break-words">{content}</p>
         </div>
-        <p className={`text-[11px] text-content-secondary mt-1.5 px-2 ${isUser ? "text-right" : ""}`}>
+        <p className={`text-[15px] text-content-secondary mt-1.5 px-2 ${isUser ? "text-right" : ""}`}>
           {time}
         </p>
       </div>

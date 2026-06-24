@@ -90,7 +90,7 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
 
   return (
     <div className="animate-slide-up">
-      <h1 className="text-[30px] font-bold text-center mb-10 bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
+      <h1 className="text-[28px] font-bold text-center mb-10 bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
         Вставте текст вакансии.
       </h1>
       <div className="relative mb-8">
@@ -109,7 +109,7 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
             }
           }}
           placeholder="Вставьте текст вакансии..."
-          className="w-full min-h-[200px] max-h-[400px] p-5 bg-surface-card border-2 border-[var(--border)] rounded-card text-base text-content-primary transition-all duration-300 glass focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] focus:-translate-y-0.5 overflow-y-auto resize-none scroll-overlay"
+          className="w-full min-h-[200px] max-h-[400px] p-5 bg-surface-card border-2 border-[var(--border)] rounded-card text-lg text-content-primary transition-all duration-300 glass focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] focus:-translate-y-0.5 overflow-y-auto resize-none scroll-overlay"
         />
         {thumbStyle && (
           <div className="custom-scroll-track">
@@ -138,7 +138,7 @@ export default function JobInputForm({ onSubmit, isLoading }: JobInputFormProps)
         >
           <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z" />
         </svg>
-        <span className="font-semibold text-base text-[#AAAAAA] transition-colors duration-[450ms] group-hover:text-white">
+        <span className="font-semibold text-lg text-[#AAAAAA] transition-colors duration-[450ms] group-hover:text-white">
           {isLoading ? "Загрузка..." : "Начать интервью"}
         </span>
       </button>

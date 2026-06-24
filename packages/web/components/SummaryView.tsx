@@ -36,7 +36,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           borderColor: "var(--success)",
         }}
       >
-        <h2 className="text-base sm:text-xl font-semibold" style={{ color: "var(--success)" }}>
+        <h2 className="text-lg sm:text-xl font-semibold" style={{ color: "var(--success)" }}>
           Интервью завершено! Все {feedbacks.length} вопросов задано.
         </h2>
       </div>
@@ -47,7 +47,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           style={{ border: "1px solid var(--border)" }}
         >
           <div
-            className="text-[36px] sm:text-5xl font-bold mb-1 sm:mb-2"
+            className="text-[40px] sm:text-[56px] font-bold mb-1 sm:mb-2"
             style={{
               background: "linear-gradient(135deg, var(--accent), #ec4899)",
               WebkitBackgroundClip: "text",
@@ -57,7 +57,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           >
             {averageScore.toFixed(1)}
           </div>
-          <div className="text-[10px] sm:text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+          <div className="text-sm sm:text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
             Средний
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           style={{ border: "1px solid var(--border)" }}
         >
           <div
-            className="text-[36px] sm:text-5xl font-bold mb-1 sm:mb-2"
+            className="text-[40px] sm:text-[56px] font-bold mb-1 sm:mb-2"
             style={{
               background: "linear-gradient(135deg, var(--success), #34d399)",
               WebkitBackgroundClip: "text",
@@ -76,7 +76,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           >
             {bestScore}
           </div>
-          <div className="text-[10px] sm:text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+          <div className="text-sm sm:text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
             Лучший
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           style={{ border: "1px solid var(--border)" }}
         >
           <div
-            className="text-[36px] sm:text-5xl font-bold mb-1 sm:mb-2"
+            className="text-[40px] sm:text-[56px] font-bold mb-1 sm:mb-2"
             style={{
               background: "linear-gradient(135deg, var(--danger), #f87171)",
               WebkitBackgroundClip: "text",
@@ -95,7 +95,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           >
             {worstScore}
           </div>
-          <div className="text-[10px] sm:text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+          <div className="text-sm sm:text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
             Худший
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           <button
             key={f.number}
             onClick={() => setActiveQuestion(f.number)}
-            className="px-3 sm:px-5 py-2 sm:py-3 rounded-lg sm:rounded-[10px] text-xs sm:text-sm font-medium cursor-pointer transition-all duration-300"
+            className="px-3 sm:px-5 py-2 sm:py-3 rounded-lg sm:rounded-[10px] text-sm sm:text-lg font-medium cursor-pointer transition-all duration-300"
             style={{
               background: activeQuestion === f.number ? "var(--accent)" : "var(--bg-secondary)",
               color: activeQuestion === f.number ? "white" : "var(--text-primary)",
@@ -131,7 +131,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           className="flex justify-between items-center mb-5 sm:mb-7 pb-4 sm:pb-5"
           style={{ borderBottom: "1px solid var(--border)" }}
         >
-          <div className="text-[14px] sm:text-lg font-semibold" style={{ color: "var(--text-secondary)" }}>
+          <div className="text-lg font-semibold" style={{ color: "var(--text-secondary)" }}>
             Вопрос {active.number} / {feedbacks.length}
           </div>
           <div className="flex items-baseline gap-1 sm:gap-2">
@@ -153,11 +153,11 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         </div>
 
         <div className="mb-5 sm:mb-7">
-          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
+          <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
             Ваш ответ
           </h3>
           <div
-            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
             style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
           >
             <p style={{ whiteSpace: "pre-wrap" }}>{active.answer}</p>
@@ -165,11 +165,11 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         </div>
 
         <div className="mb-5 sm:mb-7">
-          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--success)" }}>
+          <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--success)" }}>
             Сильные стороны
           </h3>
           <div
-            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
             style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
           >
             {active.strengths.length > 0 ? (
@@ -187,11 +187,11 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         </div>
 
         <div className="mb-5 sm:mb-7">
-          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--danger)" }}>
+          <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--danger)" }}>
             Слабые стороны
           </h3>
           <div
-            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
             style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
           >
             {active.weaknesses.length > 0 ? (
@@ -209,11 +209,11 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         </div>
 
         <div className="mb-5 sm:mb-7">
-          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
+          <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
             Рекомендация
           </h3>
           <div
-            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
             style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
           >
             <p>{active.recommendation}</p>
@@ -221,11 +221,11 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         </div>
 
         <div className="mb-5 sm:mb-7">
-          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--warning)" }}>
+          <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--warning)" }}>
             Разбор ответа
           </h3>
           <div
-            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
             style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
           >
             <p>{active.analysis}</p>
@@ -233,11 +233,11 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         </div>
 
         <div className="mb-5 sm:mb-7">
-          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--success)" }}>
+          <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--success)" }}>
             Улучшенный ответ
           </h3>
           <div
-            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
             style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
           >
             <p style={{ whiteSpace: "pre-wrap" }}>{active.improved}</p>
@@ -245,11 +245,11 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         </div>
 
         <div>
-          <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
+          <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
             Советы
           </h3>
           <div
-            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-sm sm:text-base"
+            className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
             style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
           >
             <ul className="list-inside ml-2 sm:ml-2.5">
