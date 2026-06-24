@@ -8,8 +8,10 @@ const jobProfile: ParsedJob = {
   role: "Backend Developer",
   level: "middle",
   skills: ["Node.js", "TypeScript"],
+  softSkills: [],
   keywords: ["api"],
   domain: "tech",
+  minYearsExperience: null,
 };
 
 describe("evaluateAnswerTool", () => {
@@ -19,7 +21,7 @@ describe("evaluateAnswerTool", () => {
 
   it("returns EvaluationResult with valid score", async () => {
     const mockResponse = {
-      choices: [{ message: { content: JSON.stringify({ score: 8, strengths: ["good"], weaknesses: ["minor"], recommendation: "strong candidate" }) } }],
+      choices: [{ message: { content: JSON.stringify({ score: 8, accuracy: 3, depth: 2, relevance: 2, examples: 1, strengths: ["good"], weaknesses: ["minor"], recommendation: "strong candidate", antiCheatFlags: [], perfectAnswerSummary: "Include concrete examples" }) } }],
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 
@@ -36,7 +38,7 @@ describe("evaluateAnswerTool", () => {
 
   it("clamps invalid score to valid range", async () => {
     const mockResponse = {
-      choices: [{ message: { content: JSON.stringify({ score: 15, strengths: [], weaknesses: [], recommendation: "ok" }) } }],
+      choices: [{ message: { content: JSON.stringify({ score: 15, accuracy: 5, depth: 5, relevance: 3, examples: 2, strengths: [], weaknesses: [], recommendation: "ok", antiCheatFlags: [], perfectAnswerSummary: "ok" }) } }],
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 
@@ -51,7 +53,7 @@ describe("evaluateAnswerTool", () => {
 
   it("clamps score below 1", async () => {
     const mockResponse = {
-      choices: [{ message: { content: JSON.stringify({ score: -5, strengths: [], weaknesses: [], recommendation: "poor" }) } }],
+      choices: [{ message: { content: JSON.stringify({ score: -5, accuracy: 0, depth: 0, relevance: 0, examples: 0, strengths: [], weaknesses: [], recommendation: "poor", antiCheatFlags: [], perfectAnswerSummary: "poor" }) } }],
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 
@@ -66,7 +68,7 @@ describe("evaluateAnswerTool", () => {
 
   it("returns arrays for strengths and weaknesses", async () => {
     const mockResponse = {
-      choices: [{ message: { content: JSON.stringify({ score: 5, strengths: ["s1", "s2"], weaknesses: ["w1", "w2", "w3"], recommendation: "ok" }) } }],
+      choices: [{ message: { content: JSON.stringify({ score: 5, accuracy: 2, depth: 1, relevance: 1, examples: 1, strengths: ["s1", "s2"], weaknesses: ["w1", "w2", "w3"], recommendation: "ok", antiCheatFlags: [], perfectAnswerSummary: "ok" }) } }],
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 
@@ -84,7 +86,7 @@ describe("evaluateAnswerTool", () => {
 
   it("output conforms to EvaluationSchema", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({
-      choices: [{ message: { content: JSON.stringify({ score: 7, strengths: ["good"], weaknesses: ["minor"], recommendation: "strong" }) } }],
+      choices: [{ message: { content: JSON.stringify({ score: 7, accuracy: 2, depth: 2, relevance: 2, examples: 1, strengths: ["good"], weaknesses: ["minor"], recommendation: "strong", antiCheatFlags: [], perfectAnswerSummary: "ok" }) } }],
     }), { status: 200 }));
 
     const result = await evaluateAnswerTool({

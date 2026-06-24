@@ -21,7 +21,7 @@ vi.mock("../../agents/orchestrator.js", () => ({
 const { server } = await import("../server.js");
 const { parseJob, startInterviewStateless, processAnswerStateless } = await import("../../agents/orchestrator.js");
 
-const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], keywords: [], domain: "web" };
+const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null };
 
 describe("server", () => {
   beforeAll(async () => {
@@ -73,7 +73,7 @@ describe("server", () => {
 
     it("POST /interview/start is available", async () => {
       vi.mocked(startInterviewStateless).mockResolvedValue({
-        question: { question: "What is TypeScript?", topic: "TS", difficulty: "medium" },
+        question: { question: "What is TypeScript?", topic: "TS", difficulty: "medium", questionType: "theoretical_explanation" as const, expectedAnswerCriteria: [] },
         updatedHistory: [],
       });
 
@@ -95,9 +95,9 @@ describe("server", () => {
 
     it("POST /interview/answer is available", async () => {
       vi.mocked(processAnswerStateless).mockResolvedValue({
-        evaluation: { score: 7, strengths: [], weaknesses: [], recommendation: "" },
+        evaluation: { score: 7, accuracy: 2, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "good" },
         coach: { explanation: "", improvedAnswer: "", tips: [] },
-        nextQuestion: { question: "Q2?", topic: "React", difficulty: "easy" },
+        nextQuestion: { question: "Q2?", topic: "React", difficulty: "easy", questionType: "theoretical_explanation" as const, expectedAnswerCriteria: [] },
         updatedHistory: [],
         updatedWeakSkills: [],
       });

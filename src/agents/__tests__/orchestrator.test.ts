@@ -36,7 +36,7 @@ import { getSession, updateSession } from "../../storage/session-store.js";
 
 const mockSession: SessionData = {
   id: "s1",
-  jobProfile: { role: "Dev", level: "middle", skills: ["TS"], keywords: [], domain: "web" },
+  jobProfile: { role: "Dev", level: "middle", skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null },
   history: [],
   weakSkills: [],
   createdAt: new Date().toISOString(),
@@ -51,7 +51,7 @@ describe("orchestrator", () => {
   it("parseJob calls jobParserAgent and saves to session", async () => {
     vi.mocked(jobParserAgent).mockResolvedValue({
       agentName: "job-parser",
-      result: JSON.stringify({ role: "Dev", level: "middle", skills: ["TS"], keywords: [], domain: "web" }),
+      result: JSON.stringify({ role: "Dev", level: "middle", skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null }),
     });
 
     const result = await parseJob("job text here", "s1", {} as never, { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });
@@ -64,7 +64,7 @@ describe("orchestrator", () => {
     vi.mocked(getSession).mockResolvedValue(mockSession);
     vi.mocked(interviewerAgent).mockResolvedValue({
       agentName: "interviewer",
-      result: JSON.stringify({ question: "Q1?", topic: "TS", difficulty: "medium" }),
+      result: JSON.stringify({ question: "Q1?", topic: "TS", difficulty: "medium", questionType: "theoretical_explanation", expectedAnswerCriteria: [] }),
     });
 
     const result = await startInterview("s1", {} as never, { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });
@@ -82,7 +82,7 @@ describe("orchestrator", () => {
       .mockResolvedValueOnce({ ...mockSession, weakSkills: ["TS"] });
     vi.mocked(evaluatorAgent).mockResolvedValue({
       agentName: "evaluator",
-      result: JSON.stringify({ score: 7, strengths: [], weaknesses: [], recommendation: "" }),
+      result: JSON.stringify({ score: 7, accuracy: 2, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "good" }),
     });
     vi.mocked(coachAgent).mockResolvedValue({
       agentName: "coach",
@@ -94,7 +94,7 @@ describe("orchestrator", () => {
     });
     vi.mocked(interviewerAgent).mockResolvedValue({
       agentName: "interviewer",
-      result: JSON.stringify({ question: "Q2?", topic: "React", difficulty: "easy" }),
+      result: JSON.stringify({ question: "Q2?", topic: "React", difficulty: "easy", questionType: "theoretical_explanation", expectedAnswerCriteria: [] }),
     });
 
     const result = await processAnswer("s1", "my answer", {} as never, { apiKey: "key", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" });

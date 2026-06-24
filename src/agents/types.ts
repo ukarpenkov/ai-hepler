@@ -16,21 +16,31 @@ export interface ParsedJob {
   role: string;
   level: "junior" | "middle" | "senior";
   skills: string[];
+  softSkills: string[];
   keywords: string[];
   domain: string;
+  minYearsExperience: number | null;
 }
 
 export interface EvaluationResult {
   score: number;
+  accuracy: number;
+  depth: number;
+  relevance: number;
+  examples: number;
   strengths: string[];
   weaknesses: string[];
   recommendation: string;
+  antiCheatFlags: string[];
+  perfectAnswerSummary: string;
 }
 
 export interface QuestionResult {
   question: string;
   topic: string;
   difficulty: "easy" | "medium" | "hard";
+  questionType: "theoretical_explanation" | "practical_implementation" | "system_design" | "debugging_scenario" | "behavioral_experience";
+  expectedAnswerCriteria: string[];
 }
 
 export interface CoachResult {

@@ -12,7 +12,7 @@ describe("parseJobDescriptionTool", () => {
 
   it("returns ParsedJob on success", async () => {
     const mockResponse = {
-      choices: [{ message: { content: JSON.stringify({ role: "Frontend Developer", level: "senior", skills: ["React", "TypeScript"], keywords: ["frontend", "ui"], domain: "web" }) } }],
+      choices: [{ message: { content: JSON.stringify({ role: "Frontend Developer", level: "senior", skills: ["React", "TypeScript"], softSkills: [], keywords: ["frontend", "ui"], domain: "web", minYearsExperience: null }) } }],
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 
@@ -24,7 +24,7 @@ describe("parseJobDescriptionTool", () => {
 
   it("calls correct URL with config baseUrl", async () => {
     const mockResponse = {
-      choices: [{ message: { content: JSON.stringify({ role: "Dev", level: "junior", skills: ["JS"], keywords: ["dev"], domain: "web" }) } }],
+      choices: [{ message: { content: JSON.stringify({ role: "Dev", level: "junior", skills: ["JS"], softSkills: [], keywords: ["dev"], domain: "web", minYearsExperience: null }) } }],
     };
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 
@@ -52,7 +52,7 @@ describe("parseJobDescriptionTool", () => {
 
   it("output conforms to JobProfileSchema", async () => {
     const mockResponse = {
-      choices: [{ message: { content: JSON.stringify({ role: "Dev", level: "middle", skills: ["JS"], keywords: ["dev"], domain: "web" }) } }],
+      choices: [{ message: { content: JSON.stringify({ role: "Dev", level: "middle", skills: ["JS"], softSkills: [], keywords: ["dev"], domain: "web", minYearsExperience: null }) } }],
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(mockResponse), { status: 200 }));
 

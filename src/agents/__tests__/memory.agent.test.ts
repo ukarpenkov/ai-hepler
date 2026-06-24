@@ -27,9 +27,15 @@ describe("memoryAgent", () => {
 
     const evaluation: EvaluationResult = {
       score: 4,
+      accuracy: 1,
+      depth: 1,
+      relevance: 1,
+      examples: 1,
       strengths: ["Good basics"],
       weaknesses: ["Needs depth"],
       recommendation: "Study more",
+      antiCheatFlags: [],
+      perfectAnswerSummary: "Show deeper knowledge",
     };
 
     const result = await memoryAgent({

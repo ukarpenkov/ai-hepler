@@ -5,8 +5,10 @@ export const JobProfileSchema = z
     role: z.string().min(1),
     level: z.enum(["junior", "middle", "senior"]),
     skills: z.array(z.string()),
+    softSkills: z.array(z.string()),
     domain: z.string().min(1),
     keywords: z.array(z.string()),
+    minYearsExperience: z.number().int().positive().nullable(),
   })
   .strict();
 
@@ -22,9 +24,15 @@ export const QuestionSchema = z
 export const EvaluationSchema = z
   .object({
     score: z.number().int().min(1).max(10),
+    accuracy: z.number().int().min(0).max(3),
+    depth: z.number().int().min(0).max(3),
+    relevance: z.number().int().min(0).max(2),
+    examples: z.number().int().min(0).max(2),
     strengths: z.array(z.string()),
     weaknesses: z.array(z.string()),
     recommendation: z.string().min(1),
+    antiCheatFlags: z.array(z.string()),
+    perfectAnswerSummary: z.string().min(1),
   })
   .strict();
 

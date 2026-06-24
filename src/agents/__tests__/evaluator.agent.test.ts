@@ -16,9 +16,15 @@ describe("evaluatorAgent", () => {
   it("returns AgentOutput with EvaluationResult", async () => {
     const mockEval = {
       score: 8,
+      accuracy: 3,
+      depth: 2,
+      relevance: 2,
+      examples: 1,
       strengths: ["Good communication"],
       weaknesses: ["Missing examples"],
       recommendation: "Add more concrete examples",
+      antiCheatFlags: [],
+      perfectAnswerSummary: "Include examples",
     };
     vi.mocked(evaluateAnswerTool).mockResolvedValue(mockEval);
 
@@ -26,8 +32,10 @@ describe("evaluatorAgent", () => {
       role: "Backend Developer",
       level: "senior",
       skills: ["Node.js"],
+      softSkills: [],
       keywords: ["api"],
       domain: "backend",
+      minYearsExperience: null,
     };
 
     const result = await evaluatorAgent({

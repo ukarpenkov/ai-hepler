@@ -13,7 +13,41 @@ export async function coachAgent(params: {
 }): Promise<AgentOutput> {
   const { question, answer, evaluation, jobProfile, config } = params;
 
-  const prompt = `You are an interview coach. For ${jobProfile.role} (${jobProfile.level}) position. Question was: ${question}. Candidate answered: ${answer}. Score: ${evaluation.score}/10. Strengths: ${evaluation.strengths.join(", ")}. Weaknesses: ${evaluation.weaknesses.join(", ")}. Provide: explanation of correct answer, improved version of candidate's answer, 3 practical tips. Return JSON: { explanation: string, improvedAnswer: string, tips: string[] }`;
+  const systemPrompt = `You are a supportive but honest interview coach. Your goal is to help the candidate improve through specific, actionable feedback.
+
+RULES:
+1. Be direct about what was wrong — don't sugarcoat. The candidate needs to know exactly where they failed.
+2. Provide a model answer that demonstrates the level expected for a ${jobProfile.level} ${jobProfile.role}. The model answer should be exemplary — what a 9-10/10 answer looks like.
+3. Give tips that are SPECIFIC to the mistakes made, not generic career advice. Each tip must address a concrete weakness.
+4. Focus teaching on the concepts the candidate struggled with. Explain WHY the correct approach matters.
+5. If the candidate's answer had anti-cheat flags (paraphrasing, generic answers), address this directly and explain why genuine understanding matters.`;
+
+  const userPrompt = `Position: ${jobProfile.role} (${jobProfile.level})
+Domain: ${jobProfile.domain}
+
+Interview Question:
+${question}
+
+Candidate's Answer:
+${answer}
+
+Evaluation:
+- Overall Score: ${evaluation.score}/10
+- Technical Accuracy: ${evaluation.accuracy}/3
+- Depth of Understanding: ${evaluation.depth}/3
+- Relevance & Specificity: ${evaluation.relevance}/2
+- Examples & Application: ${evaluation.examples}/2
+- Strengths: ${evaluation.strengths.join("; ")}
+- Weaknesses: ${evaluation.weaknesses.join("; ")}
+${evaluation.antiCheatFlags.length > 0 ? `- Anti-Cheat Flags: ${evaluation.antiCheatFlags.join(", ")}` : ""}
+- What a great answer should contain: ${evaluation.perfectAnswerSummary}
+
+Provide coaching feedback. Return ONLY valid JSON (no markdown, no explanation outside the JSON):
+{
+  "explanation": "<string: explain what the correct/ideal answer should contain and WHY those points matter>",
+  "improvedAnswer": "<string: a model answer that would score 9-10/10 — demonstrate the quality expected>",
+  "tips": ["<string: specific, actionable tip based on observed weaknesses>", ...]
+}`;
 
   const response = await fetch(`${config.baseUrl}/chat/completions`, {
     method: "POST",
@@ -23,7 +57,10 @@ export async function coachAgent(params: {
     },
     body: JSON.stringify({
       model: config.model,
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
     }),
   });
 

@@ -14,8 +14,10 @@ describe("JobProfile validation", () => {
     role: "Frontend Developer",
     level: "middle",
     skills: ["React", "TypeScript"],
+    softSkills: [],
     domain: "Web Development",
     keywords: ["frontend", "ui"],
+    minYearsExperience: null,
   };
 
   it("validates correct JobProfile", () => {
@@ -64,9 +66,15 @@ describe("Question validation", () => {
 describe("Evaluation validation", () => {
   const valid: Evaluation = {
     score: 7,
+    accuracy: 2,
+    depth: 2,
+    relevance: 2,
+    examples: 1,
     strengths: ["good knowledge"],
     weaknesses: ["needs more practice"],
     recommendation: "Keep learning",
+    antiCheatFlags: [],
+    perfectAnswerSummary: "Include concrete examples",
   };
 
   it("validates correct Evaluation", () => {
@@ -91,8 +99,10 @@ describe("Session validation", () => {
       role: "Dev",
       level: "middle",
       skills: ["TS"],
+      softSkills: [],
       keywords: [],
       domain: "web",
+      minYearsExperience: null,
     },
     history: [
       { role: "user", content: "hello", timestamp: "2024-01-01T00:00:00.000Z" },
@@ -124,7 +134,7 @@ describe("Session validation", () => {
 
 describe("validateWithSchema", () => {
   it("returns parsed data on success", () => {
-    const data = { role: "Dev", level: "junior", skills: [], domain: "web", keywords: [] };
+    const data = { role: "Dev", level: "junior", skills: [], softSkills: [], domain: "web", keywords: [], minYearsExperience: null };
     const result = validateWithSchema(JobProfileSchema, data);
     expect(result.role).toBe("Dev");
   });

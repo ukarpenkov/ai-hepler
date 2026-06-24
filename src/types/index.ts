@@ -8,8 +8,10 @@ export const SessionSchema = z
         role: z.string(),
         level: z.string(),
         skills: z.array(z.string()),
+        softSkills: z.array(z.string()),
         keywords: z.array(z.string()),
         domain: z.string(),
+        minYearsExperience: z.number().nullable(),
       })
       .nullable(),
     history: z.array(

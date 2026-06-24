@@ -26,7 +26,7 @@ describe("updateMemoryTool", () => {
 
     const result = await updateMemoryTool({
       sessionId: "s1",
-      evaluation: { score: 3, strengths: [], weaknesses: [], recommendation: "" },
+      evaluation: { score: 3, accuracy: 1, depth: 1, relevance: 1, examples: 0, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "" },
       questionTopic: "typescript",
       redis: {} as never,
     });
@@ -49,7 +49,7 @@ describe("updateMemoryTool", () => {
 
     const result = await updateMemoryTool({
       sessionId: "s1",
-      evaluation: { score: 8, strengths: [], weaknesses: [], recommendation: "" },
+      evaluation: { score: 8, accuracy: 3, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "" },
       questionTopic: "typescript",
       redis: {} as never,
     });
@@ -71,7 +71,7 @@ describe("updateMemoryTool", () => {
 
     const result = await updateMemoryTool({
       sessionId: "s1",
-      evaluation: { score: 6, strengths: [], weaknesses: [], recommendation: "" },
+      evaluation: { score: 6, accuracy: 2, depth: 2, relevance: 1, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "" },
       questionTopic: "typescript",
       redis: {} as never,
     });

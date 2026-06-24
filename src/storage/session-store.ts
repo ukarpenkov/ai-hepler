@@ -5,8 +5,10 @@ export interface JobProfile {
   role: string;
   level: string;
   skills: string[];
+  softSkills: string[];
   keywords: string[];
   domain: string;
+  minYearsExperience: number | null;
 }
 
 export interface InterviewMessage {

@@ -27,14 +27,22 @@ describe("coachAgent", () => {
       role: "Frontend Developer",
       level: "middle",
       skills: ["React"],
+      softSkills: [],
       keywords: ["frontend"],
       domain: "web",
+      minYearsExperience: null,
     };
     const evaluation: EvaluationResult = {
       score: 6,
+      accuracy: 2,
+      depth: 2,
+      relevance: 1,
+      examples: 1,
       strengths: ["Good basics"],
       weaknesses: ["Needs depth"],
       recommendation: "Study advanced patterns",
+      antiCheatFlags: [],
+      perfectAnswerSummary: "Show deeper understanding",
     };
 
     const result = await coachAgent({

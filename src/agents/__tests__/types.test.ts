@@ -22,13 +22,13 @@ describe("agents/types", () => {
     const output: AgentOutput = { agentName: "coach", result: "{}" };
     expect(output.agentName).toBe("coach");
 
-    const job: ParsedJob = { role: "dev", level: "senior", skills: [], keywords: [], domain: "tech" };
+    const job: ParsedJob = { role: "dev", level: "senior", skills: [], softSkills: [], keywords: [], domain: "tech", minYearsExperience: null };
     expect(job.level).toBe("senior");
 
-    const eval_: EvaluationResult = { score: 8, strengths: [], weaknesses: [], recommendation: "good" };
+    const eval_: EvaluationResult = { score: 8, accuracy: 3, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "good", antiCheatFlags: [], perfectAnswerSummary: "good" };
     expect(eval_.score).toBe(8);
 
-    const question: QuestionResult = { question: "q", topic: "t", difficulty: "medium" };
+    const question: QuestionResult = { question: "q", topic: "t", difficulty: "medium", questionType: "theoretical_explanation", expectedAnswerCriteria: [] };
     expect(question.difficulty).toBe("medium");
 
     const coach: CoachResult = { explanation: "e", improvedAnswer: "a", tips: [] };

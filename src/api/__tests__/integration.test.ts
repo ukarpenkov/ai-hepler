@@ -17,21 +17,31 @@ const jobProfileResponse = {
   role: "Frontend Developer",
   level: "middle",
   skills: ["TypeScript", "React", "CSS"],
+  softSkills: [],
   keywords: ["frontend", "web"],
   domain: "web",
+  minYearsExperience: null,
 };
 
 const questionResponse = {
   question: "Explain the difference between TypeScript interfaces and types.",
   topic: "TypeScript",
   difficulty: "medium",
+  questionType: "theoretical_explanation",
+  expectedAnswerCriteria: ["Mention interfaces are extendable", "Mention types support unions"],
 };
 
 const evaluationResponse = {
   score: 7,
+  accuracy: 3,
+  depth: 2,
+  relevance: 2,
+  examples: 0,
   strengths: ["Good understanding of basics"],
   weaknesses: ["Could mention more advanced features"],
   recommendation: "Study generics and utility types",
+  antiCheatFlags: [],
+  perfectAnswerSummary: "Include advanced features like generics",
 };
 
 const coachResponse = {
@@ -44,6 +54,8 @@ const nextQuestionResponse = {
   question: "What are React hooks?",
   topic: "React",
   difficulty: "easy",
+  questionType: "theoretical_explanation",
+  expectedAnswerCriteria: [],
 };
 
 let fetchCallCount = 0;

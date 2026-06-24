@@ -18,8 +18,10 @@ describe("jobParserAgent", () => {
       role: "Frontend Developer",
       level: "senior" as const,
       skills: ["React", "TypeScript"],
+      softSkills: [],
       keywords: ["frontend"],
       domain: "web",
+      minYearsExperience: null,
     };
     vi.mocked(parseJobDescriptionTool).mockResolvedValue(mockParsed);
 

@@ -18,6 +18,8 @@ describe("interviewerAgent", () => {
       question: "Explain React hooks",
       topic: "React",
       difficulty: "medium" as const,
+      questionType: "theoretical_explanation" as const,
+      expectedAnswerCriteria: [],
     };
     vi.mocked(generateQuestionTool).mockResolvedValue(mockQuestion);
 
@@ -26,8 +28,10 @@ describe("interviewerAgent", () => {
       role: "Frontend Developer",
       level: "middle",
       skills: ["React"],
+      softSkills: [],
       keywords: ["frontend"],
       domain: "web",
+      minYearsExperience: null,
     };
 
     const result = await interviewerAgent({

@@ -39,8 +39,10 @@ describe("POST /job/parse", () => {
       role: "Dev",
       level: "middle",
       skills: ["TS"],
+      softSkills: [],
       keywords: [],
       domain: "web",
+      minYearsExperience: null,
     });
 
     const response = await app.inject({

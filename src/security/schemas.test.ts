@@ -15,8 +15,10 @@ describe("JobProfileSchema", () => {
     role: "Frontend Developer",
     level: "middle",
     skills: ["React", "TypeScript"],
+    softSkills: [],
     domain: "Web Development",
     keywords: ["frontend", "ui"],
+    minYearsExperience: null,
   };
 
   it("accepts valid data", () => {
@@ -65,9 +67,15 @@ describe("QuestionSchema", () => {
 describe("EvaluationSchema", () => {
   const valid: Evaluation = {
     score: 7,
+    accuracy: 2,
+    depth: 2,
+    relevance: 2,
+    examples: 1,
     strengths: ["good knowledge"],
     weaknesses: ["needs more practice"],
     recommendation: "Keep learning",
+    antiCheatFlags: [],
+    perfectAnswerSummary: "Include concrete examples",
   };
 
   it("accepts valid data", () => {
@@ -115,7 +123,7 @@ describe("MemoryUpdateSchema", () => {
 
 describe("validateWithSchema", () => {
   it("returns parsed data on success", () => {
-    const data = { role: "Dev", level: "junior", skills: [], domain: "web", keywords: [] };
+    const data = { role: "Dev", level: "junior", skills: [], softSkills: [], domain: "web", keywords: [], minYearsExperience: null };
     const result = validateWithSchema(JobProfileSchema, data);
     expect(result.role).toBe("Dev");
   });

@@ -16,7 +16,7 @@ const Fastify = (await import("fastify")).default;
 const { startInterviewStateless, processAnswerStateless } = await import("../../agents/orchestrator.js");
 const { interviewRoutes } = await import("../routes/interview.js");
 
-const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], keywords: [], domain: "web" };
+const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", minYearsExperience: null };
 
 describe("interview routes", () => {
   let app: ReturnType<typeof Fastify>;
@@ -36,9 +36,9 @@ describe("interview routes", () => {
   describe("POST /interview/start", () => {
     it("returns 200 with question and updatedHistory on valid input", async () => {
       vi.mocked(startInterviewStateless).mockResolvedValue({
-        question: { question: "What is TypeScript?", topic: "TS", difficulty: "medium" },
+        question: { question: "What is TypeScript?", topic: "TS", difficulty: "medium", questionType: "theoretical_explanation" as const, expectedAnswerCriteria: [] },
         updatedHistory: [
-          { role: "assistant", content: '{"question":"What is TypeScript?","topic":"TS","difficulty":"medium"}', timestamp: "" },
+          { role: "assistant", content: '{"question":"What is TypeScript?","topic":"TS","difficulty":"medium","questionType":"theoretical_explanation","expectedAnswerCriteria":[]}', timestamp: "" },
         ],
       });
 
@@ -83,9 +83,9 @@ describe("interview routes", () => {
   describe("POST /interview/answer", () => {
     it("returns 200 with full result on valid answer", async () => {
       vi.mocked(processAnswerStateless).mockResolvedValue({
-        evaluation: { score: 7, strengths: [], weaknesses: [], recommendation: "" },
+        evaluation: { score: 7, accuracy: 2, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "good" },
         coach: { explanation: "", improvedAnswer: "", tips: [] },
-        nextQuestion: { question: "Q2?", topic: "React", difficulty: "easy" },
+        nextQuestion: { question: "Q2?", topic: "React", difficulty: "easy", questionType: "theoretical_explanation" as const, expectedAnswerCriteria: [] },
         updatedHistory: [],
         updatedWeakSkills: [],
       });

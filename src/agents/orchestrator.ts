@@ -84,7 +84,7 @@ export async function processAnswer(
   const lastMessage = session.history.filter((m) => m.role === "assistant").pop();
   const currentQuestion: QuestionResult = lastMessage
     ? JSON.parse(lastMessage.content)
-    : { question: "", topic: "", difficulty: "easy" };
+    : { question: "", topic: "", difficulty: "easy", questionType: "theoretical_explanation", expectedAnswerCriteria: [] };
 
   const evalOutput = await evaluatorAgent({
     question: currentQuestion.question,
@@ -167,7 +167,7 @@ export async function processAnswerStateless(
   const lastMessage = sessionData.history.filter((m) => m.role === "assistant").pop();
   const currentQuestion: QuestionResult = lastMessage
     ? JSON.parse(lastMessage.content)
-    : { question: "", topic: "", difficulty: "easy" };
+    : { question: "", topic: "", difficulty: "easy", questionType: "theoretical_explanation", expectedAnswerCriteria: [] };
 
   const evalOutput = await evaluatorAgent({
     question: currentQuestion.question,
