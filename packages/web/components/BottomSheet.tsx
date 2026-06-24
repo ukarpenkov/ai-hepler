@@ -76,7 +76,22 @@ export default function BottomSheet({ isOpen, onToggle, title, children }: Botto
         aria-label={title}
       >
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-12 h-1.5 rounded-full" style={{ background: "var(--text-secondary)" }} />
+          <svg
+            width="24"
+            height="16"
+            viewBox="0 0 24 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.3s ease-in-out" }}
+          >
+            <path
+              d="M12 2L4 10M12 2L20 10"
+              stroke="var(--text-secondary)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
         <span className="pb-2 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
           {title}
