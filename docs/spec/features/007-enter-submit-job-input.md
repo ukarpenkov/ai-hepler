@@ -1,37 +1,37 @@
-# Feature: Отправка формы по клавише Ctrl+Enter
+# Feature: Submit form with Ctrl+Enter key
 
-**Дата:** 2026-06-24
-**Приоритет:** Low
-**Статус:** Done
-**Компонент:** Frontend
-
----
-
-## Описание
-
-Пользователь вынужден каждый раз кликать кнопку "Начать интервью" мышкой после вставки текста вакансии. Это лишний шаг, особенно когда текст уже вставлен из буфера обмена.
-
-## Текущее поведение
-
-- Ввод текста в `<textarea>`
-- Клик по кнопке "Начать интервью"
-- Enter создаёт новую строку в textarea
-- Нет способа отправить форму клавиатурой
-
-## Ожидаемое поведение
-
-- **Ctrl+Enter** (или Cmd+Enter на Mac) при `text.length >= 50` → вызывает `handleSubmit()`
-- **Enter** → вставляет перенос строки (стандартное поведение textarea)
-- **Ctrl+Enter** при `text.length < 50` → ничего не делает (без ошибки)
-- При `isLoading === true` → Ctrl+Enter не отправляет форму
+**Date:** 2026-06-24
+**Priority:** Low
+**Status:** Done
+**Component:** Frontend
 
 ---
 
-## Технические детали
+## Description
 
-### Реализация
+User is forced to click the "Start Interview" button with the mouse every time after pasting job description text. This is an extra step, especially when the text is already pasted from clipboard.
 
-Добавлен `onKeyDown` handler на `<textarea>` в `JobInputForm.tsx`:
+## Current Behavior
+
+- Text input in `<textarea>`
+- Click on "Start Interview" button
+- Enter creates a new line in textarea
+- No way to submit the form via keyboard
+
+## Expected Behavior
+
+- **Ctrl+Enter** (or Cmd+Enter on Mac) when `text.length >= 50` → calls `handleSubmit()`
+- **Enter** → inserts line break (standard textarea behavior)
+- **Ctrl+Enter** when `text.length < 50` → does nothing (no error)
+- When `isLoading === true` → Ctrl+Enter doesn't submit the form
+
+---
+
+## Technical Details
+
+### Implementation
+
+Added `onKeyDown` handler on `<textarea>` in `JobInputForm.tsx`:
 
 ```tsx
 onKeyDown={(e) => {
@@ -42,16 +42,16 @@ onKeyDown={(e) => {
 }}
 ```
 
-### Связанные файлы
+### Related Files
 
-- `packages/web/components/JobInputForm.tsx` — компонент с textarea
+- `packages/web/components/JobInputForm.tsx` — component with textarea
 
 ---
 
 ## Acceptance Criteria
 
-- [x] Ctrl+Enter при >= 50 символах отправляет форму
-- [x] Enter вставляет перенос строки
-- [x] Ctrl+Enter при < 50 символах не отправляет форму
-- [x] Ctrl+Enter при загрузке не отправляет форму
-- [x] typecheck и lint проходят без ошибок
+- [x] Ctrl+Enter at >= 50 characters submits the form
+- [x] Enter inserts a line break
+- [x] Ctrl+Enter at < 50 characters doesn't submit the form
+- [x] Ctrl+Enter during loading doesn't submit the form
+- [x] typecheck and lint pass without errors

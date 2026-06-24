@@ -1,45 +1,45 @@
-# 2026-06-22 — Кастомный шрифт для лого и правки расположения элементов
+# 2026-06-22 — Custom font for logo and layout element fixes
 
 ## Goal
 
-Добавить кастомный шрифт BlackOpsOne для текста "HireChat" в лого, увеличить размер шрифта, сдвинуть лого правее, поправить отступ "История сессий" от хедера.
+Add custom font BlackOpsOne for the "HireChat" logo text, increase font size, shift logo right, fix "Session History" header spacing from header.
 
 ## Changes
 
 ### `packages/asset/BlackOpsOne-Regular.ttf`
 
-- Добавлен файл шрифта BlackOpsOne-Regular.ttf (164 KB) в `packages/asset/`
+- Added BlackOpsOne-Regular.ttf font file (164 KB) to `packages/asset/`
 
 ### `packages/web/public/fonts/BlackOpsOne-Regular.ttf`
 
-- Скопирован шрифт в `packages/web/public/fonts/` для доступа через `next/font/local`
+- Copied font to `packages/web/public/fonts/` for access via `next/font/local`
 
 ### `app/layout.tsx`
 
-- Импорт `localFont` из `next/font/local`
-- Создан `blackOpsOne` с `src: "../public/fonts/BlackOpsOne-Regular.ttf"` и CSS-переменной `--font-black-ops-one`
-- Добавлена переменная `blackOpsOne.variable` в `className` body
+- Imported `localFont` from `next/font/local`
+- Created `blackOpsOne` with `src: "../public/fonts/BlackOpsOne-Regular.ttf"` and CSS variable `--font-black-ops-one`
+- Added `blackOpsOne.variable` to body `className`
 
 ### `components/Header.tsx`
 
-- Шрифт "HireChat" изменён: `text-xl` → `text-[1.5rem]` (увеличение в 1.2 раза)
-- Добавлен `style={{ fontFamily: "var(--font-black-ops-one)" }}` к span с текстом
-- Лого сдвинуто правее: добавлен `ml-2 md:ml-4` к кнопке лого (не к бургер-меню)
+- "HireChat" font changed: `text-xl` → `text-[1.5rem]` (1.2x increase)
+- Added `style={{ fontFamily: "var(--font-black-ops-one)" }}` to text span
+- Logo shifted right: added `ml-2 md:ml-4` to logo button (not burger menu)
 
 ### `components/Sidebar.tsx`
 
-- Увеличен `pt` сайдбара: `pt-[72px]` → `pt-[84px]`
-- Добавлен `mt-1` к заголовку "История сессий" для зазора от хедера
+- Increased sidebar `pt`: `pt-[72px]` → `pt-[84px]`
+- Added `mt-1` to "Session History" header for spacing from header
 
 ### `app/__tests__/layout.test.tsx`
 
-- Добавлен mock для `next/font/local` возвращающий `{ className, variable }`
+- Added mock for `next/font/local` returning `{ className, variable }`
 
 ## Result
 
 - typecheck: pass
 - lint: pass
 - tests: 52/52 pass
-- "HireChat" отображается шрифтом BlackOpsOne, размер 1.5rem
-- Лого сдвинуто правее от бургер-меню
-- "История сессий" в сайдбаре имеет отступ от хедера
+- "HireChat" displays with BlackOpsOne font, size 1.5rem
+- Logo shifted right from burger menu
+- "Session History" in sidebar has proper spacing from header

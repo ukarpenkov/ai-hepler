@@ -2,25 +2,25 @@
 
 ## Goal
 
-Отправка формы «Начать интервью» по нажатию Ctrl+Enter (Cmd+Enter на Mac) прямо из textarea, без необходимости кликать кнопку мышкой.
+Submit the "Start Interview" form via Ctrl+Enter (Cmd+Enter on Mac) directly from textarea, without needing to click the button.
 
 ## Problem
 
-После вставки текста вакансии пользователю приходилось каждый раз тянуться за мышкой, чтобы нажать кнопку. Это лишний шаг, особенно когда текст уже вставлен из буфера обмена.
+After pasting job description text, users had to reach for the mouse each time to click the button. This is an extra step, especially when text is already pasted from clipboard.
 
 ## Changes
 
 ### `packages/web/components/JobInputForm.tsx`
 
-Добавлен `onKeyDown` handler на `<textarea>`:
+Added `onKeyDown` handler on `<textarea>`:
 
-- **Ctrl+Enter** (или Cmd+Enter) при `text.length >= 50` → вызывает `handleSubmit()`
-- **Enter** → стандартный перенос строки
-- При `isLoading === true` → Ctrl+Enter не отправляет форму
+- **Ctrl+Enter** (or Cmd+Enter) with `text.length >= 50` → calls `handleSubmit()`
+- **Enter** → standard line break
+- When `isLoading === true` → Ctrl+Enter doesn't submit form
 
 ### `docs/spec/features/007-enter-submit-job-input.md`
 
-Создана feature-спека по формату остальных.
+Created feature spec following the format of existing specs.
 
 ## Verification
 

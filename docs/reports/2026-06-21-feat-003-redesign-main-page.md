@@ -1,88 +1,88 @@
-# 003-redesign-main-page — Итоговый отчёт
+# 003-redesign-main-page — Final Report
 
-**Дата:** 2026-06-21
-**Фича:** 003-redesign-main-page
+**Date:** 2026-06-21
+**Feature:** 003-redesign-main-page
 
-## Что сделано
+## What was done
 
-### Шаг 1: Tailwind config
-- Кастомные цвета: primary, surface, content
+### Step 1: Tailwind config
+- Custom colors: primary, surface, content
 - borderRadius: glass, card, button
 - backdropBlur, boxShadow, animation, keyframes
 
-### Шаг 2: globals.css
-- CSS-переменные `:root` (светлая тема)
-- CSS-переменные `[data-theme="dark"]` (тёмная тема)
-- `.glass` utility класс
+### Step 2: globals.css
+- CSS variables `:root` (light theme)
+- CSS variables `[data-theme="dark"]` (dark theme)
+- `.glass` utility class
 
-### Шаг 3: ThemeToggle
-- Переключатель темы light/dark
+### Step 3: ThemeToggle
+- Light/dark theme switcher
 - localStorage persistence
-- Автоопределение prefers-color-scheme
+- Auto-detection of prefers-color-scheme
 
-### Шаг 4: BurgerMenu
-- Toggle sidebar с анимацией в крестик
+### Step 4: BurgerMenu
+- Toggle sidebar with animation to cross icon
 
-### Шаг 5: Header
-- Логотип, ThemeToggle, BurgerMenu
+### Step 5: Header
+- Logo, ThemeToggle, BurgerMenu
 
-### Шаг 6: Sidebar
-- История сессий с hover-эффектами
+### Step 6: Sidebar
+- Session history with hover effects
 
-### Шаг 7: JobInputForm
-- Textarea + кнопка "Начать интервью"
+### Step 7: JobInputForm
+- Textarea + "Start Interview" button
 
-### Шаг 8: BackgroundEffects
-- Декоративные фоновые круги
+### Step 8: BackgroundEffects
+- Decorative background circles
 
-### Шаг 9: layout.tsx
-- Inline script для предотвращения FOUC
+### Step 9: layout.tsx
+- Inline script to prevent FOUC
 
-### Шаг 10: page.tsx
-- Новый дизайн с компонентами Header, Sidebar, JobInputForm, BackgroundEffects
-- Сохранена логика API вызовов
+### Step 10: page.tsx
+- New design with Header, Sidebar, JobInputForm, BackgroundEffects components
+- API call logic preserved
 
-### Шаг 11: page.test.tsx
-- Моки для всех новых компонентов
-- 5 тестов
+### Step 11: page.test.tsx
+- Mocks for all new components
+- 5 tests
 
-### Шаг 12: typecheck + lint
-- ✅ typecheck проходит
-- ✅ lint проходит
+### Step 12: typecheck + lint
+- ✅ typecheck passes
+- ✅ lint passes
 
-### Шаг 13: Все тесты
-- ✅ 46/46 тестов проходят
-- Pre-existing: ChatWindow.test.tsx (1 fail — не связан)
+### Step 13: All tests
+- ✅ 46/46 tests pass
+- Pre-existing: ChatWindow.test.tsx (1 fail — unrelated)
 
-### Шаг 14: Отчёт
-- Данный файл
+### Step 14: Report
+- This file
 
-## Изменённые файлы
+## Changed files
 
-| Файл | Тип |
-|------|-----|
-| `packages/web/tailwind.config.ts` | Изменён |
-| `packages/web/app/globals.css` | Изменён |
-| `packages/web/app/layout.tsx` | Изменён |
-| `packages/web/app/page.tsx` | Переписан |
-| `packages/web/app/__tests__/page.test.tsx` | Обновлён |
-| `packages/web/components/ThemeToggle.tsx` | Создан |
-| `packages/web/components/ThemeToggle.test.tsx` | Создан |
-| `packages/web/components/BurgerMenu.tsx` | Создан |
-| `packages/web/components/BurgerMenu.test.tsx` | Создан |
-| `packages/web/components/Header.tsx` | Создан |
-| `packages/web/components/Header.test.tsx` | Создан |
-| `packages/web/components/Sidebar.tsx` | Создан |
-| `packages/web/components/Sidebar.test.tsx` | Создан |
-| `packages/web/components/JobInputForm.tsx` | Создан |
-| `packages/web/components/JobInputForm.test.tsx` | Создан |
-| `packages/web/components/BackgroundEffects.tsx` | Создан |
-| `packages/web/components/BackgroundEffects.test.tsx` | Создан |
-| `docs/reports/2026-06-21-feat-003-redesign-steps-1-4.md` | Создан |
-| `docs/reports/2026-06-21-feat-003-redesign-steps-5-9.md` | Создан |
-| `docs/reports/2026-06-21-feat-003-redesign-main-page.md` | Создан |
+| File | Type |
+|------|------|
+| `packages/web/tailwind.config.ts` | Modified |
+| `packages/web/app/globals.css` | Modified |
+| `packages/web/app/layout.tsx` | Modified |
+| `packages/web/app/page.tsx` | Rewritten |
+| `packages/web/app/__tests__/page.test.tsx` | Updated |
+| `packages/web/components/ThemeToggle.tsx` | Created |
+| `packages/web/components/ThemeToggle.test.tsx` | Created |
+| `packages/web/components/BurgerMenu.tsx` | Created |
+| `packages/web/components/BurgerMenu.test.tsx` | Created |
+| `packages/web/components/Header.tsx` | Created |
+| `packages/web/components/Header.test.tsx` | Created |
+| `packages/web/components/Sidebar.tsx` | Created |
+| `packages/web/components/Sidebar.test.tsx` | Created |
+| `packages/web/components/JobInputForm.tsx` | Created |
+| `packages/web/components/JobInputForm.test.tsx` | Created |
+| `packages/web/components/BackgroundEffects.tsx` | Created |
+| `packages/web/components/BackgroundEffects.test.tsx` | Created |
+| `docs/reports/2026-06-21-feat-003-redesign-steps-1-4.md` | Created |
+| `docs/reports/2026-06-21-feat-003-redesign-steps-5-9.md` | Created |
+| `docs/reports/2026-06-21-feat-003-redesign-main-page.md` | Created |
 
-## Результаты проверок
+## Verification results
 
 - `npm run typecheck`: ✅
 - `npm run lint`: ✅
@@ -90,8 +90,8 @@
 
 ## Known issues
 
-- `ChatWindow.test.tsx` — pre-existing bug (тест ожидает "Отличный ответ", компонент рендерит "Добавьте примеры"). Не связан с данными изменениями.
+- `ChatWindow.test.tsx` — pre-existing bug (test expects "Отличный ответ", component renders "Добавьте примеры"). Not related to these changes.
 
-## Итоговый статус
+## Final status
 
-✅ Фича 003-redesign-main-page выполнена успешно
+✅ Feature 003-redesign-main-page completed successfully

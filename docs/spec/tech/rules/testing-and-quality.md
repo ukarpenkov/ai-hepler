@@ -1,37 +1,37 @@
 # Testing Rules
 
-## Общие принципы
+## General Principles
 
-- Каждый PR должен проходить все проверки перед мержем
-- Тесты пишутся на том же языке, что и проект (TypeScript)
-- Тесты запускаются в CI автоматически
+- Every PR must pass all checks before merging
+- Tests are written in the same language as the project (TypeScript)
+- Tests run automatically in CI
 
 ---
 
-## 1. Unit-тесты
+## 1. Unit Tests
 
-**Фреймворк:** Vitest (или Jest — выбрать один)
+**Framework:** Vitest (or Jest — choose one)
 
-**Что покрывается:**
-- утилиты и хелперы — 100%
-- бизнес-логика агентов (парсинг, оценка, генерация) — по возможности
-- валидация входных данных
-- трансформация данных между слоями
+**What gets covered:**
+- utilities and helpers — 100%
+- agent business logic (parsing, evaluation, generation) — where possible
+- input data validation
+- data transformation between layers
 
-**Что НЕ покрывается:**
-- UI-компоненты (покрываются интеграционными / E2E при необходимости)
-- внешние API-вызовы (мокаются)
+**What is NOT covered:**
+- UI components (covered by integration / E2E tests if needed)
+- external API calls (mocked)
 
-**Структура файлов:**
+**File structure:**
 
 ```
 src/
   utils/
     parseJob.ts
-    parseJob.test.ts    # тест рядом с исходником
+    parseJob.test.ts    # test next to source
 ```
 
-**Запуск:**
+**Running:**
 
 ```bash
 npm run test
@@ -39,37 +39,37 @@ npm run test
 
 ---
 
-## 2. Проверка типов (Type Checking)
+## 2. Type Checking
 
-**Инструмент:** TypeScript (`tsc`)
+**Tool:** TypeScript (`tsc`)
 
-**Правило:** проект должен компилироваться без ошибок типов.
+**Rule:** the project must compile without type errors.
 
 ```bash
 npx tsc --noEmit
 ```
 
-Запускать перед каждым коммитом. В CI — обязательно.
+Run before every commit. In CI — mandatory.
 
 ---
 
-## 3. Линтинг
+## 3. Linting
 
-**Инструмент:** ESLint
+**Tool:** ESLint
 
-**ESLint** — проверка логических ошибок и стиля кода:
-- неиспользуемые переменные
-- несуществующие импорты
-- опасные конструкции
-- консистентность с проектными правилами
+**ESLint** — checks for logical errors and code style:
+- unused variables
+- non-existent imports
+- dangerous constructs
+- consistency with project rules
 
-**Запуск:**
+**Run:**
 
 ```bash
 npx eslint . --max-warnings 0
 ```
 
-**Автоисправление:**
+**Auto-fix:**
 
 ```bash
 npx eslint . --fix
@@ -77,20 +77,20 @@ npx eslint . --fix
 
 ---
 
-## 4. Порядок проверок перед коммитом
+## 4. Pre-commit Check Order
 
 ```
-1. npm run typecheck     # проверка типов
-2. npm run lint          # линтинг
-3. npm run test          # unit-тесты
+1. npm run typecheck     # type checking
+2. npm run lint          # linting
+3. npm run test          # unit tests
 4. git commit
 ```
 
-Все три должны пройти успешно. Если что-то упало — фиксить до коммита.
+All three must pass. If something fails — fix before committing.
 
 ---
 
-## 5. Что ожидается в package.json
+## 5. Expected package.json Scripts
 
 ```json
 {
@@ -106,9 +106,9 @@ npx eslint . --fix
 
 ---
 
-## 6. CI (GitHub Actions / любая система)
+## 6. CI (GitHub Actions / any system)
 
-Обязательные шаги в CI:
+Required CI steps:
 
 ```yaml
 - run: npm run typecheck
@@ -116,4 +116,4 @@ npx eslint . --fix
 - run: npm run test
 ```
 
-PR не мержится, пока хотя бы один из шагов не пройден.
+PR cannot be merged until at least one of the steps fails.

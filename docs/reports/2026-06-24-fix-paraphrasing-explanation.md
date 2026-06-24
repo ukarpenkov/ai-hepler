@@ -1,20 +1,20 @@
-# 2026-06-24 — Fix: правильное объяснение при парсинге вопроса как ответа
+# 2026-06-24 — Fix: correct explanation when question is parsed as answer
 
 ## Problem
 
-При копировании вопроса как ответа:
-- Оценка 1/10 — **правильно** (anti-cheat работает)
-- Recommendation: "Never leave an answer empty" — **неправильно** (не объясняет причину)
+When copying question as answer:
+- Score 1/10 — **correct** (anti-cheat works)
+- Recommendation: "Never leave an answer empty" — **incorrect** (doesn't explain the reason)
 
 ## Root cause
 
-Промпт в `evaluate-answer.tool.ts` содержал anti-cheat правила с флагами, но не инструктировал LLM привязывать `recommendation` к конкретным флагам. Модель выбирала generic-предупреждение вместо адресного объяснения.
+The prompt in `evaluate-answer.tool.ts` had anti-cheat rules with flags, but didn't instruct LLM to tie `recommendation` to specific flags. Model chose a generic warning instead of a targeted explanation.
 
 ## Solution
 
-Добавлены прямые инструкции в anti-cheat правила:
+Added direct instructions to anti-cheat rules:
 
-**Для `paraphrasing_question` (сильный кейс — копипаст):**
+**For `paraphrasing_question` (strong case — copy-paste):**
 ```
 When "paraphrasing_question" is flagged, the recommendation MUST explicitly state
 that copying or paraphrasing the question is unacceptable and not a real answer
@@ -22,7 +22,7 @@ that copying or paraphrasing the question is unacceptable and not a real answer
 be an immediate rejection. Answer honestly even if you don't know everything."
 ```
 
-**Для перефраза без добавления контента:**
+**For paraphrase without added content:**
 ```
 When flagged, the recommendation MUST explain that paraphrasing the question
 is not a valid answer and the candidate should provide original content.
@@ -43,5 +43,5 @@ npm run lint        # 0 warnings
 
 ## Expected behavior after fix
 
-При копировании вопроса → recommendation содержит:
-> "Копирование вопроса — это не ответ. На реальном собеседовании это было бы немедленным отказом. Отвечайте честно, даже если не знаете всего."
+When copying question → recommendation contains:
+> "Copying the question is not an answer. On a real interview this would be an immediate rejection. Answer honestly even if you don't know everything."

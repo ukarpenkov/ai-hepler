@@ -1,43 +1,43 @@
 # Bug: Session cards clipped on hover in sidebar
 
-**Дата:** 2026-06-24
-**Приоритет:** Low
-**Статус:** Fixed
-**Компонент:** Frontend — `Sidebar.tsx`
+**Date:** 2026-06-24
+**Priority:** Low
+**Status:** Fixed
+**Component:** Frontend — `Sidebar.tsx`
 
-## Описание
+## Description
 
-При наведении на карточку сессии в sidebar, hover-эффект (`translate-x-1.5` + `shadow`) выходил за границы контейнера sidebar и обрезался.
+When hovering over a session card in the sidebar, the hover effect (`translate-x-1.5` + `shadow`) extended beyond the sidebar container and was clipped.
 
-## Ожидаемое поведение
+## Expected Behavior
 
-Hover-эффект на карточках сессий должен отображаться полностью, не обрезаясь на краю sidebar.
+The hover effect on session cards should be fully visible without being cut off at the sidebar edge.
 
-## Фактическое поведение
+## Actual Behavior
 
-- Карточки при `hover` сдвигались вправо (`translate-x-1.5`) и получали тень (`shadow-lg`)
-- Sidebar имел `px-5` (20px) внутренний padding
-- Комбинация padding карточки (`p-3.5 px-4`) + hover-сдвиг + тень превышала доступное пространство
-- Правая часть hover-эффекта обрезалась границей sidebar
+- Cards on `hover` shifted right (`translate-x-1.5`) and received a shadow (`shadow-lg`)
+- Sidebar had `px-5` (20px) internal padding
+- The combination of card padding (`p-3.5 px-4`) + hover shift + shadow exceeded the available space
+- The right part of the hover effect was clipped by the sidebar border
 
-## Воспроизведение
+## Reproduction
 
-1. Открыть приложение с историей сессий
-2. Навести курсор на карточку сессии в sidebar
-3. **Наблюдение:** правая часть карточки с тенью обрезается
+1. Open the app with session history
+2. Hover over a session card in the sidebar
+3. **Observation:** the right part of the card with shadow is clipped
 
-## Скриншот
+## Screenshot
 
 ![Bug screenshot](bug-sidebar-cards-clipped.png)
 
-## Исправление
+## Fix
 
 **`packages/web/components/Sidebar.tsx`:**
 
-| Параметр | Было | Стало |
-|----------|------|-------|
+| Parameter | Before | After |
+|-----------|--------|-------|
 | Sidebar padding | `px-5` (20px) | `px-3` (12px) |
 | Card padding | `p-3.5 px-4` | `p-3 px-3.5` |
 | Hover translate | `translate-x-1.5` (6px) | `translate-x-1` (4px) |
 
-Увеличение свободного пространства за счёт уменьшения padding sidebar и карточек, а также уменьшение величины hover-сдвига.
+Increased free space by reducing sidebar and card padding, as well as reducing the hover shift amount.

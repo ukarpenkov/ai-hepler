@@ -1,56 +1,56 @@
-# Общие требования к проекту
+# General Project Requirements
 
-## 1. Выбор направления (один трек)
+## 1. Track Selection (one track only)
 
-Нужно выбрать только один из четырёх треков:
+You must choose only one of four tracks:
 
-- **Agents for Good** — агенты для решения социальных задач (образование, медицина, сельское хозяйство, искусство)
-- **Agents for Business** — бизнес-решения (аналитика, оптимизация процессов, финансы, продуктовые улучшения)
-- **Concierge Agents** — персональные помощники (планирование, организация, повседневные задачи с защитой данных)
-- **Freestyle Track** — свободная тема, любая идея, если есть практическая польза и сильный агентный дизайн
+- **Agents for Good** — agents for solving social challenges (education, medicine, agriculture, art)
+- **Agents for Business** — business solutions (analytics, process optimization, finance, product improvements)
+- **Concierge Agents** — personal assistants (planning, organization, daily tasks with data protection)
+- **Freestyle Track** — free topic, any idea, as long as it has practical utility and strong agent design
 
-## 2. Формат участия
+## 2. Participation Format
 
-- Можно делать проект индивидуально или в команде до 4 человек
-- 1 участник / 1 команда = 1 проект (каждый может подать только один проект)
+- You can work on the project individually or in a team of up to 4 people
+- 1 participant / 1 team = 1 project (each can submit only one project)
 
-## 3. Технические требования (ключевое!)
+## 3. Technical Requirements (Key!)
 
-Проект должен демонстрировать **минимум 3 ключевые концепции курса**, например:
+The project must demonstrate **at least 3 key concepts from the course**, for example:
 
-| Концепция | Описание |
-|-----------|----------|
-| **Multi-agent systems** | Несколько агентов: параллельные или последовательные |
-| **Tools / инструменты** | MCP серверы, кастомные tools, Google Search и другие внешние инструменты |
-| **Agent Skills** | Специализированные навыки агентов |
-| **Security features** | Безопасность, контроль доступа, защита данных |
+| Concept | Description |
+|---------|-------------|
+| **Multi-agent systems** | Multiple agents: parallel or sequential |
+| **Tools** | MCP servers, custom tools, Google Search and other external tools |
+| **Agent Skills** | Specialized agent capabilities |
+| **Security features** | Security, access control, data protection |
 
-И другие концепции из курса ADK.
+And other concepts from the ADK course.
 
-## 4. Платформа реализации
+## 4. Implementation Platform
 
-- Проект нужно реализовать с использованием подхода **Agent Development Kit (ADK)**
-- Обычно подразумевается построение агентной системы, а не просто чат-бота
+- The project must be implemented using the **Agent Development Kit (ADK)** approach
+- This typically implies building an agent system, not just a chatbot
 
-## 5. Дедлайны
+## 5. Deadlines
 
-| Событие | Дата |
-|---------|------|
-| Финальный дедлайн | **6 июля 2026, 23:59 PT** |
-| Результаты | До конца июля 2026 |
+| Event | Date |
+|-------|------|
+| Final deadline | **July 6, 2026, 23:59 PT** |
+| Results | By end of July 2026 |
 
-## 6. Награды
+## 6. Prizes
 
-### Все участники получат:
+### All participants receive:
 - Kaggle badge
-- Сертификат
+- Certificate
 
-### Лучшие проекты (Top 3 в каждом треке):
+### Top projects (Top 3 in each track):
 - Kaggle swag
-- Публикация в соцсетях Kaggle
+- Publication on Kaggle social media
 
 ---
 
-## Суть задания в одном предложении
+## The Task in One Sentence
 
-> Нужно построить реального AI-агента (или систему агентов) с использованием ADK, который решает практическую задачу и демонстрирует минимум 3 продвинутых концепции курса.
+> You need to build a real AI agent (or agent system) using ADK that solves a practical problem and demonstrates at least 3 advanced concepts from the course.

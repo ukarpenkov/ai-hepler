@@ -1,28 +1,28 @@
-# Фаза 1 — Промты для деплоя
+# Phase 1 — Prompts for Deployment
 
 ---
 
-## Шаг 1 — Исправить конфигурацию (DEEPSEEK_API_KEY вместо OPENROUTER_API_KEY) ✅ Выполнено
+## Step 1 — Fix Configuration (DEEPSEEK_API_KEY instead of OPENROUTER_API_KEY) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Обнови файл src/config.ts для работы с DeepSeek API вместо OpenRouter.
+Update the file src/config.ts to work with DeepSeek API instead of OpenRouter.
 
-Текущий код:
+Current code:
 ```typescript
 const openrouterApiKey = process.env.OPENROUTER_API_KEY;
 if (!openrouterApiKey) {
@@ -37,307 +37,307 @@ const config = {
 export default config;
 ```
 
-Нужно изменить на:
-1. Заменить OPENROUTER_API_KEY → DEEPSEEK_API_KEY
-2. Переименовать поле openrouterApiKey → deepseekApiKey
-3. Добавить поле llmBaseUrl: строка, по умолчанию "https://api.deepseek.com"
-4. Добавить поле llmModel: строка, по умолчанию "deepseek-chat"
-5. Сделать redisUrl опциональным: если REDIS_URL не задан — вернуть undefined (не строку)
-6. Обновить .env.example: заменить OPENROUTER_API_KEY на DEEPSEEK_API_KEY
-7. Обновить тест src/utils/__tests__/config.test.ts:
-   - Тест что deepseekApiKey берётся из DEEPSEEK_API_KEY
-   - Тест что llmBaseUrl по умолчанию "https://api.deepseek.com"
-   - Тест что llmModel по умолчанию "deepseek-chat"
-   - Тест что redisUrl undefined если REDIS_URL не задан
-   - Тест что missing DEEPSEEK_API_KEY выбрасывает ошибку
+Need to change to:
+1. Replace OPENROUTER_API_KEY → DEEPSEEK_API_KEY
+2. Rename field openrouterApiKey → deepseekApiKey
+3. Add field llmBaseUrl: string, default "https://api.deepseek.com"
+4. Add field llmModel: string, default "deepseek-chat"
+5. Make redisUrl optional: if REDIS_URL is not set — return undefined (not a string)
+6. Update .env.example: replace OPENROUTER_API_KEY with DEEPSEEK_API_KEY
+7. Update test src/utils/__tests__/config.test.ts:
+   - Test that deepseekApiKey is taken from DEEPSEEK_API_KEY
+   - Test that llmBaseUrl defaults to "https://api.deepseek.com"
+   - Test that llmModel defaults to "deepseek-chat"
+   - Test that redisUrl is undefined if REDIS_URL is not set
+   - Test that missing DEEPSEEK_API_KEY throws an error
 
 
 ---
 
-## Шаг 2 — Обновить parseJobDescriptionTool (DeepSeek API) ✅ Выполнено
+## Step 2 — Update parseJobDescriptionTool (DeepSeek API) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Обнови файл src/tools/parse-job-description.tool.ts для работы с DeepSeek API.
+Update the file src/tools/parse-job-description.tool.ts to work with DeepSeek API.
 
-Текущий код вызывает fetch("https://openrouter.ai/api/v1/chat/completions") с моделью "deepseek/deepseek-chat".
+The current code calls fetch("https://openrouter.ai/api/v1/chat/completions") with model "deepseek/deepseek-chat".
 
-Нужно изменить:
-1. Сигнатуру функции: parseJobDescriptionTool(text: string, config: { apiKey: string }) → parseJobDescriptionTool(text: string, config: { apiKey: string, baseUrl: string, model: string })
+Need to change:
+1. Function signature: parseJobDescriptionTool(text: string, config: { apiKey: string }) → parseJobDescriptionTool(text: string, config: { apiKey: string, baseUrl: string, model: string })
 2. URL: "https://openrouter.ai/api/v1/chat/completions" → `${config.baseUrl}/chat/completions`
-3. Модель: "deepseek/deepseek-chat" → config.model
-4. Заголовок ошибки: "OpenRouter API error" → "LLM API error"
+3. Model: "deepseek/deepseek-chat" → config.model
+4. Error header: "OpenRouter API error" → "LLM API error"
 
-Обнови тест src/tools/__tests__/parse-job-description.tool.test.ts:
-- Мокай fetch на URL, содержащий "api.deepseek.com" (или любой baseUrl)
-- Передавай config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
+Update test src/tools/__tests__/parse-job-description.tool.test.ts:
+- Mock fetch on URL containing "api.deepseek.com" (or any baseUrl)
+- Pass config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
 ```
 
 ---
 
-## Шаг 3 — Обновить generateQuestionTool (DeepSeek API) ✅ Выполнено
+## Step 3 — Update generateQuestionTool (DeepSeek API) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Обнови файл src/tools/generate-question.tool.ts для работы с DeepSeek API.
+Update the file src/tools/generate-question.tool.ts to work with DeepSeek API.
 
-Текущий код вызывает fetch("https://openrouter.ai/api/v1/chat/completions") с моделью "deepseek/deepseek-chat".
+The current code calls fetch("https://openrouter.ai/api/v1/chat/completions") with model "deepseek/deepseek-chat".
 
-Нужно изменить:
-1. Сигнатуру функции: добавить baseUrl и model в config параметр
-   Было: config: { apiKey: string }
-   Стало: config: { apiKey: string, baseUrl: string, model: string }
+Need to change:
+1. Function signature: add baseUrl and model to config parameter
+   Was: config: { apiKey: string }
+   Now: config: { apiKey: string, baseUrl: string, model: string }
 2. URL: "https://openrouter.ai/api/v1/chat/completions" → `${config.baseUrl}/chat/completions`
-3. Модель: "deepseek/deepseek-chat" → config.model
-4. Заголовок ошибки: "OpenRouter API error" → "LLM API error"
+3. Model: "deepseek/deepseek-chat" → config.model
+4. Error header: "OpenRouter API error" → "LLM API error"
 
-Обнови тест src/tools/__tests__/generate-question.tool.test.ts:
-- Передавай config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
+Update test src/tools/__tests__/generate-question.tool.test.ts:
+- Pass config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
 ```
 
 ---
 
-## Шаг 4 — Обновить evaluateAnswerTool (DeepSeek API) ✅ Выполнено
+## Step 4 — Update evaluateAnswerTool (DeepSeek API) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Обнови файл src/tools/evaluate-answer.tool.ts для работы с DeepSeek API.
+Update the file src/tools/evaluate-answer.tool.ts to work with DeepSeek API.
 
-Текущий код вызывает fetch("https://openrouter.ai/api/v1/chat/completions") с моделью "deepseek/deepseek-chat".
+The current code calls fetch("https://openrouter.ai/api/v1/chat/completions") with model "deepseek/deepseek-chat".
 
-Нужно изменить:
-1. Сигнатуру функции: добавить baseUrl и model в config параметр
-   Было: config: { apiKey: string }
-   Стало: config: { apiKey: string, baseUrl: string, model: string }
+Need to change:
+1. Function signature: add baseUrl and model to config parameter
+   Was: config: { apiKey: string }
+   Now: config: { apiKey: string, baseUrl: string, model: string }
 2. URL: "https://openrouter.ai/api/v1/chat/completions" → `${config.baseUrl}/chat/completions`
-3. Модель: "deepseek/deepseek-chat" → config.model
-4. Заголовок ошибки: "OpenRouter API error" → "LLM API error"
+3. Model: "deepseek/deepseek-chat" → config.model
+4. Error header: "OpenRouter API error" → "LLM API error"
 
-Обнови тест src/tools/__tests__/evaluate-answer.tool.test.ts:
-- Передавай config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
+Update test src/tools/__tests__/evaluate-answer.tool.test.ts:
+- Pass config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
 ```
 
 ---
 
-## Шаг 5 — Обновить coachAgent (DeepSeek API) ✅ Выполнено
+## Step 5 — Update coachAgent (DeepSeek API) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Обнови файл src/agents/coach.agent.ts для работы с DeepSeek API.
+Update the file src/agents/coach.agent.ts to work with DeepSeek API.
 
-Текущий код вызывает fetch("https://openrouter.ai/api/v1/chat/completions") с моделью "deepseek/deepseek-chat".
+The current code calls fetch("https://openrouter.ai/api/v1/chat/completions") with model "deepseek/deepseek-chat".
 
-Нужно изменить:
-1. Сигнатуру функции: добавить baseUrl и model в config параметр
-   Было: config: { apiKey: string }
-   Стало: config: { apiKey: string, baseUrl: string, model: string }
+Need to change:
+1. Function signature: add baseUrl and model to config parameter
+   Was: config: { apiKey: string }
+   Now: config: { apiKey: string, baseUrl: string, model: string }
 2. URL: "https://openrouter.ai/api/v1/chat/completions" → `${config.baseUrl}/chat/completions`
-3. Модель: "deepseek/deepseek-chat" → config.model
-4. Заголовок ошибки: "OpenRouter API error" → "LLM API error"
+3. Model: "deepseek/deepseek-chat" → config.model
+4. Error header: "OpenRouter API error" → "LLM API error"
 
-Обнови тест src/agents/__tests__/coach.agent.test.ts:
-- Передавай config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
+Update test src/agents/__tests__/coach.agent.test.ts:
+- Pass config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
 ```
 
 ---
 
-## Шаг 6 — Обновить оркестратор (передача config всем агентам) ✅ Выполнено
+## Step 6 — Update orchestrator (pass config to all agents) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
-
-```
-Обнови файл src/agents/orchestrator.ts для передачи полного config (apiKey, baseUrl, model) всем агентам.
-
-Сейчас оркестратор принимает config: { apiKey: string } и передаёт его агентам.
-
-Нужно изменить:
-1. Сигнатуры функций parseJob, startInterview, processAnswer:
-   Было: config: { apiKey: string }
-   Стало: config: { apiKey: string, baseUrl: string, model: string }
-2. Во всех вызовах агентов (jobParserAgent, interviewerAgent, evaluatorAgent, coachAgent, memoryAgent) передавай полный config
-3. Импортируй config из ../config.js и используй его при вызове функций оркестратора
-
-Обнови тест src/agents/__tests__/orchestrator.test.ts:
-- Передавай config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
-```
-
----
-
-## Шаг 7 — Обновить API routes (передача config из конфига) ✅ Выполнено
-
-**Статус:**
-
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-
-**Промт:**
+**Prompt:**
 
 ```
-Обнови API маршруты для передачи полного config из конфига приложения.
+Update the file src/agents/orchestrator.ts to pass the full config (apiKey, baseUrl, model) to all agents.
 
-Файлы: src/api/routes/job.ts, src/api/routes/interview.ts
+Currently the orchestrator takes config: { apiKey: string } and passes it to agents.
 
-Сейчас маршруты импортируют config и передают { apiKey: config.openrouterApiKey }.
+Need to change:
+1. Function signatures parseJob, startInterview, processAnswer:
+   Was: config: { apiKey: string }
+   Now: config: { apiKey: string, baseUrl: string, model: string }
+2. In all agent calls (jobParserAgent, interviewerAgent, evaluatorAgent, coachAgent, memoryAgent) pass the full config
+3. Import config from ../config.js and use it when calling orchestrator functions
 
-Нужно изменить:
-1. В каждом маршруте импортируй config из ../../config.js
-2. Создай объект llmConfig: { apiKey: config.deepseekApiKey, baseUrl: config.llmBaseUrl, model: config.llmModel }
-3. Передавай llmConfig в вызовы оркестратора (parseJob, startInterview, processAnswer)
-
-Обнови тесты:
-- src/api/__tests__/job.test.ts — mocked config должен содержать deepseekApiKey, llmBaseUrl, llmModel
-- src/api/__tests__/interview.test.ts — аналогично
+Update test src/agents/__tests__/orchestrator.test.ts:
+- Pass config: { apiKey: "test", baseUrl: "https://api.deepseek.com", model: "deepseek-chat" }
 ```
 
 ---
 
-## Шаг 8 — Сделать Redis опциональным (in-memory fallback) ✅ Выполнено
+## Step 7 — Update API routes (pass config from app config) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Сделай Redis опциональным с in-memory fallback для работы на Cloud Run без Memorystore.
+Update API routes to pass the full config from the application config.
 
-1. Обнови src/storage/redis.ts:
-   - Функция createRedisClient(url: string | undefined) → Redis | null
-   - Если url не задан или пустой — вернуть null
-   - Если url задан — создать Redis клиент как раньше
+Files: src/api/routes/job.ts, src/api/routes/interview.ts
 
-2. Обнови src/storage/session-store.ts:
-   - Добавь in-memory хранилище: Map<string, { data: SessionData, expiresAt: number }>
-   - Измени сигнатуры функций: client: Redis → client: Redis | null
-   - createSession: если client=null → сохранить в Map с TTL 24 часа
-   - getSession: если client=null → найти в Map (проверить expiresAt)
-   - updateSession: если client=null → обновить в Map
-   - deleteSession: если client=null → удалить из Map
-   - При использовании Redis — логика как раньше
+Currently the routes import config and pass { apiKey: config.openrouterApiKey }.
 
-3. Обнови src/api/server.ts:
-   - createRedisClient может вернуть null
-   - server.decorate("redis", redis) — redis может быть null
-   - В shutdown: если redis — закрыть, если null — пропустить
+Need to change:
+1. In each route import config from ../../config.js
+2. Create object llmConfig: { apiKey: config.deepseekApiKey, baseUrl: config.llmBaseUrl, model: config.llmModel }
+3. Pass llmConfig to orchestrator calls (parseJob, startInterview, processAnswer)
 
-4. Обнови тест src/storage/__tests__/session-store.test.ts:
-   - Добавь тесты для in-memory режима (client=null)
-   - Тест createSession с null client — создаёт в Map
-   - Тест getSession с null client — находит в Map
-   - Тест updateSession с null client — обновляет в Map
-   - Тест deleteSession с null client — удаляет из Map
+Update tests:
+- src/api/__tests__/job.test.ts — mocked config should contain deepseekApiKey, llmBaseUrl, llmModel
+- src/api/__tests__/interview.test.ts — similarly
 ```
 
 ---
 
-## Шаг 9 — Добавить скрипты сборки в package.json ✅ Выполнено
+## Step 8 — Make Redis optional (in-memory fallback) ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Добавь скрипты сборки и запуска в package.json.
+Make Redis optional with in-memory fallback to run on Cloud Run without Memorystore.
 
-Текущие scripts:
+1. Update src/storage/redis.ts:
+   - Function createRedisClient(url: string | undefined) → Redis | null
+   - If url is not set or empty — return null
+   - If url is set — create Redis client as before
+
+2. Update src/storage/session-store.ts:
+   - Add in-memory storage: Map<string, { data: SessionData, expiresAt: number }>
+   - Change function signatures: client: Redis → client: Redis | null
+   - createSession: if client=null → save to Map with TTL 24 hours
+   - getSession: if client=null → find in Map (check expiresAt)
+   - updateSession: if client=null → update in Map
+   - deleteSession: if client=null → delete from Map
+   - When using Redis — logic as before
+
+3. Update src/api/server.ts:
+   - createRedisClient may return null
+   - server.decorate("redis", redis) — redis may be null
+   - In shutdown: if redis — close, if null — skip
+
+4. Update test src/storage/__tests__/session-store.test.ts:
+   - Add tests for in-memory mode (client=null)
+   - Test createSession with null client — creates in Map
+   - Test getSession with null client — finds in Map
+   - Test updateSession with null client — updates in Map
+   - Test deleteSession with null client — deletes from Map
+```
+
+---
+
+## Step 9 — Add build scripts to package.json ✅ Done
+
+**Status:**
+
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
+
+**Prompt:**
+
+```
+Add build and run scripts to package.json.
+
+Current scripts:
 ```json
 "scripts": {
   "typecheck": "tsc --noEmit",
@@ -350,39 +350,39 @@ export default config;
 }
 ```
 
-Добавь:
-- "build": "tsc" — компиляция TypeScript в dist/
-- "start": "node dist/api/server.js" — запуск скомпилированного сервера
-- "dev": "tsx watch src/api/server.ts" — алиас для dev:api
+Add:
+- "build": "tsc" — compile TypeScript to dist/
+- "start": "node dist/api/server.js" — run compiled server
+- "dev": "tsx watch src/api/server.ts" — alias for dev:api
 
-После изменения выполни npm run build и убедись что dist/ создаётся.
+After making changes, run npm run build and verify that dist/ is created.
 
 
 ---
 
-## Шаг 10 — Создать Dockerfile ✅ Выполнено
+## Step 10 — Create Dockerfile ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай Dockerfile для деплоя на Google Cloud Run.
+Create a Dockerfile for deployment on Google Cloud Run.
 
-Файл: Dockerfile (в корне проекта)
+File: Dockerfile (in project root)
 
-Многостадийная сборка:
+Multi-stage build:
 ```dockerfile
 FROM node:22-slim AS builder
 WORKDIR /app
@@ -400,7 +400,7 @@ EXPOSE 3001
 CMD ["npm", "start"]
 ```
 
-Также создай файл .dockerignore:
+Also create .dockerignore file:
 ```
 node_modules
 dist
@@ -415,130 +415,130 @@ coverage
 
 ---
 
-## Шаг 11 — Проверить сборку локально ✅ Выполнено
+## Step 11 — Verify build locally ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Проверь что проект собирается и все проверки проходят.
+Verify that the project builds and all checks pass.
 
-Выполни последовательно:
-1. npm run typecheck — должен пройти без ошибок
-2. npm run lint — должен пройти без warnings
-3. npm run test — все тесты должны пройти
-4. npm run build — должна создаться папка dist/
+Run sequentially:
+1. npm run typecheck — should pass without errors
+2. npm run lint — should pass without warnings
+3. npm run test — all tests should pass
+4. npm run build — dist/ folder should be created
 
-Если какая-то команда упала — исправь ошибки и повтори.
+If any command fails — fix the errors and retry.
 
-После успешной сборки проверь что файл dist/api/server.js существует.
+After successful build, verify that the file dist/api/server.js exists.
 ```
 
 ---
 
-## Шаг 12 — Настроить Google Cloud проект ✅ Выполнено
+## Step 12 — Set up Google Cloud project ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Настрой Google Cloud проект для деплоя на Cloud Run.
+Set up Google Cloud project for deployment on Cloud Run.
 
-Выполни команды:
+Run commands:
 1. gcloud config set project studious-pager-6k76w
 2. gcloud services enable run.googleapis.com
 3. gcloud services enable containerregistry.googleapis.com
 
-Проверь:
+Verify:
 - gcloud config get-value project → studious-pager-6k76w
-- gcloud auth list → показывает активного пользователя
+- gcloud auth list → shows active user
 ```
 
 ---
 
-## Шаг 13 — Деплой на Cloud Run ✅ Выполнено
+## Step 13 — Deploy to Cloud Run ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Задеплой приложение на Google Cloud Run.
+Deploy the application to Google Cloud Run.
 
-Выполни команду деплоя:
+Run deployment command:
 gcloud run deploy interview-sim --source . --platform managed --region us-central1 --allow-unauthenticated --set-env-vars "DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY,GOOGLE_CLOUD_PROJECT=studious-pager-6k76w,PORT=3001"
 
-После деплоя:
-1. Скопируй URL сервиса из вывода команды
-2. Проверь что URL работает: curl <URL>/health
-3. Ожидаемый ответ: {"status":"ok"}
+After deployment:
+1. Copy the service URL from the command output
+2. Verify that the URL works: curl <URL>/health
+3. Expected response: {"status":"ok"}
 
-Если деплой упал — прочитай логи и исправь ошибку.
+If deployment fails — read the logs and fix the error.
 ```
 
 ---
 
-## Шаг 14 — Верификация деплоя ✅ Выполнено
+## Step 14 — Deployment verification ✅ Done
 
-**Статус:**
+**Status:**
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `src/` — исходники, `src/**/*.test.ts` — тесты рядом с исходником.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
+> **General rules (apply to EACH step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `src/` — source files, `src/**/*.test.ts` — tests next to source.
+> 6. Use existing libraries, do not add new ones without necessity.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing a step, mark its status "Done" in the header.
+> 9. Before starting a new step, verify that the previous step is marked as "Done".
 
-**Промт:**
+**Prompt:**
 
 ```
-Проверь что деплой на Cloud Run работает корректно.
+Verify that the Cloud Run deployment works correctly.
 
-Выполни проверки:
-1. curl <CLOUD_RUN_URL>/health → должен вернуть {"status":"ok"}
-2. Проверь что сервер отвечает на POST запросы (даже с ошибкой валидации — это нормально, значит сервер работает)
+Run checks:
+1. curl <CLOUD_RUN_URL>/health → should return {"status":"ok"}
+2. Verify that the server responds to POST requests (even with validation error — this is normal, means the server is working)
 
-Сохрани URL сервиса — он понадобится для фронтенда.
+Save the service URL — it will be needed for the frontend.
 
-Запиши URL в файл .env.deploy:
-CLOUD_RUN_URL=<ваш URL>
+Write the URL to file .env.deploy:
+CLOUD_RUN_URL=<your URL>
 ```

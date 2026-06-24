@@ -1,40 +1,40 @@
-# 2026-06-24 — Сокращение количества вопросов до 5
+# 2026-06-24 — Reduce question count to 5
 
 ## Goal
 
-Сократить количество вопросов в интервью с 10 до 5. Интерфейс должен отображать прогресс в формате 5/5.
+Reduce interview question count from 10 to 5. Interface should display progress in 5/5 format.
 
 ## Problem
 
-10 вопросов — слишком много для типичного кандидата. Интервью длится дольше, чем хочет пользователь. При этом константа `TOTAL_QUESTIONS` была снижена до 1 для тестов, а default progress оставался `{ current: 1, total: 10 }`.
+10 questions — too many for a typical candidate. Interview lasts longer than the user wants. Meanwhile the `TOTAL_QUESTIONS` constant was reduced to 1 for testing, and default progress remained `{ current: 1, total: 10 }`.
 
 ## Changes
 
 ### 1. `packages/web/components/ChatWindow.tsx:15` — `TOTAL_QUESTIONS`
 
-**Было:** `const TOTAL_QUESTIONS = 1;`
-**Стало:** `const TOTAL_QUESTIONS = 6;`
+**Before:** `const TOTAL_QUESTIONS = 1;`
+**After:** `const TOTAL_QUESTIONS = 6;`
 
-Константа = 6, потому что логика завершения проверяет `nextCount >= TOTAL_QUESTIONS`. При 6 лимите спрашивается ровно 5 вопросов (6-й не показывается).
+Constant = 6, because completion logic checks `nextCount >= TOTAL_QUESTIONS`. With limit 6, exactly 5 questions are asked (6th is not shown).
 
-### 2. `packages/web/components/ChatWindow.tsx:142` — отображение прогресса
+### 2. `packages/web/components/ChatWindow.tsx:142` — progress display
 
-**Было:**
+**Before:**
 ```typescript
 onProgressChange?.(Math.min(questionCount, TOTAL_QUESTIONS), TOTAL_QUESTIONS);
 ```
 
-**Стало:**
+**After:**
 ```typescript
 onProgressChange?.(Math.min(questionCount, TOTAL_QUESTIONS - 1), TOTAL_QUESTIONS - 1);
 ```
 
-Прогресс считается относительно `TOTAL_QUESTIONS - 1 = 5`, поэтому в Header отображается `1/5`, `2/5`, ... `5/5`.
+Progress calculated relative to `TOTAL_QUESTIONS - 1 = 5`, so Header displays `1/5`, `2/5`, ... `5/5`.
 
 ### 3. `packages/web/app/interview/page.tsx:32` — default progress
 
-**Было:** `const [progress, setProgress] = useState({ current: 1, total: 10 });`
-**Стало:** `const [progress, setProgress] = useState({ current: 1, total: 5 });`
+**Before:** `const [progress, setProgress] = useState({ current: 1, total: 10 });`
+**After:** `const [progress, setProgress] = useState({ current: 1, total: 5 });`
 
 ## Verification
 
@@ -48,9 +48,9 @@ npm run test        # 157/157
 
 | File | Change |
 |------|--------|
-| `packages/web/components/ChatWindow.tsx:15` | `TOTAL_QUESTIONS = 6` (было 1) |
-| `packages/web/components/ChatWindow.tsx:142` | Прогресс: `Math.min(..., TOTAL_QUESTIONS - 1) / (TOTAL_QUESTIONS - 1)` |
-| `packages/web/app/interview/page.tsx:32` | Default `total: 5` (было 10) |
+| `packages/web/components/ChatWindow.tsx:15` | `TOTAL_QUESTIONS = 6` (was 1) |
+| `packages/web/components/ChatWindow.tsx:142` | Progress: `Math.min(..., TOTAL_QUESTIONS - 1) / (TOTAL_QUESTIONS - 1)` |
+| `packages/web/app/interview/page.tsx:32` | Default `total: 5` (was 10) |
 
 ## Feature spec
 

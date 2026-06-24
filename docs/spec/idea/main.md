@@ -1,41 +1,41 @@
 # AI Job-Based Interview Simulator
 
-Пользователь загружает текст вакансии — система автоматически строит персонализированное собеседование именно под эту вакансию.
+The user uploads a job description — the system automatically builds a personalized interview tailored specifically for that position.
 
 ---
 
-## Как это работает
+## How It Works
 
-### 1. Пользователь вводит
+### 1. User Input
 
-Текст вакансии (LinkedIn / HH / PDF / copy-paste)
+Job description text (LinkedIn / HH / PDF / copy-paste)
 
-### 2. Система анализирует вакансию
+### 2. System Analyzes the Job
 
-Выделяет:
+Extracts:
 
-- навыки (skills)
-- технологии (tech stack)
-- уровень (junior / middle / senior)
-- тип роли (backend / frontend / data / etc.)
-- ключевые требования
+- skills
+- tech stack
+- level (junior / middle / senior)
+- role type (backend / frontend / data / etc.)
+- key requirements
 
-### 3. Начинается "умный собес"
+### 3. "Smart Interview" Begins
 
-Система:
+System:
 
-- генерирует вопросы именно под вакансию
-- симулирует интервью
-- оценивает ответы
-- адаптирует сложность
+- generates questions specifically for the job
+- simulates the interview
+- evaluates answers
+- adapts difficulty
 
 ---
 
-## Архитектура агентов (ADK core)
+## Agent Architecture (ADK core)
 
 ### 1. Job Parsing Agent
 
-**Роль:** анализ вакансии, структурирование требований
+**Role:** job analysis, requirement structuring
 
 **Output:**
 
@@ -50,16 +50,16 @@
 
 ### 2. Interviewer Agent
 
-**Роль:** генерирует вопросы только по вакансии, делает прогрессию сложности
+**Role:** generates questions only for the job, applies difficulty progression
 
-**Пример:**
+**Example:**
 - "Explain REST API design"
 - "How would you scale this system?"
 - "SQL query optimization"
 
 ### 3. Evaluator Agent
 
-**Роль:** оценивает ответы, даёт структурированный фидбек
+**Role:** evaluates answers, provides structured feedback
 
 ```json
 {
@@ -72,23 +72,23 @@
 
 ### 4. Coach Agent
 
-**Роль:** объясняет правильный ответ, учит как отвечать лучше именно под эту вакансию
+**Role:** explains the correct answer, teaches how to answer better specifically for this job
 
 ### 5. Memory Agent
 
-**Роль:** хранит слабые навыки относительно вакансий
+**Role:** stores weak skills relative to job requirements
 
-**Пример:**
+**Example:**
 - "weak in system design"
 - "weak in SQL optimization"
 
-Влияет на следующие вопросы.
+Affects subsequent questions.
 
 ---
 
-## Tools / MCP (по требованиям ТЗ)
+## Tools / MCP (per requirements)
 
-Обязательные tools:
+Required tools:
 
 - `parse_job_description()`
 - `generate_question(job_profile)`
@@ -98,7 +98,7 @@
 
 ---
 
-## Multi-agent flow (ключ ТЗ)
+## Multi-agent flow (key requirement)
 
 ```
 Job Description

@@ -1,58 +1,58 @@
-# Feature: Loader/Spinners для фронтенда
+# Feature: Loaders/Spinners for Frontend
 
-**Дата:** 2026-06-21
-**Приоритет:** Medium
-**Статус:** Open
-**Компонент:** Frontend
-
----
-
-## Описание
-
-При отправке ответа на интервью и ожидании ответа от LLM (~18 секунд), пользователь не видит индикации загрузки. Кнопка "Отправить" меняет текст на "...", но нет визуальной обратной связи о том, что система работает.
-
-## Текущее поведение
-
-- Кнопка "Отправить" → "..." (текст меняется)
-- Нет анимации загрузки
-- Нет индикации прогресса
-- Пользователь не понимает, работает ли система или зависла
-
-## Ожидаемое поведение
-
-### 1. Отправка ответа
-- Показывать **спиннер** рядом с последним сообщением пользователя
-- Показывать текст "Анализирую ответ..." или "Оцениваю..."
-- Заблокировать input и кнопку отправки
-
-### 2. Генерация вопроса
-- Показывать **typing indicator** (три точки) перед новым вопросом
-- Показывать текст "Генерирую следующий вопрос..."
-
-### 3. Парсинг вакансии
-- На странице загрузки вакансии показывать **полноэкранный спиннер**
-- Текст: "Анализирую вакансию..."
-- Прогресс-бар (если возможно)
-
-### 4. Начало интервью
-- При нажатии "Начать интервью" показывать **спиннер**
-- Текст: "Подготавливаю вопросы..."
+**Date:** 2026-06-21
+**Priority:** Medium
+**Status:** Open
+**Component:** Frontend
 
 ---
 
-## Технические детали
+## Description
 
-### Где добавить
+When sending an answer to an interview and waiting for a response from the LLM (~18 seconds), the user sees no loading indication. The "Submit" button changes text to "...", but there's no visual feedback that the system is working.
 
-| Компонент | Тип лоадера | Когда |
-|-----------|-------------|-------|
-| `ChatWindow.tsx` | Inline spinner + текст | `isLoading === true` |
-| `JobUpload.tsx` | Полноэкранный спиннер | Отправка формы |
-| `page.tsx` (interview) | Спиннер при старте | Начало интервью |
+## Current Behavior
 
-### Варианты реализации
+- "Submit" button → "..." (text changes)
+- No loading animation
+- No progress indication
+- User doesn't understand if the system is working or frozen
 
-**Вариант 1: CSS-only спиннер**
+## Expected Behavior
+
+### 1. Submitting Answer
+- Show **spinner** next to the user's last message
+- Show text "Analyzing answer..." or "Evaluating..."
+- Block input and submit button
+
+### 2. Generating Question
+- Show **typing indicator** (three dots) before new question
+- Show text "Generating next question..."
+
+### 3. Parsing Job Description
+- On job description upload page, show **full-screen spinner**
+- Text: "Analyzing job description..."
+- Progress bar (if possible)
+
+### 4. Starting Interview
+- When clicking "Start Interview", show **spinner**
+- Text: "Preparing questions..."
+
+---
+
+## Technical Details
+
+### Where to Add
+
+| Component | Loader Type | When |
+|-----------|-------------|------|
+| `ChatWindow.tsx` | Inline spinner + text | `isLoading === true` |
+| `JobUpload.tsx` | Full-screen spinner | Form submission |
+| `page.tsx` (interview) | Spinner at start | Interview start |
+
+### Implementation Options
+
+**Option 1: CSS-only spinner**
 ```css
 .spinner {
   border: 3px solid #f3f3f3;
@@ -69,12 +69,12 @@
 }
 ```
 
-**Вариант 2: Tailwind анимация**
+**Option 2: Tailwind animation**
 ```tsx
 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
 ```
 
-**Вариант 3: Точки-индикатор**
+**Option 3: Dots indicator**
 ```tsx
 <div className="flex gap-1">
   <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -85,32 +85,32 @@
 
 ---
 
-## Приоритеты
+## Priorities
 
-| Элемент | Приоритет | Описание |
-|---------|-----------|----------|
-| Chat input loader | **High** | Основной UX - пользователь ждёт 18 сек |
-| Typing indicator | **Medium** | Визуал перед новым вопросом |
-| Job upload loader | **Medium** | Парсинг ~1.5 сек |
-| Start interview loader | **Low** | Быстрая операция |
+| Element | Priority | Description |
+|---------|----------|-------------|
+| Chat input loader | **High** | Main UX - user waits 18 sec |
+| Typing indicator | **Medium** | Visual before new question |
+| Job upload loader | **Medium** | Parsing ~1.5 sec |
+| Start interview loader | **Low** | Fast operation |
 
 ---
 
-## Связанные файлы
+## Related Files
 
-- `packages/web/components/ChatWindow.tsx` — основное место
-- `packages/web/components/JobUpload.tsx` — загрузка вакансии
-- `packages/web/app/interview/page.tsx` — старт интервью
-- `packages/web/app/page.tsx` — главная страница
+- `packages/web/components/ChatWindow.tsx` — main location
+- `packages/web/components/JobUpload.tsx` — job description upload
+- `packages/web/app/interview/page.tsx` — interview start
+- `packages/web/app/page.tsx` — main page
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Спиннер отображается при отправке ответа
-- [ ] Input заблокирован во время загрузки
-- [ ] Текст "Анализирую ответ..." показывается
-- [ ] Typing indicator перед новым вопросом
-- [ ] Спиннер при парсинге вакансии
-- [ ] Все лоадеры используют единый стиль
-- [ ] Нет мерцания (flash of content)
+- [ ] Spinner displays when submitting answer
+- [ ] Input is blocked during loading
+- [ ] Text "Analyzing answer..." is shown
+- [ ] Typing indicator before new question
+- [ ] Spinner when parsing job description
+- [ ] All loaders use unified style
+- [ ] No flash of content

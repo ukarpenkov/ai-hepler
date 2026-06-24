@@ -1,26 +1,26 @@
-# Деплой фронтенда
+# Frontend Deployment
 
-## Вариант 1: Vercel
+## Option 1: Vercel
 
-1. Подключи GitHub репозиторий к Vercel
-2. Укажи Root Directory: `packages/web`
+1. Connect GitHub repository to Vercel
+2. Set Root Directory: `packages/web`
 3. Build Command: `npm run build`
 4. Framework Preset: Next.js
-5. Добавь переменную окружения:
-   - `NEXT_PUBLIC_API_URL` — URL бэкенда на Cloud Run
+5. Add environment variable:
+   - `NEXT_PUBLIC_API_URL` — Backend URL on Cloud Run
 
-## Вариант 2: Cloud Run
+## Option 2: Cloud Run
 
 ```bash
 cd packages/web
 
-# Сборка Docker образа
+# Build Docker image
 docker build -t gcr.io/$PROJECT_ID/interview-sim-frontend .
 
-# Пуш в Container Registry
+# Push to Container Registry
 docker push gcr.io/$PROJECT_ID/interview-sim-frontend
 
-# Деплой на Cloud Run
+# Deploy to Cloud Run
 gcloud run deploy interview-sim-frontend \
   --image gcr.io/$PROJECT_ID/interview-sim-frontend \
   --region us-central1 \
@@ -30,8 +30,8 @@ gcloud run deploy interview-sim-frontend \
   --set-secrets "NEXT_PUBLIC_API_URL=next-public-api-url:latest"
 ```
 
-## Переменные окружения
+## Environment Variables
 
-| Переменная | Описание | Дефолт |
-|------------|----------|--------|
-| NEXT_PUBLIC_API_URL | URL бэкенда API | http://localhost:3001 |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| NEXT_PUBLIC_API_URL | Backend API URL | http://localhost:3001 |

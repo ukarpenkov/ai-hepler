@@ -2,78 +2,78 @@
 
 ## Goal
 
-Переработать промпты для DeepSeek API во всех AI-инструментах, чтобы:
-1. Исключить накрутку баллов копипастом вопроса (было 7/10, стало ≤2)
-2. Сделать вопросы разнообразнее и привязанными к реальной вакансии
-3. Улучшить качество коучинга — советы привязаны к конкретным слабостям
-4. Улучшить парсинг вакансий — разделить hard/soft skills, извлекать требования к опыту
+Rework prompts for DeepSeek API in all AI tools to:
+1. Prevent score inflation from question copy-paste (was 7/10, now ≤2)
+2. Make questions more diverse and tied to the actual job description
+3. Improve coaching quality — tips tied to specific weaknesses
+4. Improve job description parsing — separate hard/soft skills, extract experience requirements
 
 ## Problem
 
-До изменений:
-1. **`evaluate-answer.tool.ts`** — плоский user message, нет system prompt, нет рубрики. Кандидат копирует вопрос → вставляет как ответ → 7/10. Модель видит релевантные ключевые слова и ставит высокий балл.
-2. **`generate-question.tool.ts`** — вопросы однотипные (только theoretical), нет expected answer criteria для оценщика, не привязаны к домену/ключевым словам вакансии.
-3. **`coach.agent.ts`** — плоский промпт, советы общие, не привязаны к конкретным слабостям.
-4. **`parse-job-description.tool.ts`** — не разделяет hard/soft skills, не извлекает опыт.
+Before changes:
+1. **`evaluate-answer.tool.ts`** — flat user message, no system prompt, no rubric. Candidate copies question → pastes as answer → 7/10. Model sees relevant keywords and assigns high score.
+2. **`generate-question.tool.ts`** — questions homogeneous (only theoretical), no expected answer criteria for evaluator, not tied to job domain/keywords.
+3. **`coach.agent.ts`** — flat prompt, generic tips, not tied to specific weaknesses.
+4. **`parse-job-description.tool.ts`** — doesn't separate hard/soft skills, doesn't extract experience.
 
 ## Changes
 
 ### 1. `src/tools/evaluate-answer.tool.ts` — Anti-Cheat Multi-Dimension Evaluation
 
 **System prompt:**
-- Персона строгого технического интервьюера
-- 5 анти-чит правил: перефраз вопроса → score ≤2, копипаст → 1, баззворды без сути, общие фразы, отсутствие оригинальной мысли
-- 6 флагов: `paraphrasing_question`, `generic_answer`, `no_original_thought`, `buzzwords_without_substance`, `off_topic`
+- Strict technical interviewer persona
+- 5 anti-cheat rules: question paraphrase → score ≤2, copy-paste → 1, buzzwords without substance, generic phrases, lack of original thought
+- 6 flags: `paraphrasing_question`, `generic_answer`, `no_original_thought`, `buzzwords_without_substance`, `off_topic`
 
-**4-мерная рубрика (total 0-10):**
-- Technical Accuracy (0-3) — корректность
-- Depth of Understanding (0-3) — глубина, WHY, tradeoffs
-- Relevance & Specificity (0-2) — релевантность и конкретика
-- Examples & Application (0-2) — примеры и применение
+**4-dimension rubric (total 0-10):**
+- Technical Accuracy (0-3) — correctness
+- Depth of Understanding (0-3) — depth, WHY, tradeoffs
+- Relevance & Specificity (0-2) — relevance and specificity
+- Examples & Application (0-2) — examples and application
 
-**Новые поля в ответе:**
+**New response fields:**
 - `accuracy`, `depth`, `relevance`, `examples` — dimensional scores
-- `antiCheatFlags: string[]` — флаги читерства
-- `perfectAnswerSummary: string` — что должен содержать идеальный ответ
-- Валидация: clamp по каждому dimension
+- `antiCheatFlags: string[]` — cheat flags
+- `perfectAnswerSummary: string` — what a perfect answer should contain
+- Validation: clamp per dimension
 
 ### 2. `src/tools/generate-question.tool.ts` — Smarter Questions
 
 **System prompt:**
-- Персона опытного интервьюера из top tech company
-- Принципы: вопросы требуют МЫШЛЕНИЯ, а не recall; избегать «What is X?»
+- Experienced interviewer from top tech company persona
+- Principles: questions require THINKING, not recall; avoid "What is X?"
 - Difficulty guidelines: junior=fundamentals, middle=architecture+tradeoffs, senior=system design+leadership
 
-**5 типов вопросов:**
-- `theoretical_explanation` — объяснение концепции
-- `practical_implementation` — практическая реализация
-- `system_design` — проектирование системы
-- `debugging_scenario` — отладка/разбор бага
-- `behavioral_experience` — поведенческий вопрос
+**5 question types:**
+- `theoretical_explanation` — concept explanation
+- `practical_implementation` — practical implementation
+- `system_design` — system design
+- `debugging_scenario` — debugging/bug analysis
+- `behavioral_experience` — behavioral question
 
-**`expectedAnswerCriteria: string[]`** — 3-5 пунктов для хорошего ответа (скрыты от кандидата, для оценщика)
+**`expectedAnswerCriteria: string[]`** — 3-5 points for a good answer (hidden from candidate, for evaluator)
 
-**Валидация:**
-- questionType должен быть одним из 5 допустимых значений
-- Вопросы используют keywords и domain вакансии
+**Validation:**
+- questionType must be one of 5 allowed values
+- Questions use job description keywords and domain
 
 ### 3. `src/agents/coach.agent.ts` — Personalized Coaching
 
 **System prompt:**
-- Персона supportive but honest coach
-- Правила: быть прямым, model answer уровня 9-10/10, советы привязаны к weaknesses, antiCheatFlags в контексте
+- Supportive but honest coach persona
+- Rules: be direct, model answer at 9-10/10 level, tips tied to weaknesses, antiCheatFlags in context
 
 **User message:**
 - Dimensional scores (accuracy, depth, relevance, examples)
-- AntiCheatFlags передаются для адресации читерского поведения
-- perfectAnswerSummary используется как ориентир
+- AntiCheatFlags passed for addressing cheating behavior
+- perfectAnswerSummary used as benchmark
 
 ### 4. `src/tools/parse-job-description.tool.ts` — Better Extraction
 
-- System prompt с инструкциями по точному извлечению
-- Разделение `skills` (hard/technical) и `softSkills` (interpersonal)
+- System prompt with precise extraction instructions
+- Separated `skills` (hard/technical) and `softSkills` (interpersonal)
 - `minYearsExperience: number | null`
-- Санитайз: softSkills фильтруются на строки, minYearsExperience округляется и проверяется >0
+- Sanitization: softSkills filtered to strings, minYearsExperience rounded and checked >0
 
 ### 5. Types & Schemas
 
@@ -83,16 +83,16 @@
 | `QuestionResult` | `questionType`, `expectedAnswerCriteria` |
 | `ParsedJob` | `softSkills`, `minYearsExperience` |
 
-**Затронутые schema-файлы:**
+**Affected schema files:**
 - `src/security/schemas.ts` — `JobProfileSchema`, `EvaluationSchema`
 - `src/types/index.ts` — `SessionSchema.jobProfile`
 - `src/storage/session-store.ts` — `JobProfile` interface
 
-### 6. Test Updates (18 файлов)
+### 6. Test Updates (18 files)
 
-Все моки обновлены под новые поля. Особые случаи:
-- `generate-question.tool.test.ts` — проверка `body.messages[1].content` вместо `[0]` (system prompt стал первым сообщением)
-- `orchestrator.ts` — дефолтный `QuestionResult` с `questionType` и `expectedAnswerCriteria`
+All mocks updated for new fields. Special cases:
+- `generate-question.tool.test.ts` — check `body.messages[1].content` instead of `[0]` (system prompt became first message)
+- `orchestrator.ts` — default `QuestionResult` with `questionType` and `expectedAnswerCriteria`
 
 ## Verification
 
@@ -104,9 +104,9 @@ npm run test        # 157/157 tests passed, 29 test files
 
 ## Manual smoke checklist
 
-- [x] Parse job description → `softSkills` и `minYearsExperience` заполняются
-- [x] Generate question → `questionType` и `expectedAnswerCriteria` присутствуют
-- [x] Submit copy-pasted answer (answer === question) → score ≤2, `paraphrasing_question` во flags
+- [x] Parse job description → `softSkills` and `minYearsExperience` populated
+- [x] Generate question → `questionType` and `expectedAnswerCriteria` present
+- [x] Submit copy-pasted answer (answer === question) → score ≤2, `paraphrasing_question` in flags
 - [x] Submit buzzword-only answer → score ≤3, `buzzwords_without_substance`
 - [x] Submit genuinely good answer → score 7-10, dimensional scores meaningful, antiCheatFlags empty
 

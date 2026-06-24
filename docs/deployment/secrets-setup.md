@@ -1,16 +1,16 @@
-# Создание secrets в Google Cloud
+# Creating secrets in Google Cloud
 
-## Шаг 1: Создание secrets
+## Step 1: Creating secrets
 
 ```bash
-# Создание secret для API ключа OpenRouter
+# Create secret for OpenRouter API key
 echo "YOUR_OPENROUTER_API_KEY" | gcloud secrets create openrouter-api-key --data-file=-
 
-# Создание secret для URL Redis (опционально)
+# Create secret for Redis URL (optional)
 echo "YOUR_REDIS_URL" | gcloud secrets create redis-url --data-file=-
 ```
 
-## Шаг 2: Использование secrets в Cloud Run
+## Step 2: Using secrets in Cloud Run
 
 ```bash
 gcloud run deploy interview-sim \
@@ -18,28 +18,28 @@ gcloud run deploy interview-sim \
   --set-secrets "REDIS_URL=redis-url:latest"
 ```
 
-## Шаг 3: Обновление secrets
+## Step 3: Updating secrets
 
 ```bash
-# Обновление существующего secret
+# Update existing secret
 echo "NEW_API_KEY" | gcloud secrets versions add openrouter-api-key --data-file=-
 ```
 
-## Шаг 4: Просмотр secrets
+## Step 4: Viewing secrets
 
 ```bash
-# Список всех secrets
+# List all secrets
 gcloud secrets list
 
-# Просмотр версий secret
+# View secret versions
 gcloud secrets versions list openrouter-api-key
 ```
 
-## Переменные окружения
+## Environment Variables
 
-| Переменная | Обязательна | Описание | Дефолт |
-|------------|-------------|----------|--------|
-| OPENROUTER_API_KEY | Да | API ключ OpenRouter | - |
-| DEEPSEEK_API_KEY | Нет | API ключ DeepSeek (fallback) | - |
-| REDIS_URL | Нет | URL подключения к Redis | redis://localhost:6379 |
-| PORT | Нет | Порт сервера | 3001 |
+| Variable | Required | Description | Default |
+|----------|----------|-------------|---------|
+| OPENROUTER_API_KEY | Yes | OpenRouter API key | - |
+| DEEPSEEK_API_KEY | No | DeepSeek API key (fallback) | - |
+| REDIS_URL | No | Redis connection URL | redis://localhost:6379 |
+| PORT | No | Server port | 3001 |

@@ -1,28 +1,28 @@
-# Финальный чеклист интеграционной проверки
+# Final Integration Checklist
 
-**Дата:** 2026-06-21
-**Статус:** ✅ PASS
+**Date:** 2026-06-21
+**Status:** ✅ PASS
 
 ---
 
-## Чеклист
+## Checklist
 
 - [x] typecheck — 0 errors
 - [x] lint — 0 warnings
 - [x] test — 158 tests passed (29 test files)
-- [x] 5 агентов подключены
-- [x] 5 tools используются
-- [x] Security features работают
-- [x] Dockerfile создан
-- [x] cloudbuild.yaml создан
-- [x] README обновлён
-- [x] Frontend готов к деплою
+- [x] 5 agents connected
+- [x] 5 tools used
+- [x] Security features working
+- [x] Dockerfile created
+- [x] cloudbuild.yaml created
+- [x] README updated
+- [x] Frontend ready for deployment
 
 ---
 
-## Агенты (5/5)
+## Agents (5/5)
 
-| Файл | Статус |
+| File | Status |
 |------|--------|
 | `src/agents/job-parser.agent.ts` | ✅ |
 | `src/agents/interviewer.agent.ts` | ✅ |
@@ -33,7 +33,7 @@
 
 ## Tools (5/5)
 
-| Файл | Статус |
+| File | Status |
 |------|--------|
 | `src/tools/parse-job-description.tool.ts` | ✅ |
 | `src/tools/generate-question.tool.ts` | ✅ |
@@ -43,16 +43,16 @@
 
 ## Security Features (4/4)
 
-| Модуль | Статус |
+| Module | Status |
 |--------|--------|
 | `src/security/sanitizer.ts` | ✅ |
 | `src/security/rateLimiter.ts` | ✅ |
 | `src/security/schemas.ts` | ✅ |
 | `src/security/toolAccess.ts` | ✅ |
 
-## Деплой
+## Deployment
 
-| Файл | Статус |
+| File | Status |
 |------|--------|
 | `Dockerfile` (backend) | ✅ |
 | `packages/web/Dockerfile` (frontend) | ✅ |
@@ -62,9 +62,9 @@
 | `docs/deployment/secrets-setup.md` | ✅ |
 | `docs/deployment/frontend-deploy.md` | ✅ |
 
-## Структура проекта
+## Project Structure
 
-| Файл | Статус |
+| File | Status |
 |------|--------|
 | `src/api/server.ts` | ✅ |
 | `src/config.ts` | ✅ |
@@ -77,14 +77,14 @@
 
 ---
 
-## Результат
+## Result
 
-**Итоговый статус: ✅ PASS**
+**Final Status: ✅ PASS**
 
-Все проверки пройдены успешно:
+All checks passed successfully:
 - TypeScript compilation: 0 errors
 - ESLint: 0 warnings
 - Unit tests: 158/158 passed
-- Интеграционные тесты: все зелёные
-- Все компоненты на месте и подключены
-- Деплой конфигурация готова
+- Integration tests: all green
+- All components in place and connected
+- Deployment configuration ready

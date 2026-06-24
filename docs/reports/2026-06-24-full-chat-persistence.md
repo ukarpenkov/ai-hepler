@@ -2,61 +2,61 @@
 
 ## Goal
 
-Сохранять полную переписку (вопросы, ответы, оценки, feedback) в IndexedDB, чтобы при открытии прошлой сессии восстанавливался весь чат целиком.
+Store full chat history (questions, answers, scores, feedback) in IndexedDB, so opening a previous session restores the entire chat.
 
 ## Problem
 
-При открытии прошлой сессии из сайдбара отображался только вопрос от ИИ. Ответы пользователя, блоки оценки и summary-блок не восстанавливались. Три причины:
+When opening a previous session from the sidebar, only the AI question was displayed. User answers, score blocks, and summary block weren't restored. Three reasons:
 
-1. **Ответ пользователя не persistился** — в `handleSend` переменная `messages` была стейтом, который ещё не обновлён на момент формирования `updatedMessages`. Поэтому ответ пользователя не попадал в IndexedDB.
+1. **User answer wasn't persisted** — in `handleSend`, the `messages` variable was state that hadn't updated yet when `updatedMessages` was formed. So the user answer didn't make it to IndexedDB.
 
-2. **Feedback-данные не сохранялись** — `allFeedbacks` (оценки, coach-разбор) хранились только в локальном стейте ChatWindow и терялись при перезагрузке.
+2. **Feedback data wasn't saved** — `allFeedbacks` (scores, coach breakdown) were only stored in ChatWindow's local state and lost on reload.
 
-3. **Восстановление не работало** — `useState(() => buildInitialMessages(...))` выполнялся только при маунте. Когда `getSession()` загружал данные позже, stored-данные не применялись.
+3. **Restoration didn't work** — `useState(() => buildInitialMessages(...))` only ran on mount. When `getSession()` loaded data later, stored data wasn't applied.
 
 ## Changes
 
 ### `packages/web/lib/session-store.ts`
 
-- Добавлены интерфейсы `ChatMessage` (с `evaluation?` и `coach?`) и `FeedbackData` (с `answer`)
-- `SessionRecord` получил новые поля: `chatMessages: ChatMessage[]` и `allFeedbacks: FeedbackData[]`
-- `DB_VERSION` увеличен до 2 с миграцией (заполняет пустые массивы для старых записей)
-- `createSession()` инициализирует новые поля пустыми массивами
-- Экспортируются новые типы `ChatMessage`, `FeedbackData`
+- Added `ChatMessage` (with `evaluation?` and `coach?`) and `FeedbackData` (with `answer`) interfaces
+- `SessionRecord` gained new fields: `chatMessages: ChatMessage[]` and `allFeedbacks: FeedbackData[]`
+- `DB_VERSION` increased to 2 with migration (fills empty arrays for old records)
+- `createSession()` initializes new fields with empty arrays
+- New types `ChatMessage`, `FeedbackData` exported
 
 ### `packages/web/components/ChatWindow.tsx`
 
-- Новые пропсы `storedChatMessages` и `storedFeedbacks` для передачи stored-данных
-- Добавлен `useEffect` который обновляет `messages`, `allFeedbacks`, `questionCount` и `isSummaryOpen` когда stored данные загружаются из IndexedDB (решает проблему тайминга)
-- В `handleSend`: добавлен `userMsg` явно в `updatedMessages` (решает проблему стейт-стейллнеса)
-- `FeedbackData` теперь хранит `answer` (текст ответа пользователя)
-- После ответа persist `chatMessages` и `allFeedbacks` в IndexedDB
+- New `storedChatMessages` and `storedFeedbacks` props for passing stored data
+- Added `useEffect` that updates `messages`, `allFeedbacks`, `questionCount` and `isSummaryOpen` when stored data loads from IndexedDB (solves timing issue)
+- In `handleSend`: added `userMsg` explicitly to `updatedMessages` (solves state staleness)
+- `FeedbackData` now stores `answer` (user answer text)
+- After answer, persists `chatMessages` and `allFeedbacks` to IndexedDB
 
 ### `packages/web/app/interview/page.tsx`
 
-- Тип `sessionData` изменён с `SessionData` на `SessionRecord` (доступ к `chatMessages`/`allFeedbacks`)
-- В `ChatWindow` передаются `storedChatMessages` и `storedFeedbacks`
+- `sessionData` type changed from `SessionData` to `SessionRecord` (access to `chatMessages`/`allFeedbacks`)
+- `storedChatMessages` and `storedFeedbacks` passed to `ChatWindow`
 
 ### `packages/web/components/SummaryView.tsx`
 
-- Добавлен блок "Ваш ответ" — показывает текст ответа пользователя для каждого вопроса в summary
+- Added "Your Answer" block — shows user answer text for each question in summary
 
 ### `packages/web/__tests__/api.test.ts`
 
-- Обновлены вызовы `startInterview` и `sendAnswer` под текущие сигнатуры (pre-existing рассинхрон)
+- Updated `startInterview` and `sendAnswer` calls to match current signatures (pre-existing desync)
 
 ### `packages/web/components/SummaryView.test.tsx`
 
-- Добавлено поле `answer` в mock-данные
-- Добавлен тест для блока "Ваш ответ"
+- Added `answer` field to mock data
+- Added test for "Your Answer" block
 
 ### `packages/web/app/interview/__tests__/page.test.tsx`
 
-- Добавлен `listSessions` в mock `@/lib/session-store`
+- Added `listSessions` to `@/lib/session-store` mock
 
 ### `packages/web/components/ChatWindow.test.tsx`
 
-- Добавлен mock `updateSession` из `@/lib/session-store`
+- Added `updateSession` mock from `@/lib/session-store`
 
 ## Verification
 

@@ -1,116 +1,116 @@
-# Feature: Языковая привязка промптов + подсказка в поле ввода
+# Feature: Prompt Language Binding + Input Hint
 
-**Дата:** 2026-06-24
-**Приоритет:** Medium
-**Статус:** In Progress
-**Компонент:** AI Core (tools) + Frontend (ChatWindow)
-
----
-
-## Описание
-
-Две задачи:
-
-1. **Языковая привязка** — вопросы интервью, оценка и коучинг должны выводиться на том языке, на котором написана вакансия. Сейчас все промпты всегда на английском, даже если вакансия на русском.
-
-2. **Подсказка в поле ввода** — в placeholder textarea добавить информацию о клавишах (Enter для отправки, Shift+Enter для переноса строки).
+**Date:** 2026-06-24
+**Priority:** Medium
+**Status:** In Progress
+**Component:** AI Core (tools) + Frontend (ChatWindow)
 
 ---
 
-## Задача 1: Языковая привязка промптов
+## Description
 
-### Что нужно сделать
+Two tasks:
 
-#### 1. Добавить поле `language` в `ParsedJob`
+1. **Language binding** — interview questions, evaluation, and coaching should be output in the same language the job description is written in. Currently all prompts are always in English, even if the job description is in Russian.
 
-**Файл:** `src/agents/types.ts`
+2. **Input hint** — add keyboard shortcut information to the textarea placeholder (Enter to send, Shift+Enter for line break).
 
-- Добавить `language: string` в интерфейс `ParsedJob`
-- Значение — ISO 639-1 код языка (`"en"`, `"ru"`, `"de"`, `"fr"`, `"es"`, `"zh"` и т.д.)
+---
 
-#### 2. Обновить схемы валидации
+## Task 1: Prompt Language Binding
 
-**Файлы:**
-- `src/security/schemas.ts` — `JobProfileSchema`: добавить `language: z.string().min(1)`
-- `src/types/index.ts` — `SessionSchema.jobProfile`: добавить `language: z.string()`
-- `src/storage/session-store.ts` — `JobProfile` interface: добавить `language: string`
+### What needs to be done
 
-#### 3. Определять язык вакансии в парсере
+#### 1. Add `language` field to `ParsedJob`
 
-**Файл:** `src/tools/parse-job-description.tool.ts`
+**File:** `src/agents/types.ts`
 
-- Добавить поле `language` в user prompt парсера: `"language: ISO 639-1 code of the language the job description is written in"`
-- Добавить `language` в JSON schema ответа
-- При парсинге результата: проверить `typeof parsed.language === "string"`, fallback на `"en"` если не определён
+- Add `language: string` to the `ParsedJob` interface
+- Value — ISO 639-1 language code (`"en"`, `"ru"`, `"de"`, `"fr"`, `"es"`, `"zh"`, etc.)
 
-#### 4. Передавать язык в промпты генерации вопросов
+#### 2. Update validation schemas
 
-**Файл:** `src/tools/generate-question.tool.ts`
+**Files:**
+- `src/security/schemas.ts` — `JobProfileSchema`: add `language: z.string().min(1)`
+- `src/types/index.ts` — `SessionSchema.jobProfile`: add `language: z.string()`
+- `src/storage/session-store.ts` — `JobProfile` interface: add `language: string`
 
-- В system prompt добавить блок:
+#### 3. Detect job language in parser
+
+**File:** `src/tools/parse-job-description.tool.ts`
+
+- Add `language` field to parser user prompt: `"language: ISO 639-1 code of the language the job description is written in"`
+- Add `language` to response JSON schema
+- When parsing result: check `typeof parsed.language === "string"`, fallback to `"en"` if undefined
+
+#### 4. Pass language to question generation prompts
+
+**File:** `src/tools/generate-question.tool.ts`
+
+- In system prompt add block:
   ```
   LANGUAGE: The job description is in ${langName}. You MUST generate the question, topic, and expectedAnswerCriteria in ${langName}.
   ```
-- Маппинг кода → названия: `{ ru: "Russian", de: "German", fr: "French", es: "Spanish", zh: "Chinese" }`, fallback → `"English"`
+- Code-to-name mapping: `{ ru: "Russian", de: "German", fr: "French", es: "Spanish", zh: "Chinese" }`, fallback → `"English"`
 
-#### 5. Передавать язык в промпт оценки
+#### 5. Pass language to evaluation prompt
 
-**Файл:** `src/tools/evaluate-answer.tool.ts`
+**File:** `src/tools/evaluate-answer.tool.ts`
 
-- В system prompt добавить:
+- In system prompt add:
   ```
   LANGUAGE: The job description and interview are in ${langName}. You MUST output all evaluation fields (strengths, weaknesses, recommendation, perfectAnswerSummary) in ${langName}.
   ```
 
-#### 6. Передавать язык в промпт коучинга
+#### 6. Pass language to coaching prompt
 
-**Файл:** `src/agents/coach.agent.ts`
+**File:** `src/agents/coach.agent.ts`
 
-- В system prompt добавить:
+- In system prompt add:
   ```
   LANGUAGE: The job description and interview are in ${langName}. You MUST output all coaching feedback (explanation, improvedAnswer, tips) in ${langName}.
   ```
 
-#### 7. Обновить все тесты
+#### 7. Update all tests
 
-Все ParsedJob-литералы и JSON-моки в тестах должны содержать `language: "en"`.
+All `ParsedJob` literals and JSON mocks in tests must contain `language: "en"`.
 
-### Критерии приёмки
+### Acceptance Criteria
 
-- [ ] Вакансия на русском → вопросы на русском, оценка на русском, коучинг на русском
-- [ ] Вакансия на английском → всё на английском (как раньше)
-- [ ] Если язык не определён → fallback `"en"`
-- [ ] Все тесты проходят (typecheck, lint, test)
+- [ ] Job in Russian → questions in Russian, evaluation in Russian, coaching in Russian
+- [ ] Job in English → everything in English (as before)
+- [ ] If language is not determined → fallback `"en"`
+- [ ] All tests pass (typecheck, lint, test)
 
 ---
 
-## Задача 2: Подсказка в поле ввода
+## Task 2: Input Hint
 
-### Что нужно сделать
+### What needs to be done
 
-#### Обновить placeholder в ChatWindow
+#### Update placeholder in ChatWindow
 
-**Файл:** `packages/web/components/ChatWindow.tsx` (строка ~279)
+**File:** `packages/web/components/ChatWindow.tsx` (line ~279)
 
-**Было:**
+**Before:**
 ```
-placeholder={isFinished ? "Интервью завершено" : "Введите ваш ответ..."}
-```
-
-**Стало:**
-```
-placeholder={isFinished ? "Интервью завершено" : "Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)"}
+placeholder={isFinished ? "Interview completed" : "Enter your answer..."}
 ```
 
-#### Обновить тесты
+**After:**
+```
+placeholder={isFinished ? "Interview completed" : "Enter your answer... (Enter — send, Shift+Enter — line break)"}
+```
 
-**Файл:** `packages/web/components/ChatWindow.test.tsx`
+#### Update tests
 
-- Все `getByPlaceholderText("Введите ваш ответ...")` → `getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)")`
-- Количество: 6 вхождений
+**File:** `packages/web/components/ChatWindow.test.tsx`
 
-### Критерии приёмки
+- All `getByPlaceholderText("Enter your answer...")` → `getByPlaceholderText("Enter your answer... (Enter — send, Shift+Enter — line break)")`
+- Count: 6 occurrences
 
-- [ ] Placeholder содержит подсказку о клавишах
-- [ ] Подсказка видна только когда интервью активно (не при завершённом)
-- [ ] Все тесты ChatWindow проходят
+### Acceptance Criteria
+
+- [ ] Placeholder contains keyboard shortcut hint
+- [ ] Hint is visible only when interview is active (not when completed)
+- [ ] All ChatWindow tests pass

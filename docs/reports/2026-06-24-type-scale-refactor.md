@@ -1,15 +1,15 @@
-# 2026-06-24 — Refactor type-scale: единая шкала шрифтов
+# 2026-06-24 — Refactor type-scale: unified font scale
 
 ## Goal
 
-Выровнять размеры шрифтов по единой type-scale. Устранить инверсию responsive (моб > десктоп), привести к консистентной шкале: 18px основной, 16px теги, 15px caption.
+Align font sizes to a unified type-scale. Fix responsive inversion (mobile > desktop), bring to consistent scale: 18px primary, 16px tags, 15px caption.
 
 ## Type Scale
 
 ```
 15px  — caption, timestamp
 16px  — topic tags, labels (mobile)
-18px  — primary body (чат, инпуты, секции результатов)
+18px  — primary body (chat, inputs, result sections)
 28px  — hero heading
 40/56px — display scores (mobile/desktop)
 ```
@@ -46,15 +46,15 @@
 
 ## Responsive Fix
 
-Исправлена инверсия: ранее мобильный шрифт был больше десктопного. Теперь:
-- Мобильный: базовый размер (16-18px)
-- Десктоп: 18px или больше (для labels/scores через `sm:text-lg`)
+Fixed inversion: previously mobile font was larger than desktop. Now:
+- Mobile: base size (16-18px)
+- Desktop: 18px or larger (for labels/scores via `sm:text-lg`)
 
 ## Result
 
 - typecheck: pass
 - lint: pass (1 pre-existing warning)
 - tests: 69/69 pass
-- Единая шкала: 15 / 16 / 18 / 28 / 40/56px
-- Нет инверсии responsive
-- A11y: нет размеров < 12px
+- Unified scale: 15 / 16 / 18 / 28 / 40/56px
+- No responsive inversion
+- A11y: no sizes < 12px

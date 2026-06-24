@@ -1,51 +1,51 @@
 # Bug: Next question shown after reaching TOTAL_QUESTIONS limit
 
-**Дата:** 2026-06-23
-**Приоритет:** High
-**Статус:** Fixed
-**Компонент:** Frontend — `ChatWindow.tsx`
+**Date:** 2026-06-23
+**Priority:** High
+**Status:** Fixed
+**Component:** Frontend — `ChatWindow.tsx`
 
-## Описание
+## Description
 
-При `TOTAL_QUESTIONS = 1` (или любом другом значении) после отправки ответа на последний вопрос, ИИ задаёт следующий вопрос в чате. Сообщение с новым вопросом добавляется в массив messages до проверки `isFinished`, поэтому пользователь видит вопрос, который задавать уже не нужно.
+When `TOTAL_QUESTIONS = 1` (or any other value), after submitting an answer to the last question, the AI asks the next question in the chat. The message with the new question is added to the messages array before the `isFinished` check, so the user sees a question that should not be asked.
 
-## Ожидаемое поведение
+## Expected Behavior
 
-- После ответа на последний вопрос показать **только фидбек** (балл + совет)
-- **Не показывать** следующий вопрос — сразу переходить к summary/итогам
+- After answering the last question, show **only feedback** (score + tip)
+- **Do not show** the next question — go directly to summary/results
 
-## Фактическое поведение
+## Actual Behavior
 
-- После ответа на последний вопрос в чат добавляется и фидбек, и **следующий вопрос от ИИ**
-- Пользователь видит лишний вопрос, хотя интервью уже завершено
-- `isFinished` ставится в `true`, но сообщение с вопросом уже в DOM
+- After answering the last question, both feedback and **the next AI question** are added to the chat
+- The user sees an extra question, even though the interview is already finished
+- `isFinished` is set to `true`, but the question message is already in the DOM
 
-## Воспроизведение
+## Reproduction
 
-1. Установить `TOTAL_QUESTIONS = 1` в `ChatWindow.tsx`
-2. Начать интервью, ответить на первый вопрос
-3. **Наблюдение:** после фидбека появляется второй вопрос от ИИ
-4. При этом `isFinished = true` и input скрыт — вопрос бесмысленен
+1. Set `TOTAL_QUESTIONS = 1` in `ChatWindow.tsx`
+2. Start the interview, answer the first question
+3. **Observation:** after the feedback, a second question from the AI appears
+4. Meanwhile `isFinished = true` and the input is hidden — the question is meaningless
 
-## Причина
+## Root Cause
 
-В `handleSend` (`ChatWindow.tsx:137-143`) следующий вопрос добавляется в messages **до** проверки `if (nextCount >= TOTAL_QUESTIONS)`:
+In `handleSend` (`ChatWindow.tsx:137-143`), the next question is added to messages **before** the `if (nextCount >= TOTAL_QUESTIONS)` check:
 
 ```typescript
-// Сообщение с вопросом добавляется ВСЕГДА
+// The question message is added ALWAYS
 setMessages((prev) => [...prev, feedbackMsg, nextQuestionMsg]);
 
-// А проверка идёт ПОЗЖЕ
+// But the check happens LATER
 if (nextCount >= TOTAL_QUESTIONS) {
   setIsFinished(true);
 }
 ```
 
-## Исправление
+## Fix
 
-**Файл:** `packages/web/components/ChatWindow.tsx`
+**File:** `packages/web/components/ChatWindow.tsx`
 
-Следующий вопрос добавляется в messages **только** если `nextCount < TOTAL_QUESTIONS`:
+Add the next question to messages **only** if `nextCount < TOTAL_QUESTIONS`:
 
 ```typescript
 const nextQuestionMsg: ChatMessage | null =
@@ -56,8 +56,8 @@ const nextQuestionMsg: ChatMessage | null =
 setMessages((prev) => [...prev, feedbackMsg, ...(nextQuestionMsg ? [nextQuestionMsg] : [])]);
 ```
 
-## Компоненты для изменения
+## Components to Change
 
-| Файл | Изменение |
-|------|-----------|
-| `packages/web/components/ChatWindow.tsx:137-143` | Условное добавление следующего вопроса в messages |
+| File | Change |
+|------|--------|
+| `packages/web/components/ChatWindow.tsx:137-143` | Conditional addition of next question to messages |

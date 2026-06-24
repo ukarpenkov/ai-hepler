@@ -1,51 +1,51 @@
 # Bug: Session history not shown on interview page sidebar
 
-**Дата:** 2026-06-23
-**Приоритет:** Medium
-**Статус:** Fixed
-**Компонент:** Frontend — `interview/page.tsx`, `Sidebar.tsx`
+**Date:** 2026-06-23
+**Priority:** Medium
+**Status:** Fixed
+**Component:** Frontend — `interview/page.tsx`, `Sidebar.tsx`
 
-## Описание
+## Description
 
-На странице интервью (`/interview`) история сессий в сайдбаре не отображается. Сайдбар пустой, хотя на главной странице (`/`) сессии показываются корректно.
+On the interview page (`/interview`), session history is not displayed in the sidebar. The sidebar is empty, although on the home page (`/`) sessions are shown correctly.
 
-## Ожидаемое поведение
+## Expected Behavior
 
-- На странице интервью сайдбар должен показывать список всех сессий из IndexedDB
-- Клик по сессии в сайдбаре должен открывать эту сессию
+- On the interview page, the sidebar should show a list of all sessions from IndexedDB
+- Clicking a session in the sidebar should open that session
 
-## Фактическое поведение
+## Actual Behavior
 
-- На странице интервью сайдбар пустой — нет списка сессий
-- Клик по сессиям не работает (нет обработчика)
+- On the interview page, the sidebar is empty — no session list
+- Clicking sessions does not work (no handler)
 
-## Воспроизведение
+## Reproduction
 
-1. Открыть http://localhost:3000
-2. Создать интервью (сессия сохраняется в IndexedDB)
-3. Перейти на страницу интервью (`/interview?sessionId=...`)
-4. Открыть сайдбар (клик по гамбургеру)
-5. **Наблюдение:** сайдбар пустой, нет истории сессий
+1. Open http://localhost:3000
+2. Create an interview (session is saved to IndexedDB)
+3. Navigate to the interview page (`/interview?sessionId=...`)
+4. Open the sidebar (click the hamburger)
+5. **Observation:** sidebar is empty, no session history
 
-## Причина
+## Root Cause
 
-Две проблемы в `packages/web/app/interview/page.tsx`:
+Two issues in `packages/web/app/interview/page.tsx`:
 
-1. **Неправильный источник данных:** Сессии загружались из бэкенд API (`fetch(${apiBase}/sessions)`), а не из IndexedDB через `listSessions()`. Бэкенд API не хранит сессии — они хранятся только в IndexedDB браузера.
+1. **Wrong data source:** Sessions were loaded from the backend API (`fetch(${apiBase}/sessions)`), not from IndexedDB via `listSessions()`. The backend API does not store sessions — they are stored only in the browser's IndexedDB.
 
-2. **Отсутствует обработчик клика:** В компонент `Sidebar` не передавался проп `onSessionClick`, поэтому даже если бы сессии загружались, клик по ним ничего бы не делал.
+2. **Missing click handler:** The `onSessionClick` prop was not passed to the `Sidebar` component, so even if sessions were loaded, clicking them would do nothing.
 
-## Где исправлять
+## Where to Fix
 
 **`packages/web/app/interview/page.tsx`:**
 
-- Импортировать `listSessions` из `@/lib/session-store`
-- Заменить `fetch(${apiBase}/sessions)` на `listSessions()` с тем же маппингом данных, что и на главной странице
-- Добавить функцию `handleSessionClick` для навигации между сессиями
-- Передать `onSessionClick={handleSessionClick}` в компонент `Sidebar`
+- Import `listSessions` from `@/lib/session-store`
+- Replace `fetch(${apiBase}/sessions)` with `listSessions()` using the same data mapping as on the home page
+- Add a `handleSessionClick` function for navigating between sessions
+- Pass `onSessionClick={handleSessionClick}` to the `Sidebar` component
 
-## Компоненты для изменения
+## Components to Change
 
-| Файл | Изменение |
-|------|-----------|
-| `packages/web/app/interview/page.tsx` | Использовать `listSessions()` вместо API, добавить `handleSessionClick`, передать `onSessionClick` в Sidebar |
+| File | Change |
+|------|--------|
+| `packages/web/app/interview/page.tsx` | Use `listSessions()` instead of API, add `handleSessionClick`, pass `onSessionClick` to Sidebar |

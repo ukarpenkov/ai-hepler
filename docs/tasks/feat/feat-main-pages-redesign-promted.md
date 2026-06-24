@@ -1,514 +1,514 @@
-# Prompted: Redesign главной страницы
+# Prompted: Main page redesign
 
-**Фича:** 003-redesign-main-page
+**Feature:** 003-redesign-main-page
 
-
----
-
-## Общие правила (для каждого шага)
-
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-1.1. **Прототип:** `C:\JS\ai-helper\ai-interview-simulator\docs\design\main-page.html`
-**Статус:** В процессе
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
 
 ---
 
-## Шаги
+## General rules (for each step)
 
-### Шаг 1: Обновить Tailwind конфиг — ✅
-
-**Статус:** Готово
-
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+1.1. **Prototype:** `C:\JS\ai-helper\ai-interview-simulator\docs\design\main-page.html`
+**Status:** In progress
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-Добавь в `packages/web/tailwind.config.ts` кастомные цвета, анимации и ключевые кадры из прототипа `docs/design/main-page.html`.
+## Steps
+
+### Step 1: Update Tailwind config — ✅
+
+**Status:** Done
+
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
+
+---
+
+Add custom colors, animations, and keyframes from the prototype `docs/design/main-page.html` to `packages/web/tailwind.config.ts`.
 
 ```
-Обнови файл packages/web/tailwind.config.ts.
+Update the file packages/web/tailwind.config.ts.
 
-Добавь в theme.extend:
-- colors: primary (#6366f1, hover #4f46e5, dark #818cf8), surface (bg, card, secondary через CSS-переменные), content (primary, secondary через CSS-переменные)
+Add to theme.extend:
+- colors: primary (#6366f1, hover #4f46e5, dark #818cf8), surface (bg, card, secondary via CSS variables), content (primary, secondary via CSS variables)
 - borderRadius: glass 24px, card 16px, button 16px
 - backdropBlur: glass 30px
-- boxShadow: glass и button
+- boxShadow: glass and button
 - animation: slide-up, float
 - keyframes: slideUp, float
 
-Сохрани существующие настройки content и plugins.
+Preserve existing content and plugins settings.
 ```
 
-**Тест:** `npm run typecheck` в `packages/web`
+**Test:** `npm run typecheck` in `packages/web`
 
 ---
 
-### Шаг 2: Обновить globals.css — ✅
+### Step 2: Update globals.css — ✅
 
-**Статус:** Готово
+**Status:** Done
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
-
----
-
-Добавь CSS-переменные для дизайн-системы в `packages/web/app/globals.css`. Переменные берутся из прототипа `docs/design/main-page.html`.
-
-```
-Обнови файл packages/web/app/globals.css.
-
-Добавь после @tailwind директив:
-- :root с переменными для светлой темы (bg-primary, bg-secondary, text-primary, text-secondary, accent, accent-hover, border, shadow, glass-bg)
-- [data-theme="dark"] с переменными для тёмной темы
-- body стили (font-family, background, color, transition)
-- .glass utility класс (background, backdrop-filter, border)
-
-Значения переменных бери из прототипа docs/design/main-page.html.
-```
-
-**Тест:** `npm run typecheck` в `packages/web`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-### Шаг 3: Создать компонент ThemeToggle — ✅
+Add CSS variables for the design system in `packages/web/app/globals.css`. Variable values are taken from the prototype `docs/design/main-page.html`.
 
-**Статус:** Готово
+```
+Update the file packages/web/app/globals.css.
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+Add after @tailwind directives:
+- :root with variables for light theme (bg-primary, bg-secondary, text-primary, text-secondary, accent, accent-hover, border, shadow, glass-bg)
+- [data-theme="dark"] with variables for dark theme
+- body styles (font-family, background, color, transition)
+- .glass utility class (background, backdrop-filter, border)
+
+Variable values should be taken from prototype docs/design/main-page.html.
+```
+
+**Test:** `npm run typecheck` in `packages/web`
 
 ---
 
-Создай компонент `packages/web/components/ThemeToggle.tsx` для переключения тёмной/светлой темы.
+### Step 3: Create ThemeToggle component — ✅
 
-```
-Создай новый файл packages/web/components/ThemeToggle.tsx.
+**Status:** Done
 
-Компонент:
-- "use client" директива
-- useState для theme ("light" | "dark")
-- useEffect: загрузка из localStorage, проверка prefers-color-scheme, установка data-theme на documentElement
-- toggle функция: переключение theme, сохранение в localStorage, обновление data-theme
-- JSX: button с aria-label "Toggle theme", позиционированный dot (кружок), иконки ☀️/🌙
-- Стили из прототипа: w-[60px] h-8 rounded-2xl, glass, border, transition
-
-Создай тест packages/web/components/__tests__/ThemeToggle.test.tsx:
-- Рендерится без ошибок
-- Клик переключает тему
-- Сохраняет в localStorage
-```
-
-**Тест:** `npm run test` в `packages/web`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-### Шаг 4: Создать компонент BurgerMenu — ✅
+Create component `packages/web/components/ThemeToggle.tsx` for toggling dark/light theme.
 
-**Статус:** Готово
+```
+Create a new file packages/web/components/ThemeToggle.tsx.
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+Component:
+- "use client" directive
+- useState for theme ("light" | "dark")
+- useEffect: load from localStorage, check prefers-color-scheme, set data-theme on documentElement
+- toggle function: switch theme, save to localStorage, update data-theme
+- JSX: button with aria-label "Toggle theme", positioned dot (circle), icons ☀️/🌙
+- Styles from prototype: w-[60px] h-8 rounded-2xl, glass, border, transition
+
+Create a test packages/web/components/__tests__/ThemeToggle.test.tsx:
+- Renders without errors
+- Click toggles theme
+- Saves to localStorage
+```
+
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-Создай компонент `packages/web/components/BurgerMenu.tsx` для toggle sidebar.
+### Step 4: Create BurgerMenu component — ✅
 
-```
-Создай новый файл packages/web/components/BurgerMenu.tsx.
+**Status:** Done
 
-Компонент:
-- "use client" директива
-- Пропсы: isOpen (boolean), onClick (() => void)
-- JSX: button с тремя span полосками
-- Анимация: когда isOpen=true, полоски превращаются в крестик (rotate 45/-45, opacity 0 для средней)
-- Стили из прототипа: w-10 h-10, glass, border, gap-1.5, hover:bg-primary hover:scale-105
-
-Создай тест packages/web/components/__tests__/BurgerMenu.test.tsx:
-- Рендерится без ошибок
-- Вызывает onClick при клике
-- Применяет active классы когда isOpen=true
-```
-
-**Тест:** `npm run test` в `packages/web`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-### Шаг 5: Создать компонент Header — ✅
+Create component `packages/web/components/BurgerMenu.tsx` for sidebar toggle.
 
-**Статус:** Готово
+```
+Create a new file packages/web/components/BurgerMenu.tsx.
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+Component:
+- "use client" directive
+- Props: isOpen (boolean), onClick (() => void)
+- JSX: button with three span bars
+- Animation: when isOpen=true, bars transform into an X (rotate 45/-45, opacity 0 for middle bar)
+- Styles from prototype: w-10 h-10, glass, border, gap-1.5, hover:bg-primary hover:scale-105
+
+Create a test packages/web/components/__tests__/BurgerMenu.test.tsx:
+- Renders without errors
+- Calls onClick on click
+- Applies active classes when isOpen=true
+```
+
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-Создай компонент `packages/web/components/Header.tsx` с логотипом, ThemeToggle и BurgerMenu.
+### Step 5: Create Header component — ✅
+
+**Status:** Done
+
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
+
+---
+
+Create component `packages/web/components/Header.tsx` with logo, ThemeToggle, and BurgerMenu.
 
 ```
-Создай новый файл packages/web/components/Header.tsx.
+Create a new file packages/web/components/Header.tsx.
 
-Компонент:
-- "use client" директива
-- Пропсы: isSidebarOpen (boolean), onMenuToggle (() => void)
+Component:
+- "use client" directive
+- Props: isSidebarOpen (boolean), onMenuToggle (() => void)
 - JSX: fixed header (top-0, left-0, right-0, z-50)
-  - Левая часть: логотип (градиентный бокс 36x36 с текстом "AI" + span "AI Interview")
-  - Правая часть: ThemeToggle + BurgerMenu
-- Стили из прототипа: glass, border-b, px-6 py-4, flex justify-between
+  - Left part: logo (gradient box 36x36 with "AI" text + span "AI Interview")
+  - Right part: ThemeToggle + BurgerMenu
+- Styles from prototype: glass, border-b, px-6 py-4, flex justify-between
 
-Создай тест packages/web/components/__tests__/Header.test.tsx:
-- Рендерится без ошибок
-- Отображает логотип и текст
-- Содержит ThemeToggle и BurgerMenu
+Create a test packages/web/components/__tests__/Header.test.tsx:
+- Renders without errors
+- Displays logo and text
+- Contains ThemeToggle and BurgerMenu
 ```
 
-**Тест:** `npm run test` в `packages/web`
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-### Шаг 6: Создать компонент Sidebar — ✅
+### Step 6: Create Sidebar component — ✅
 
-**Статус:** Готово
+**Status:** Done
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-Создай компонент `packages/web/components/Sidebar.tsx` для отображения истории сессий.
+Create component `packages/web/components/Sidebar.tsx` for displaying session history.
 
 ```
-Создай новый файл packages/web/components/Sidebar.tsx.
+Create a new file packages/web/components/Sidebar.tsx.
 
-Компонент:
-- "use client" директива
-- Интерфейс Session { id: string, title: string, date: string }
-- Пропсы: isOpen (boolean), sessions (Session[])
+Component:
+- "use client" directive
+- Interface Session { id: string, title: string, date: string }
+- Props: isOpen (boolean), sessions (Session[])
 - JSX: aside (fixed, top-0, left-0, w-80, h-screen)
-  - Заголовок "История сессий"
-  - Список сессий с hover-эффектами
-- Виден по умолчанию: isOpen=true → left-0, isOpen=false → -left-80
-- Стили из прототипа: glass, border-r, z-[99], pt-[100px], transition-all
+  - Heading "Session History"
+  - List of sessions with hover effects
+- Visible by default: isOpen=true → left-0, isOpen=false → -left-80
+- Styles from prototype: glass, border-r, z-[99], pt-[100px], transition-all
 
-Создай тест packages/web/components/__tests__/Sidebar.test.tsx:
-- Рендерится без ошибок
-- Отображает список сессий
-- Применяет классы в зависимости от isOpen
+Create a test packages/web/components/__tests__/Sidebar.test.tsx:
+- Renders without errors
+- Displays list of sessions
+- Applies classes based on isOpen
 ```
 
-**Тест:** `npm run test` в `packages/web`
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-### Шаг 7: Создать компонент JobInputForm — ✅
+### Step 7: Create JobInputForm component — ✅
 
-**Статус:** Готово
+**Status:** Done
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-Создай компонент `packages/web/components/JobInputForm.tsx` с textarea и кнопкой.
+Create component `packages/web/components/JobInputForm.tsx` with textarea and button.
 
 ```
-Создай новый файл packages/web/components/JobInputForm.tsx.
+Create a new file packages/web/components/JobInputForm.tsx.
 
-Компонент:
-- "use client" директива
-- Пропсы: onSubmit ((jobText: string) => void), isLoading (boolean)
-- Состояние: jobText (string)
+Component:
+- "use client" directive
+- Props: onSubmit ((jobText: string) => void), isLoading (boolean)
+- State: jobText (string)
 - JSX:
-  - Заголовок h1 "AI Interview Simulator" с градиентом
-  - Textarea с placeholder "Вставьте текст вакансии..."
-  - Кнопка "Начать интервью" с градиентом
-- Стили из прототипа: animate-slide-up, gradient text, glass textarea, gradient button
+  - Heading h1 "AI Interview Simulator" with gradient
+  - Textarea with placeholder "Paste job description text..."
+  - "Start Interview" button with gradient
+- Styles from prototype: animate-slide-up, gradient text, glass textarea, gradient button
 
-Создай тест packages/web/components/__tests__/JobInputForm.test.tsx:
-- Рендерится без ошибок
-- Отображает заголовок и textarea
-- Вызывает onSubmit с текстом при клике на кнопку
-- Отображает loading состояние
+Create a test packages/web/components/__tests__/JobInputForm.test.tsx:
+- Renders without errors
+- Displays heading and textarea
+- Calls onSubmit with text when clicking button
+- Displays loading state
 ```
 
-**Тест:** `npm run test` в `packages/web`
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-### Шаг 8: Создать компонент BackgroundEffects — ✅
+### Step 8: Create BackgroundEffects component — ✅
 
-**Статус:** Готово
+**Status:** Done
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
-
----
-
-Создай компонент `packages/web/components/BackgroundEffects.tsx` для декоративных фоновых элементов.
-
-```
-Создай новый файл packages/web/components/BackgroundEffects.tsx.
-
-Компонент:
-- "use client" директива не нужна (нет хуков)
-- JSX: два декоративных div с radial-gradient
-  - Первый: акцентный цвет, top-right, opacity-15, animate-float
-  - Второй: pink цвет, bottom-left, opacity-10, reverse animation
-- Стили из прототипа: fixed, rounded-full, pointer-events-none
-
-Создай тест packages/web/components/__tests__/BackgroundEffects.test.tsx:
-- Рендерится без ошибок
-- Содержит два декоративных элемента
-```
-
-**Тест:** `npm run test` в `packages/web`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-### Шаг 9: Обновить layout.tsx — ✅
+Create component `packages/web/components/BackgroundEffects.tsx` for decorative background elements.
 
-**Статус:** Готово
+```
+Create a new file packages/web/components/BackgroundEffects.tsx.
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+Component:
+- "use client" directive is not needed (no hooks)
+- JSX: two decorative div elements with radial-gradient
+  - First: accent color, top-right, opacity-15, animate-float
+  - Second: pink color, bottom-left, opacity-10, reverse animation
+- Styles from prototype: fixed, rounded-full, pointer-events-none
+
+Create a test packages/web/components/__tests__/BackgroundEffects.test.tsx:
+- Renders without errors
+- Contains two decorative elements
+```
+
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-Обнови `packages/web/app/layout.tsx` для поддержки data-theme атрибута.
+### Step 9: Update layout.tsx — ✅
 
-```
-Обнови файл packages/web/app/layout.tsx.
+**Status:** Done
 
-Добавь:
-- Script для загрузки темы из localStorage до рендера (чтобы не было FOUC)
-- data-theme атрибут на html тег (через dangerouslySetInnerHTML или script)
-
-Импортируй globals.css если ещё не импортирован.
-```
-
-**Тест:** `npm run typecheck` в `packages/web`
-
----
-
-### Шаг 10: Переписать page.tsx — ✅
-
-**Статус:** Готово
-
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-Перепиши `packages/web/app/page.tsx` для нового дизайна главной страницы.
+Update `packages/web/app/layout.tsx` to support the data-theme attribute.
 
 ```
-Перепиши файл packages/web/app/page.tsx.
+Update the file packages/web/app/layout.tsx.
 
-Новый код:
-- "use client" директива
-- Импорты: Header, Sidebar, JobInputForm, BackgroundEffects
-- Состояние: isSidebarOpen (true по умолчанию), sessions (Session[])
-- useEffect: загрузка сессий из API (fetch /api/sessions)
-- handleStartInterview: вызов parseJob + startInterview, редирект на /interview
+Add:
+- Script to load theme from localStorage before rendering (to prevent FOUC)
+- data-theme attribute on html tag (via dangerouslySetInnerHTML or script)
+
+Import globals.css if not already imported.
+```
+
+**Test:** `npm run typecheck` in `packages/web`
+
+---
+
+### Step 10: Rewrite page.tsx — ✅
+
+**Status:** Done
+
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
+
+---
+
+Rewrite `packages/web/app/page.tsx` for the new main page design.
+
+```
+Rewrite the file packages/web/app/page.tsx.
+
+New code:
+- "use client" directive
+- Imports: Header, Sidebar, JobInputForm, BackgroundEffects
+- State: isSidebarOpen (default true), sessions (Session[])
+- useEffect: load sessions from API (fetch /api/sessions)
+- handleStartInterview: call parseJob + startInterview, redirect to /interview
 - JSX layout:
   - BackgroundEffects
   - Header (isSidebarOpen, onMenuToggle)
   - Sidebar (isOpen, sessions)
-  - Main с transition margin-left (ml-80 при открытом sidebar)
-  - JobInputForm внутри main
+  - Main with transition margin-left (ml-80 when sidebar is open)
+  - JobInputForm inside main
 
-Сохрани существующую логику с API вызовами.
+Preserve existing logic with API calls.
 ```
 
-**Тест:** `npm run test` в `packages/web`
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-### Шаг 11: Обновить тест page.tsx — ✅
+### Step 11: Update page.tsx test — ✅
 
-**Статус:** Готово
+**Status:** Done
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
-
----
-
-Обнови тест `packages/web/app/__tests__/page.test.tsx` для нового дизайна.
-
-```
-Обнови файл packages/web/app/__tests__/page.test.tsx.
-
-Обнови моки:
-- Добавь моки для Header, Sidebar, JobInputForm, BackgroundEffects
-
-Обнови тесты:
-- Рендерится без ошибок
-- Содержит Header
-- Содержит Sidebar
-- Содержит JobInputForm
-- Содержит BackgroundEffects
-```
-
-**Тест:** `npm run test` в `packages/web`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-### Шаг 12: Запуск typecheck и lint — ✅
+Update the test `packages/web/app/__tests__/page.test.tsx` for the new design.
 
-**Статус:** Готово
+```
+Update the file packages/web/app/__tests__/page.test.tsx.
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+Update mocks:
+- Add mocks for Header, Sidebar, JobInputForm, BackgroundEffects
+
+Update tests:
+- Renders without errors
+- Contains Header
+- Contains Sidebar
+- Contains JobInputForm
+- Contains BackgroundEffects
+```
+
+**Test:** `npm run test` in `packages/web`
 
 ---
 
-Запусти проверку типов и линтер для всего проекта.
+### Step 12: Run typecheck and lint — ✅
 
-```
-Запусти в packages/web:
-1. npm run typecheck — проверь что нет ошибок типизации
-2. npm run lint — проверь что нет ошибок линтера
+**Status:** Done
 
-Если есть ошибки — исправь их.
-```
-
-**Тест:** Все проверки проходят без ошибок
-
----
-
-### Шаг 13: Запуск всех тестов — ✅
-
-**Статус:** Готово
-
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-Запусти все тесты проекта и убедись что они проходят.
+Run type check and linter for the entire project.
 
 ```
-Запусти в packages/web:
+Run in packages/web:
+1. npm run typecheck — check that there are no type errors
+2. npm run lint — check that there are no linter errors
+
+If there are errors — fix them.
+```
+
+**Test:** All checks pass without errors
+
+---
+
+### Step 13: Run all tests — ✅
+
+**Status:** Done
+
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
+
+---
+
+Run all project tests and ensure they pass.
+
+```
+Run in packages/web:
 npm run test
 
-Убедись что все тесты проходят.
-Если есть падения — исправь тесты или код.
+Ensure all tests pass.
+If there are failures — fix the tests or the code.
 ```
 
-**Тест:** Все тесты проходят
+**Test:** All tests pass
 
 ---
 
-### Шаг 14: Написать отчёт — ✅
+### Step 14: Write report — ✅
 
-**Статус:** Готово
+**Status:** Done
 
-**Общие правила для шага:**
-1. Код должен компилироваться без ошибок (`npm run typecheck` в `packages/web`)
-2. Тесты должны проходить (`npm run test` в `packages/web`)
-3. Используй существующие CSS-переменные из прототипа `docs/design/main-page.html`
-4. Следуй conventions проекта: Next.js App Router, TypeScript, Tailwind CSS
-5. Не добавляй комментарии в код
-6. Не удаляй существующую функциональность
-7. После реализации — запусти тесты и напиши отчёт в `docs/reports/`
+**General rules for the step:**
+1. Code must compile without errors (`npm run typecheck` in `packages/web`)
+2. Tests must pass (`npm run test` in `packages/web`)
+3. Use existing CSS variables from the prototype `docs/design/main-page.html`
+4. Follow project conventions: Next.js App Router, TypeScript, Tailwind CSS
+5. Do not add comments to the code
+6. Do not remove existing functionality
+7. After implementation — run tests and write a report in `docs/reports/`
 
 ---
 
-Напиши итоговый отчёт о реализации фичи.
+Write a final report on the feature implementation.
 
 ```
-Создай файл docs/reports/2026-06-21-feat-003-redesign-main-page.md
+Create the file docs/reports/2026-06-21-feat-003-redesign-main-page.md
 
-Содержание:
-- Что сделано
-- Список изменённых файлов
-- Результаты тестов
-- Проблемы (если были)
-- Итоговый статус
+Contents:
+- What was done
+- List of modified files
+- Test results
+- Issues (if any)
+- Final status
 ```
 
 ---

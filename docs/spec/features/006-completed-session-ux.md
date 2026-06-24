@@ -1,76 +1,76 @@
 # Feature: Completed session UX — disabled input + results block
 
-**Дата:** 2026-06-24
-**Приоритет:** High
-**Статус:** Done
-**Компонент:** Frontend — ChatWindow
+**Date:** 2026-06-24
+**Priority:** High
+**Status:** Done
+**Component:** Frontend — ChatWindow
 
 ---
 
-## Описание
+## Description
 
-При переходе на завершённую сессию (все вопросы заданы) интерфейс корректно отображает заблокированный инпут и блок результатов. Ранее: инпут скрывался полностью, `isFinished` не инициализировался из IndexedDB, при навигации на прошлую сессию поведение было непредсказуемым.
-
----
-
-## Текущее поведение (до изменений)
-
-- При загрузке завершённой сессии `isFinished` оставался `false` — инпут был активен
-- `storedFeedbacks` загружались, но `isFinished` не ставился в `true`
-- Блок инпута скрывался через `{!isFinished && (...)}` — при навигации мелькал активный инпут
-- `BottomSheet` с `SummaryView` не отображался при загрузке (только после ответа)
+When navigating to a completed session (all questions asked), the interface correctly displays a disabled input and results block. Previously: input was hidden completely, `isFinished` wasn't initialized from IndexedDB, and when navigating to a past session the behavior was unpredictable.
 
 ---
 
-## Ожидаемое поведение
+## Current Behavior (before changes)
 
-### 1. Disabled input при завершении
+- When loading a completed session, `isFinished` remained `false` — input was active
+- `storedFeedbacks` were loaded but `isFinished` wasn't set to `true`
+- Input block was hidden via `{!isFinished && (...)}` — active input flashed during navigation
+- `BottomSheet` with `SummaryView` didn't display on load (only after answering)
 
-- `textarea` и `button` отправки получают `disabled` при `isFinished === true`
-- Placeholder меняется на «Интервью завершено»
-- Блок инпута всегда виден (не скрыт), но неактивен
-- Scrollbar-кресико инпута скрывается когда `isFinished`
+---
 
-### 2. Автоинициализация isFinished
+## Expected Behavior
 
-- При загрузке `storedFeedbacks` из IndexedDB: если `storedFeedbacks.length >= TOTAL_QUESTIONS` → `setIsFinished(true)`
-- При ответе на последний вопрос: `setIsFinished(true)` (как раньше)
+### 1. Disabled input on completion
 
-### 3. BottomSheet с результатами
+- `textarea` and submit button receive `disabled` when `isFinished === true`
+- Placeholder changes to "Interview completed"
+- Input block is always visible (not hidden), but inactive
+- Scrollbar of input is hidden when `isFinished`
 
-- При `isFinished === true` рендерится `BottomSheet` с `SummaryView`
-- При загрузке завершённой сессии `isSummaryOpen = true` (summary разёрнут)
-- Результаты (`allFeedbacks`) сохраняются в IndexedDB через `updateSession()`
+### 2. Auto-initialization of isFinished
+
+- When loading `storedFeedbacks` from IndexedDB: if `storedFeedbacks.length >= TOTAL_QUESTIONS` → `setIsFinished(true)`
+- When answering the last question: `setIsFinished(true)` (as before)
+
+### 3. BottomSheet with results
+
+- When `isFinished === true`, `BottomSheet` with `SummaryView` renders
+- When loading a completed session, `isSummaryOpen = true` (summary is expanded)
+- Results (`allFeedbacks`) are saved to IndexedDB via `updateSession()`
 
 ---
 
 ## Acceptance Criteria
 
-- [x] При загрузке завершённой сессии инпут disabled с placeholder «Интервью завершено»
-- [x] Кнопка отправки disabled при `isFinished`
-- [x] `BottomSheet` с `SummaryView` отображается при загрузке завершённой сессии
-- [x] `isSummaryOpen = true` при загрузке завершённой сессии
-- [x] Результаты (`allFeedbacks`) сохраняются в IndexedDB
-- [x] Все тесты проходят
-- [x] typecheck без ошибок
-- [x] lint без ошибок (pre-existing warning допустим)
+- [x] When loading a completed session, input is disabled with placeholder "Interview completed"
+- [x] Submit button is disabled when `isFinished`
+- [x] `BottomSheet` with `SummaryView` displays when loading a completed session
+- [x] `isSummaryOpen = true` when loading a completed session
+- [x] Results (`allFeedbacks`) are saved to IndexedDB
+- [x] All tests pass
+- [x] typecheck without errors
+- [x] lint without errors (pre-existing warnings acceptable)
 
 ---
 
-## Файлы для изменения
+## Files to Modify
 
-| Файл | Действие |
-|------|----------|
-| `packages/web/components/ChatWindow.tsx` | Обновить — логика `isFinished`, disabled input, placeholder |
-| `packages/web/components/ChatWindow.test.tsx` | Обновить — тесты disabled input, мок `sessionData` |
+| File | Action |
+|------|--------|
+| `packages/web/components/ChatWindow.tsx` | Update — `isFinished` logic, disabled input, placeholder |
+| `packages/web/components/ChatWindow.test.tsx` | Update — disabled input tests, mock `sessionData` |
 
 ---
 
-## Приоритеты
+## Priorities
 
-| Элемент | Приоритет |
-|---------|-----------|
-| Инициализация `isFinished` из IndexedDB | **High** |
+| Element | Priority |
+|---------|----------|
+| `isFinished` initialization from IndexedDB | **High** |
 | Disabled input + placeholder | **High** |
-| BottomSheet при загрузке | **High** |
-| Тесты | **Medium** |
+| BottomSheet on load | **High** |
+| Tests | **Medium** |

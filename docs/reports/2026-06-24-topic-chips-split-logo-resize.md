@@ -2,39 +2,39 @@
 
 ## Goal
 
-Разбить один чип topic на отдельные чипы по запятым; увеличить шрифт логотипа HireChat.
+Split single topic chip into separate chips by commas; increase HireChat logo font size.
 
 ## Changes
 
 ### `components/MessageBubble.tsx`
 
-- Topic теперь разбивается по запятым: `topic.split(",").map(...)`
-- Каждая тема рендерится как отдельный `<span>` чип
-- Контейнер чипов: `flex flex-wrap gap-1.5` для обёртки и отступов
-- Пробелы вокруг тем обрезаются через `t.trim()`
+- Topic now split by commas: `topic.split(",").map(...)`
+- Each topic rendered as separate `<span>` chip
+- Chip container: `flex flex-wrap gap-1.5` for wrapping and spacing
+- Spaces around topics trimmed via `t.trim()`
 
 ### `components/MessageBubble.test.tsx`
 
-- Добавлен тест: рендер одного чипа
-- Добавлен тест: рендер нескольких чипов из строки `"React, JSX, SCSS"`
-- Добавлен тест: обрезка пробелов `"React , JSX , SCSS"`
+- Added test: single chip rendering
+- Added test: multiple chips from string `"React, JSX, SCSS"`
+- Added test: space trimming `"React , JSX , SCSS"`
 
 ### `components/Header.tsx`
 
-- Размер шрифта HireChat: `text-[1.5rem]` (24px) → `text-[1.875rem]` (30px)
+- HireChat font size: `text-[1.5rem]` (24px) → `text-[1.875rem]` (30px)
 
 ## Before / After
 
 ```
 BEFORE:
 ┌──────────────────────────────────┐
-│ Архитектура навигации (React..)  │  ← один чип на все темы
+│ Архитектура навигации (React..)  │  ← single chip for all topics
 │ Расскажите о...                  │
 └──────────────────────────────────┘
 
 AFTER:
 ┌──────────────────────────────────┐
-│ Архитектура  React  Navigation  │  ← отдельные чипы
+│ Архитектура  React  Navigation  │  ← separate chips
 │ Расскажите о...                  │
 └──────────────────────────────────┘
 ```
@@ -44,5 +44,5 @@ AFTER:
 - typecheck: pass
 - lint: pass
 - tests: 157/157 pass
-- Topic отображается как набор отдельных чипов
-- Логотип HireChat увеличен на 6px
+- Topic displays as set of separate chips
+- HireChat logo increased by 6px

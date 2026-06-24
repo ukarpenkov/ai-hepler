@@ -2,51 +2,51 @@
 
 ## Goal
 
-1. Добавить анимацию индикатора набора текста (typing indicator) в чат — показывать пока ИИ обрабатывает ответ
-2. Исправить ошибку 500 на `/interview/answer` — добавить try-catch с логированием в маршруты
+1. Add typing indicator animation to chat — show while AI processes the answer
+2. Fix 500 error on `/interview/answer` — add try-catch with logging to routes
 
 ## Problem
 
-1. После отправки ответа пользователем и до получения ответа от ИИ — пустое пространство без визуальной обратной связи
-2. Маршруты `/interview/start` и `/interview/answer` не имели try-catch вокруг LLM-вызовов — при ошибке API DeepSeek или невалидном JSON от LLM, исключение летело в глобальный error handler Fastify, возвращая безликий `500 Internal Server Error`
+1. After user submits an answer and before receiving AI response — empty space with no visual feedback
+2. Routes `/interview/start` and `/interview/answer` had no try-catch around LLM calls — on DeepSeek API error or invalid JSON from LLM, the exception flew to Fastify's global error handler, returning a generic `500 Internal Server Error`
 
 ## Changes
 
-### `components/TypingIndicator.tsx` (новый)
+### `components/TypingIndicator.tsx` (new)
 
-- Компонент с аватаром ИИ () и bubble содержащим анимированный текст "Typing..."
-- Адаптация анимации из `docs/design/typing.html`:
-  - `typing` — текст появляется посимвольно через `width: 0 → 6.5ch` с `steps(6, end)`
-  - `blink` — мигающий курсор через `border-right` + `border-color: transparent`
-- Стили совпадают с MessageBubble: gradient аватар, glass bubble, `messageIn` анимация появления
+- Component with AI avatar () and bubble containing animated text "Typing..."
+- Adapted animation from `docs/design/typing.html`:
+  - `typing` — text appears character by character via `width: 0 → 6.5ch` with `steps(6, end)`
+  - `blink` — blinking cursor via `border-right` + `border-color: transparent`
+- Styles match MessageBubble: gradient avatar, glass bubble, `messageIn` appear animation
 
 ### `app/globals.css`
 
-- Добавлены `@keyframes typing` и `@keyframes blink` в глобальные стили
+- Added `@keyframes typing` and `@keyframes blink` to global styles
 
 ### `components/ChatWindow.tsx`
 
-- Импорт `TypingIndicator`
-- `{isLoading && <TypingIndicator />}` — рендерится после списка сообщений когда `isLoading === true`
+- Imported `TypingIndicator`
+- `{isLoading && <TypingIndicator />}` — renders after message list when `isLoading === true`
 
 ### `src/api/routes/interview.ts`
 
-- **`/interview/start`**: `startInterview()` обёрнут в try-catch, ошибки логируются через `request.log.error(e, "startInterview failed")`
-- **`/interview/answer`**: `processAnswer()` обёрнут в try-catch, ошибки логируются через `request.log.error(e, "processAnswer failed")`
-- Оба возвращают `{ error: "..." }` с 500 статусом вместо прокидывания в глобальный handler
+- **`/interview/start`**: `startInterview()` wrapped in try-catch, errors logged via `request.log.error(e, "startInterview failed")`
+- **`/interview/answer`**: `processAnswer()` wrapped in try-catch, errors logged via `request.log.error(e, "processAnswer failed")`
+- Both return `{ error: "..." }` with 500 status instead of propagating to global handler
 
-### `docs/design/summary-view.html` (новый)
+### `docs/design/summary-view.html` (new)
 
-- Прототип страницы результатов интервью: статистика (средний/лучший/худший балл), навигация по вопросам, разбор ответа (сильные/слабые стороны, рекомендация, улучшенный ответ, советы)
+- Interview results page prototype: statistics (average/best/worst score), question navigation, answer review (strengths/weaknesses, recommendation, improved answer, tips)
 
-### `docs/design/typing.html` (новый)
+### `docs/design/typing.html` (new)
 
-- Прототип анимации typing indicator, использован как источник для CSS-ключей
+- Typing indicator animation prototype, used as source for CSS keyframes
 
 ## Result
 
 - typecheck: pass
 - lint: pass
 - tests: 158/158 pass
-- Typing indicator появляется при ожидании ответа ИИ
-- Ошибки LLM теперь логируются с деталями вместо безликого 500
+- Typing indicator appears when waiting for AI response
+- LLM errors now logged with details instead of generic 500

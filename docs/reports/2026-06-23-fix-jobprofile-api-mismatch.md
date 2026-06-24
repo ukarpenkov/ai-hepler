@@ -2,28 +2,28 @@
 
 ## Goal
 
-Исправить ошибку "jobProfile is required" при запуске интервью и ошибку "Произошла ошибка" при отправке ответа в чат.
+Fix "jobProfile is required" error when starting interview and "An error occurred" error when submitting answer in chat.
 
 ## Problem
 
-Две бага блокировали основной флоу интервью:
+Two bugs blocked the main interview flow:
 
-1. **Frontend API не передавал данные на бэкенд** — `startInterview()` и `sendAnswer()` в `packages/web/lib/api.ts` игнорировали параметры `sessionData` от вызывающего кода. Бэкенд получал запрос без `jobProfile` и возвращал 400.
+1. **Frontend API didn't send data to backend** — `startInterview()` and `sendAnswer()` in `packages/web/lib/api.ts` ignored `sessionData` parameters from calling code. Backend received requests without `jobProfile` and returned 400.
 
-2. **Несовпадение типов `ParsedJob`** — фронтенд использовал `{ title, company, seniority, requirements }`, а бэкенд возвращает `{ role, level, skills, keywords, domain }`. Агенты получали `undefined` для ключевых полей.
+2. **`ParsedJob` type mismatch** — frontend used `{ title, company, seniority, requirements }`, while backend returns `{ role, level, skills, keywords, domain }`. Agents received `undefined` for key fields.
 
-3. **Race condition с `sessionData`** — данные загружались из IndexedDB асинхронно, но `ChatWindow` инициализировал состояние до их появления,导致 `null` при отправке ответа.
+3. **Race condition with `sessionData`** — data loaded asynchronously from IndexedDB, but `ChatWindow` initialized state before data arrived, causing `null` when sending answer.
 
 ## Changes
 
 ### `packages/web/lib/api.ts`
 
-- `startInterview` — добавлен второй параметр `sessionData`, передаёт `jobProfile`, `weakSkills`, `history` в тело запроса
-- `sendAnswer` — добавлен третий параметр `sessionData`, передаётся как `sessionData` в JSON
+- `startInterview` — added second parameter `sessionData`, passes `jobProfile`, `weakSkills`, `history` in request body
+- `sendAnswer` — added third parameter `sessionData`, passed as `sessionData` in JSON
 
 ### `packages/web/lib/types.ts`
 
-- `ParsedJob` приведён к единому виду с бэкендом: `{ role, level, skills, keywords, domain }`
+- `ParsedJob` aligned with backend: `{ role, level, skills, keywords, domain }`
 
 ### `packages/web/app/page.tsx`
 
@@ -32,12 +32,12 @@
 
 ### `packages/web/components/ChatWindow.tsx`
 
-- Добавлен `useEffect` для синхронизации `sessionData` prop с внутренним state
-- Добавлен null-guard `!currentSessionData?.jobProfile` в `handleSend`
-- Catch-блок теперь логирует ошибку в консоль и показывает конкретное сообщение вместо generic "Произошла ошибка"
+- Added `useEffect` to sync `sessionData` prop with internal state
+- Added null-guard `!currentSessionData?.jobProfile` in `handleSend`
+- Catch block now logs error to console and shows specific message instead of generic "An error occurred"
 
 ## Verification
 
 - `npm run typecheck` — passed
 - `npm run lint` — passed
-- Ручной тест: вставить вакансию → первый вопрос → отправить ответ → получить оценку и следующий вопрос
+- Manual test: paste job description → first question → submit answer → receive score and next question

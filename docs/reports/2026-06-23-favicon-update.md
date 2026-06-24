@@ -2,21 +2,21 @@
 
 ## Goal
 
-Заменить стандартную иконку браузера (favicon) на кастомный логотип проекта `packages/asset/logo.ico`.
+Replace the default browser icon (favicon) with the project's custom logo `packages/asset/logo.ico`.
 
 ## Problem
 
-Favicon в Next.js приложении был стандартным — `packages/web/app/favicon.ico` содержал дефолтный файл. Нужно отображать фирменный логотип проекта (иконка собеседования) в вкладке браузера.
+The favicon in the Next.js app was default — `packages/web/app/favicon.ico` contained the default file. Need to display the project's branded logo (interview icon) in the browser tab.
 
 ## Changes
 
 ### `packages/web/app/favicon.ico`
 
-- Заменён содержимым из `packages/asset/logo.ico`
-- Иконка: синяя круглая иконка с силуэтом собеседования (чат с персоной)
-- Next.js App Router автоматически подхватывает `app/favicon.ico` как иконку браузера
+- Replaced with content from `packages/asset/logo.ico`
+- Icon: blue circular icon with interview silhouette (chat with person)
+- Next.js App Router automatically picks up `app/favicon.ico` as browser icon
 
 ## Result
 
-- Фирменный логотип проекта отображается во вкладке браузера
-- Никаких дополнительных настроек не требуется — конвенция App Router
+- Project branded logo displays in browser tab
+- No additional configuration needed — App Router convention

@@ -1,600 +1,600 @@
-# Фаза 2 — Промты для реализации (Frontend)
+# Phase 2 — Prompts for Implementation (Frontend)
 
 ---
 
-## Шаг 1 — Инициализация Next.js проекта ✅ Выполнено
+## Step 1 — Initialize Next.js project ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай Next.js проект для фронтенда AI Interview Simulator.
+Create a Next.js project for the AI Interview Simulator frontend.
 
-Действия:
-1. В корне проекта (ai-interview-simulator/) запусти: npx create-next-app@latest packages/web --typescript --tailwind --app --no-eslint --no-src-dir --import-alias "@/*"
-2. Убедись что packages/web/ создался с app/ directory структурой
-3. В packages/web/app/layout.tsx — базовый layout с html и body
-4. В packages/web/app/page.tsx — пустая страница-заглушка "AI Interview Simulator"
-5. В packages/web/package.json добавь скрипт "dev": "next dev -p 3000"
-6. Запусти npm install в packages/web/
+Actions:
+1. In the project root (ai-interview-simulator/) run: npx create-next-app@latest packages/web --typescript --tailwind --app --no-eslint --no-src-dir --import-alias "@/*"
+2. Verify that packages/web/ was created with app/ directory structure
+3. In packages/web/app/layout.tsx — basic layout with html and body
+4. In packages/web/app/page.tsx — empty placeholder page "AI Interview Simulator"
+5. In packages/web/package.json add script "dev": "next dev -p 3000"
+6. Run npm install in packages/web/
 
-Тест: cd packages/web && npx next lint (должен пройти без ошибок)
+Test: cd packages/web && npx next lint (should pass without errors)
 ```
 
 ---
 
-## Шаг 2 — Конфигурация API клиента (lib/api.ts) ✅ Выполнено
+## Step 2 — API client configuration (lib/api.ts) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай API клиент для фронтенда.
+Create an API client for the frontend.
 
-Файл: packages/web/lib/api.ts
+File: packages/web/lib/api.ts
 
-Требования:
-1. Константа API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-2. Функция parseJob(text: string): Promise<{ sessionId: string, jobProfile: ParsedJob }>
-   - POST /job/parse с body { text }
-3. Функция startInterview(sessionId: string): Promise<{ question: QuestionResult }>
-   - POST /interview/start с body { sessionId }
-4. Функци️я sendAnswer(sessionId: string, answer: string): Promise<{ evaluation, coach, memory, nextQuestion }>
-   - POST /interview/answer с body { sessionId, answer }
-5. Функция getSession(id: string): Promise<SessionData>
+Requirements:
+1. Constant API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+2. Function parseJob(text: string): Promise<{ sessionId: string, jobProfile: ParsedJob }>
+   - POST /job/parse with body { text }
+3. Function startInterview(sessionId: string): Promise<{ question: QuestionResult }>
+   - POST /interview/start with body { sessionId }
+4. Function sendAnswer(sessionId: string, answer: string): Promise<{ evaluation, coach, memory, nextQuestion }>
+   - POST /interview/answer with body { sessionId, answer }
+5. Function getSession(id: string): Promise<SessionData>
    - GET /session/:id
-6. Типы: ParsedJob, QuestionResult, EvaluationResult, CoachResult, MemoryUpdate, SessionData
-   - Определи их в packages/web/lib/types.ts
-7. Обработка ошибок: проверяй response.ok, бросай Error с message из JSON
+6. Types: ParsedJob, QuestionResult, EvaluationResult, CoachResult, MemoryUpdate, SessionData
+   - Define them in packages/web/lib/types.ts
+7. Error handling: check response.ok, throw Error with message from JSON
 
-Файл: packages/web/lib/types.ts
-- Экспортируй все интерфейсы: ParsedJob, QuestionResult, EvaluationResult, CoachResult, MemoryUpdate, SessionData
+File: packages/web/lib/types.ts
+- Export all interfaces: ParsedJob, QuestionResult, EvaluationResult, CoachResult, MemoryUpdate, SessionData
 
-Тест: packages/web/__tests__/api.test.ts
-- мокай fetch
-- тест parseJob вызывает POST /job/parse
-- тест startInterview вызывает POST /interview/start
-- тест sendAnswer вызывает POST /interview/answer
-- тест getSession вызывает GET /session/:id
-- тест обработка HTTP ошибки
+Test: packages/web/__tests__/api.test.ts
+- mock fetch
+- test parseJob calls POST /job/parse
+- test startInterview calls POST /interview/start
+- test sendAnswer calls POST /interview/answer
+- test getSession calls GET /session/:id
+- test HTTP error handling
 ```
 
 ---
 
-## Шаг 3 — Компонент JobUpload (ввод вакансии) ✅ Выполнено
+## Step 3 — JobUpload component (job input) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
-
-```
-Создай компонент JobUpload для ввода текста вакансии.
-
-Файл: packages/web/components/JobUpload.tsx
-
-Требования:
-1. React компонент с пропсами: { onSubmit: (text: string) => void, isLoading: boolean }
-2. Textarea с placeholder "Вставьте текст вакансии..."
-3. Кнопка "Начать интервью"
-4. Валидация: минимум 50 символов, иначе показать ошибку
-5. Дизайн: Tailwind CSS, минималистичный стиль
-6. Кнопка disabled пока isLoading или текст < 50 символов
-
-Файл: packages/web/components/JobUpload.test.tsx
-Тест (используй @testing-library/react и vitest):
-- рендерит textarea и кнопку
-- кнопка disabled когда текст пустой
-- кнопка enabled когда текст >= 50 символов
-- вызывает onSubmit при клике на кнопку
-
-Доп. зависимости в packages/web/package.json (devDependencies): @testing-library/react, @testing-library/jest-dom, jsdom, vitest
-Добавь vitest конфиг в packages/web/vitest.config.ts
-```
-
----
-
-## Шаг 4 — Компонент MessageBubble (вывод сообщений) ✅ Выполнено
-
-**Статус:** ✅ Выполнено
-
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
-
-**Промт:**
+**Prompt:**
 
 ```
-Создай компонент MessageBubble для отображения сообщений в чате.
+Create a JobUpload component for entering job description text.
 
-Файл: packages/web/components/MessageBubble.tsx
+File: packages/web/components/JobUpload.tsx
 
-Требования:
-1. React компонент с пропсами: { role: "user" | "assistant", content: string, timestamp?: string }
-2. Если role === "user" — сообщение справа, фон синий
-3. Если role === "assistant" — сообщение слева, фон серый
-4. Отображай timestamp если передан
-5. Tailwind CSS стили
-6. Text content с line-height
+Requirements:
+1. React component with props: { onSubmit: (text: string) => void, isLoading: boolean }
+2. Textarea with placeholder "Paste job description text..."
+3. Button "Start interview"
+4. Validation: minimum 50 characters, otherwise show error
+5. Design: Tailwind CSS, minimalist style
+6. Button disabled while isLoading or text < 50 characters
 
-Файл: packages/web/components/MessageBubble.test.tsx
-Тест:
-- рендерит сообщение пользователя справа
-- рендерит сообщение ассистента слева
-- отображает timestamp если передан
+File: packages/web/components/JobUpload.test.tsx
+Test (use @testing-library/react and vitest):
+- renders textarea and button
+- button disabled when text is empty
+- button enabled when text >= 50 characters
+- calls onSubmit when button is clicked
+
+Additional dependencies in packages/web/package.json (devDependencies): @testing-library/react, @testing-library/jest-dom, jsdom, vitest
+Add vitest config in packages/web/vitest.config.ts
 ```
 
 ---
 
-## Шаг 5 — Компонент FeedbackCard (результат оценки) ✅ Выполнено
+## Step 4 — MessageBubble component (message output) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай компонент FeedbackCard для отображения результатов оценки ответа.
+Create a MessageBubble component for displaying chat messages.
 
-Файл: packages/web/components/FeedbackCard.tsx
+File: packages/web/components/MessageBubble.tsx
 
-Требования:
-1. React компонент с пропсами: { evaluation: EvaluationResult, coach: CoachResult }
-2. Отображай:
-   - Score (1-10) с цветовой индикацией (красный < 4, жёлтый 4-6, зелёный > 6)
-   - Strengths (список)
-   - Weaknesses (список)
-   - Recommendation (текст)
-   - Coach explanation (текст)
-   - Improved answer (текст в блоке code)
-   - Tips (список)
-3. Tailwind CSS, карточка с тенью
-4. Импортируй типы из @/lib/types
+Requirements:
+1. React component with props: { role: "user" | "assistant", content: string, timestamp?: string }
+2. If role === "user" — message on the right, blue background
+3. If role === "assistant" — message on the left, gray background
+4. Display timestamp if provided
+5. Tailwind CSS styles
+6. Text content with line-height
 
-Файл: packages/web/components/FeedbackCard.test.tsx
-Тест:
-- рендерит score
-- рендерит strengths и weaknesses
-- рендерит coach explanation
-- рендерит tips
+File: packages/web/components/MessageBubble.test.tsx
+Test:
+- renders user message on the right
+- renders assistant message on the left
+- displays timestamp if provided
 ```
 
 ---
 
-## Шаг 6 — Компонент ChatWindow (основной чат интерфейс) ✅ Выполнено
+## Step 5 — FeedbackCard component (evaluation result) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай компонент ChatWindow — основной чат интерфейс.
+Create a FeedbackCard component for displaying answer evaluation results.
 
-Файл: packages/web/components/ChatWindow.tsx
+File: packages/web/components/FeedbackCard.tsx
 
-Требования:
-1. Пропсы: { sessionId: string, initialQuestion: QuestionResult }
-2. Состояние: messages (массив { role, content }), currentInput, isLoading, lastFeedback (EvaluationResult | null), lastCoach (CoachResult | null)
-3. При монтировании: добавь initialQuestion как первое сообщение assistant
-4. Textarea + кнопка "Отправить"
-5. При отправке:
-   - Добавь сообщение user в messages
-   - Вызови sendAnswer(sessionId, answer)
-   - Добавь сообщение assistant с текстом следующего вопроса
-   - Сохрани evaluation и coach в lastFeedback/lastCoach
-6. Под textarea покажи FeedbackCard если есть lastFeedback
-7. Скролл вниз автоматически при новых сообщениях
-8. Кнопка disabled пока isLoading
-9. Используй MessageBubble для рендеринга каждого сообщения
+Requirements:
+1. React component with props: { evaluation: EvaluationResult, coach: CoachResult }
+2. Display:
+   - Score (1-10) with color indication (red < 4, yellow 4-6, green > 6)
+   - Strengths (list)
+   - Weaknesses (list)
+   - Recommendation (text)
+   - Coach explanation (text)
+   - Improved answer (text in code block)
+   - Tips (list)
+3. Tailwind CSS, card with shadow
+4. Import types from @/lib/types
 
-Тест: packages/web/components/ChatWindow.test.tsx
-- мокай sendAnswer
-- рендерит начальный вопрос
-- отправка ответа добавляет сообщение user
-- после ответа отображается FeedbackCard
+File: packages/web/components/FeedbackCard.test.tsx
+Test:
+- renders score
+- renders strengths and weaknesses
+- renders coach explanation
+- renders tips
 ```
 
 ---
 
-## Шаг 7 — Страница главная (app/page.tsx) ✅ Выполнено
+## Step 6 — ChatWindow component (main chat interface) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай главную страницу приложения.
+Create a ChatWindow component — main chat interface.
 
-Файл: packages/web/app/page.tsx
+File: packages/web/components/ChatWindow.tsx
 
-Требования:
+Requirements:
+1. Props: { sessionId: string, initialQuestion: QuestionResult }
+2. State: messages (array of { role, content }), currentInput, isLoading, lastFeedback (EvaluationResult | null), lastCoach (CoachResult | null)
+3. On mount: add initialQuestion as first assistant message
+4. Textarea + button "Send"
+5. On send:
+   - Add user message to messages
+   - Call sendAnswer(sessionId, answer)
+   - Add assistant message with next question text
+   - Save evaluation and coach to lastFeedback/lastCoach
+6. Below textarea show FeedbackCard if lastFeedback exists
+7. Auto-scroll to bottom on new messages
+8. Button disabled while isLoading
+9. Use MessageBubble for rendering each message
+
+Test: packages/web/components/ChatWindow.test.tsx
+- mock sendAnswer
+- renders initial question
+- sending answer adds user message
+- after answer FeedbackCard is displayed
+```
+
+---
+
+## Step 7 — Main page (app/page.tsx) ✅ Completed
+
+**Status:** ✅ Completed
+
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
+
+**Prompt:**
+
+```
+Create the application main page.
+
+File: packages/web/app/page.tsx
+
+Requirements:
 1. Client Component ("use client")
-2. Состояние: jobText, isLoading, error, sessionId
-3. При submit jobText:
-   - Вызови parseJob(text) из lib/api
-   - Сохрани sessionId
-   - Вызови startInterview(sessionId) для получения первого вопроса
-   - Перенаправь на /interview с параметрами sessionId и initialQuestion
-4. Используй компонент JobUpload
-5. Если ошибка — покажи сообщение
-6. Tailwind CSS: центрированный контейнер, заголовок "AI Interview Simulator"
+2. State: jobText, isLoading, error, sessionId
+3. On submit jobText:
+   - Call parseJob(text) from lib/api
+   - Save sessionId
+   - Call startInterview(sessionId) to get first question
+   - Redirect to /interview with parameters sessionId and initialQuestion
+4. Use JobUpload component
+5. If error — show message
+6. Tailwind CSS: centered container, heading "AI Interview Simulator"
 
-Тест: packages/web/app/__tests__/page.test.tsx
-- мокай api функции
-- рендерит заголовок
-- рендерит JobUpload
+Test: packages/web/app/__tests__/page.test.tsx
+- mock api functions
+- renders heading
+- renders JobUpload
 ```
 
 ---
 
-## Шаг 8 — Страница интервью (app/interview/page.tsx) ✅ Выполнено
+## Step 8 — Interview page (app/interview/page.tsx) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай страницу интервью.
+Create the interview page.
 
-Файл: packages/web/app/interview/page.tsx
+File: packages/web/app/interview/page.tsx
 
-Требования:
+Requirements:
 1. Client Component ("use client")
-2. Читай searchParams: sessionId, question, topic, difficulty
-3. Если нет sessionId — редирект на /
-4. Создай объект QuestionResult из searchParams
-5. Рендерий ChatWindow с sessionId и initialQuestion
-6. Tailwind CSS: полная высота экрана
+2. Read searchParams: sessionId, question, topic, difficulty
+3. If no sessionId — redirect to /
+4. Create QuestionResult object from searchParams
+5. Render ChatWindow with sessionId and initialQuestion
+6. Tailwind CSS: full screen height
 
-Файл: packages/web/app/interview/layout.tsx
-- Простой layout без навигации
+File: packages/web/app/interview/layout.tsx
+- Simple layout without navigation
 
-Тест: packages/web/app/interview/__tests__/page.test.tsx
-- мокай useSearchParams
-- рендерит ChatWindow
+Test: packages/web/app/interview/__tests__/page.test.tsx
+- mock useSearchParams
+- renders ChatWindow
 ```
 
 ---
 
-## Шаг 9 — Layout и навигация (app/layout.tsx) ✅ Выполнено
+## Step 9 — Layout and navigation (app/layout.tsx) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Обнови корневой layout приложения.
+Update the application root layout.
 
-Файл: packages/web/app/layout.tsx
+File: packages/web/app/layout.tsx
 
-Требования:
+Requirements:
 1. Metadata: title "AI Interview Simulator", description "Practice interviews with AI"
-2. Inter шрифт через next/font/google
-3. Tailwind CSS globals: убери стандартные стили, оставь только базовый reset
+2. Inter font via next/font/google
+3. Tailwind CSS globals: remove default styles, keep only basic reset
 4. Body: min-height screen, bg-gray-50, text-gray-900
 
-Файл: packages/web/app/globals.css
+File: packages/web/app/globals.css
 - Tailwind directives: @tailwind base, @tailwind components, @tailwind utilities
-- Минимальные глобальные стили
+- Minimal global styles
 
-Тест: packages/web/app/__tests__/layout.test.tsx
-- рендерит children
-- содержит title
+Test: packages/web/app/__tests__/layout.test.tsx
+- renders children
+- contains title
 ```
 
 ---
 
-## Шаг 10 — Компонент ProgressBar (прогресс интервью) ✅ Выполнено
+## Step 10 — ProgressBar component (interview progress) ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Создай компонент ProgressBar для отображения прогресса интервью.
+Create a ProgressBar component for displaying interview progress.
 
-Файл: packages/web/components/ProgressBar.tsx
+File: packages/web/components/ProgressBar.tsx
 
-Требования:
-1. Пропсы: { current: number, total: number }
-2. Визуальная полоса прогресса (div с bg-blue-500, width в процентах)
-3. Текст: "Вопрос X из Y"
+Requirements:
+1. Props: { current: number, total: number }
+2. Visual progress bar (div with bg-blue-500, width in percent)
+3. Text: "Question X of Y"
 4. Tailwind CSS
 
-Файл: packages/web/components/ProgressBar.test.tsx
-- рендерит правильный текст
-- ширина полосы соответствует проценту
+File: packages/web/components/ProgressBar.test.tsx
+- renders correct text
+- bar width corresponds to percentage
 ```
 
 ---
 
-## Шаг 11 — Интеграция ProgressBar в ChatWindow ✅ Выполнено
+## Step 11 — Integrate ProgressBar into ChatWindow ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
-
-```
-Интегрируй ProgressBar в ChatWindow.
-
-Обнови packages/web/components/ChatWindow.tsx:
-1. Добавь состояние questionCount (начальное = 1)
-2. При каждом ответе инкрементируй questionCount
-3. Покажи ProgressBar над чатом: current={questionCount}, total={10}
-4. Импортируй ProgressBar
-
-Тест: packages/web/components/ChatWindow.test.tsx (обнови)
-- после отправки ответа questionCount увеличивается
-- ProgressBar отображает текущий номер вопроса
-```
-
----
-
-## Шаг 12 — Стилизация и финальная настройка Tailwind ✅ Выполнено
-
-**Статус:** ✅ Выполнено
-
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
-
-**Промт:**
+**Prompt:**
 
 ```
-Финализируй стилизацию фронтенда.
+Integrate ProgressBar into ChatWindow.
 
-Действия:
-1. Проверь что все компоненты используют Tailwind классы
-2. Убедись что responsive (mobile-friendly)
-3. Добавь hover/focus состояния для кнопок и textarea
-4. Проверь что текст читаемый (font-size, contrast)
-5. Проверь что скролл работает корректно в ChatWindow
+Update packages/web/components/ChatWindow.tsx:
+1. Add state questionCount (initial = 1)
+2. On each answer increment questionCount
+3. Show ProgressBar above chat: current={questionCount}, total={10}
+4. Import ProgressBar
 
-Файл: packages/web/tailwind.config.ts
-- Убедись что content пути правильные
-
-Тест: cd packages/web && npx next build (должен собраться без ошибок)
+Test: packages/web/components/ChatWindow.test.tsx (update)
+- after sending answer questionCount increases
+- ProgressBar displays current question number
 ```
 
 ---
 
-## Шаг 13 — Конфигурация окружения для фронта ✅ Выполнено
+## Step 12 — Styling and final Tailwind setup ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Настрой конфигурацию окружения для фронтенда.
+Finalize frontend styling.
 
-Файлы:
+Actions:
+1. Verify that all components use Tailwind classes
+2. Ensure responsive (mobile-friendly)
+3. Add hover/focus states for buttons and textarea
+4. Check that text is readable (font-size, contrast)
+5. Check that scrolling works correctly in ChatWindow
+
+File: packages/web/tailwind.config.ts
+- Ensure content paths are correct
+
+Test: cd packages/web && npx next build (should build without errors)
+```
+
+---
+
+## Step 13 — Frontend environment configuration ✅ Completed
+
+**Status:** ✅ Completed
+
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
+
+**Prompt:**
+
+```
+Configure frontend environment.
+
+Files:
 1. packages/web/.env.example:
    NEXT_PUBLIC_API_URL=http://localhost:3001
 
-2. packages/web/.gitignore (добавь в корневой):
+2. packages/web/.gitignore (add to root):
    - .next
    - out
    - packages/web/.next
 
-3. Обнови packages/web/lib/api.ts:
-   - API_BASE должен читать process.env.NEXT_PUBLIC_API_URL
+3. Update packages/web/lib/api.ts:
+   - API_BASE should read process.env.NEXT_PUBLIC_API_URL
 
-4. Проверь что build работает с правильными переменными
+4. Verify that build works with correct variables
 ```
 
 ---
 
-## Шаг 14 — Исправление импортов и связей между компонентами ✅ Выполнено
+## Step 14 — Fix imports and component connections ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Проверь и исправь все связи между компонентами фронтенда.
+Check and fix all frontend component connections.
 
-Действия:
-1. Проверь что все import пути корректны (@/components/*, @/lib/*)
-2. Проверь что типы импортируются из @/lib/types
-3. Проверь что React Server Components и Client Components правильно разделены
-4. Убедись что "use client" есть на всех компонентах с useState/useEffect
-5. Исправь любые ошибки импортов
+Actions:
+1. Verify that all import paths are correct (@/components/*, @/lib/*)
+2. Verify that types are imported from @/lib/types
+3. Verify that React Server Components and Client Components are properly separated
+4. Ensure that "use client" is present on all components with useState/useEffect
+5. Fix any import errors
 
-Запусти:
+Run:
 - cd packages/web && npx tsc --noEmit
 - cd packages/web && npx next lint
 
-Все должны пройти без ошибок.
+All must pass without errors.
 ```
 
 ---
 
-## Шаг 15 — Финальная проверка фронтенда ✅ Выполнено
+## Step 15 — Final frontend verification ✅ Completed
 
-**Статус:** ✅ Выполнено
+**Status:** ✅ Completed
 
-> **Общие правила (действуют для КАЖДОГО шага):**
-> 1. Язык кода — TypeScript.
-> 2. Не добавляй комментарии в код, кроме JSDoc где необходимо.
-> 3. Не коммить автоматически — жди подтверждения.
-> 4. После каждого шага запускай `npm run typecheck`, `npm run lint`, `npm run test`. Все три должны пройти.
-> 5. Файлы структуры: `packages/web/` — исходники фронта.
-> 6. Используй существующие библиотеки, не добавляй новые без необходимости.
-> 7. Без feature flags и backwards-compat шимов — если меняешь, меняй напрямую.
-> 8. После выполнения шага отмечай его статус «Выполнено» в заголовке.
-> 9. Перед началом нового шага проверяй что предыдущий шаг отмечен как «Выполнено».
-> 10. После каждого шага пиши отчёт в `docs/reports/` с именем `<YYYY-MM-DD>-phase2-step-<N>.md`.
+> **General rules (apply to EVERY step):**
+> 1. Code language — TypeScript.
+> 2. Do not add comments to code, except JSDoc where necessary.
+> 3. Do not commit automatically — wait for confirmation.
+> 4. After each step run `npm run typecheck`, `npm run lint`, `npm run test`. All three must pass.
+> 5. File structure: `packages/web/` — frontend sources.
+> 6. Use existing libraries, do not add new ones unless necessary.
+> 7. No feature flags and backwards-compat shims — if you change, change directly.
+> 8. After completing the step mark its status as "Completed" in the heading.
+> 9. Before starting a new step check that the previous step is marked as "Completed".
+> 10. After each step write a report to `docs/reports/` with name `<YYYY-MM-DD>-phase2-step-<N>.md`.
 
-**Промт:**
+**Prompt:**
 
 ```
-Проведи финальную проверку фронтенда:
+Perform final frontend verification:
 
-1. Запусти cd packages/web && npx tsc --noEmit — исправь все ошибки типов
-2. Запусти cd packages/web && npx next lint — исправь все warnings и errors
-3. Запусти cd packages/web && npx vitest run — убедись что все тесты проходят
-4. Запусти cd packages/web && npx next build — убедись что build работает
-5. Проверь что структура файлов полная:
+1. Run cd packages/web && npx tsc --noEmit — fix all type errors
+2. Run cd packages/web && npx next lint — fix all warnings and errors
+3. Run cd packages/web && npx vitest run — ensure all tests pass
+4. Run cd packages/web && npx next build — ensure build works
+5. Verify file structure is complete:
    packages/web/app/page.tsx
    packages/web/app/layout.tsx
    packages/web/app/globals.css
@@ -607,7 +607,7 @@
    packages/web/components/ProgressBar.tsx
    packages/web/lib/api.ts
    packages/web/lib/types.ts
-6. Проверь что .env.example содержит NEXT_PUBLIC_API_URL
+6. Verify that .env.example contains NEXT_PUBLIC_API_URL
 
-Все команды должны пройти без ошибок.
+All commands must pass without errors.
 ```

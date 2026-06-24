@@ -1,11 +1,11 @@
-Прочитай файл с требованиями по указанному пути.
-Пиши в файл prompted.md со список шагов реализации. Это должны быть готовые промты — каждый шаг это отдельный запрос для LLM, который делает одну конкретную вещь.
-Разбивай на мелкие шаги. 10 простых задач лучше чем 3 сложных.
-Рядом с каждым шагом ставь статус: пусто если не выполнено, «Выполнено» если сделано.
-Каждый раз перед тем как браться за новый шаг — проверяй что предыдущий имеет статус «Выполнено». Если нет — скажи об этом и не начинай работу.
-Это фулстек проект — пиши код и для фронта, и для бэка.
-К каждому шагу пиши тесты, запускай их после реализации.
-В каждый шаг вставляй общие правила, чтобы они всегда были перед глазами.
-После выполнения каждого шага пиши отчёт в `docs/reports/`. Имя файла: `<YYYY-MM-DD>-<task-id>-step-<N>.md`. Содержание: что сделано, какие файлы изменены, результаты тестов, проблемы (если были).
-Путь требований - 
-Путь prompted.md - 
+Read the requirements file at the specified path.
+Write to prompted.md with a list of implementation steps. These should be ready prompts — each step is a separate request to LLM that does one specific thing.
+Break down into small steps. 10 simple tasks are better than 3 complex ones.
+Next to each step, add a status: empty if not done, "Done" if completed.
+Each time before starting a new step — verify that the previous one has status "Done". If not — report it and do not start work.
+This is a fullstack project — write code for both frontend and backend.
+Write tests for each step, run them after implementation.
+Insert general rules into each step so they are always visible.
+After completing each step, write a report to `docs/reports/`. File name: `<YYYY-MM-DD>-<task-id>-step-<N>.md`. Contents: what was done, which files were changed, test results, issues (if any).
+Requirements path -
+prompted.md path -

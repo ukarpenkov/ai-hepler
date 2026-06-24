@@ -1,25 +1,25 @@
-# Деплой Backend на Cloud Run
+# Backend Deployment to Cloud Run
 
-**Дата:** 2026-06-21
-**Статус:** ✅ Успешно
+**Date:** 2026-06-21
+**Status:** ✅ Successful
 
 ---
 
-## URL сервиса
+## Service URL
 
 ```
 https://interview-sim-606232140580.us-central1.run.app
 ```
 
-## Параметры деплоя
+## Deployment Parameters
 
-| Параметр | Значение |
-|----------|----------|
-| Проект | `project-045dea81-cef3-4b7e-a28` |
-| Регион | `us-central1` |
-| Платформа | Managed |
-| Порт | 3001 |
-| Память | 512Mi |
+| Parameter | Value |
+|-----------|-------|
+| Project | `project-045dea81-cef3-4b7e-a28` |
+| Region | `us-central1` |
+| Platform | Managed |
+| Port | 3001 |
+| Memory | 512Mi |
 | CPU | 1 |
 | Max instances | 10 |
 | Auth | Unauthenticated |
@@ -30,11 +30,11 @@ https://interview-sim-606232140580.us-central1.run.app
 |--------|-------------|
 | `deepseek-api-key` | `DEEPSEEK_API_KEY` |
 
-Redis не используется (in-memory сессии).
+Redis is not used (in-memory sessions).
 
 ## Smoke Test
 
-**Запрос:**
+**Request:**
 ```json
 POST /job/parse
 {
@@ -42,7 +42,7 @@ POST /job/parse
 }
 ```
 
-**Ответ:**
+**Response:**
 ```json
 {
   "sessionId": "a6155c51-1550-4a26-ab63-72f3f7d1c7b3",
@@ -56,10 +56,10 @@ POST /job/parse
 }
 ```
 
-**Статус:** ✅ Pass
+**Status:** ✅ Pass
 
-## Файлы
+## Files
 
-- URL сохранён в `docs/deployment/backend-url.txt`
-- Dockerfile — многостадийная сборка (builder + runtime)
-- Secrets management через Google Cloud Secret Manager
+- URL saved in `docs/deployment/backend-url.txt`
+- Dockerfile — multi-stage build (builder + runtime)
+- Secrets management via Google Cloud Secret Manager

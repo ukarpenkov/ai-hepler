@@ -1,55 +1,55 @@
-# 003-redesign-main-page — Шаги 1-4
+# 003-redesign-main-page — Steps 1-4
 
-**Дата:** 2026-06-21
+**Date:** 2026-06-21
 
-## Что сделано
+## What was done
 
-### Шаг 1: Tailwind config
-- Добавлены кастомные цвета: `primary` (#6366f1, hover #4f46e5, dark #818cf8), `surface` (bg, card, secondary), `content` (primary, secondary)
-- Добавлены `borderRadius`: glass (24px), card (16px), button (16px)
-- Добавлен `backdropBlur.glass` (30px)
-- Добавлены `boxShadow`: glass, button
-- Добавлены `animation`: slide-up, float
-- Добавлены `keyframes`: slideUp, float
+### Step 1: Tailwind config
+- Added custom colors: `primary` (#6366f1, hover #4f46e5, dark #818cf8), `surface` (bg, card, secondary), `content` (primary, secondary)
+- Added `borderRadius`: glass (24px), card (16px), button (16px)
+- Added `backdropBlur.glass` (30px)
+- Added `boxShadow`: glass, button
+- Added `animation`: slide-up, float
+- Added `keyframes`: slideUp, float
 
-### Шаг 2: globals.css
-- Добавлены CSS-переменные `:root` для светлой темы
-- Добавлены CSS-переменные `[data-theme="dark"]` для тёмной темы
-- Добавлен `.glass` utility класс
+### Step 2: globals.css
+- Added CSS variables `:root` for light theme
+- Added CSS variables `[data-theme="dark"]` for dark theme
+- Added `.glass` utility class
 
-### Шаг 3: ThemeToggle
-- Создан компонент `packages/web/components/ThemeToggle.tsx`
-- Переключение темы light/dark с сохранением в localStorage
-- Автоопределение prefers-color-scheme
-- Установка data-theme на documentElement
-- Создан тест `ThemeToggle.test.tsx` (3 теста)
+### Step 3: ThemeToggle
+- Created component `packages/web/components/ThemeToggle.tsx`
+- Theme switching light/dark with localStorage persistence
+- Auto-detection of prefers-color-scheme
+- Setting data-theme on documentElement
+- Created test `ThemeToggle.test.tsx` (3 tests)
 
-### Шаг 4: BurgerMenu
-- Создан компонент `packages/web/components/BurgerMenu.tsx`
-- Toggle sidebar с анимацией в крестик
-- Пропсы: isOpen, onClick
-- Создан тест `BurgerMenu.test.tsx` (3 теста)
+### Step 4: BurgerMenu
+- Created component `packages/web/components/BurgerMenu.tsx`
+- Toggle sidebar with animation to cross icon
+- Props: isOpen, onClick
+- Created test `BurgerMenu.test.tsx` (3 tests)
 
-## Изменённые файлы
+## Changed files
 
-| Файл | Тип |
-|------|-----|
-| `packages/web/tailwind.config.ts` | Изменён |
-| `packages/web/app/globals.css` | Изменён |
-| `packages/web/components/ThemeToggle.tsx` | Создан |
-| `packages/web/components/ThemeToggle.test.tsx` | Создан |
-| `packages/web/components/BurgerMenu.tsx` | Создан |
-| `packages/web/components/BurgerMenu.test.tsx` | Создан |
+| File | Type |
+|------|------|
+| `packages/web/tailwind.config.ts` | Modified |
+| `packages/web/app/globals.css` | Modified |
+| `packages/web/components/ThemeToggle.tsx` | Created |
+| `packages/web/components/ThemeToggle.test.tsx` | Created |
+| `packages/web/components/BurgerMenu.tsx` | Created |
+| `packages/web/components/BurgerMenu.test.tsx` | Created |
 
-## Результаты проверок
+## Verification results
 
-- `npm run typecheck`: ✅ проходит
-- `npm run test`: ✅ все новые тесты проходят (6/6)
+- `npm run typecheck`: ✅ passes
+- `npm run test`: ✅ all new tests pass (6/6)
 
 ## Known issues
 
-- `ChatWindow.test.tsx` — pre-existing bug (тест ожидает "Отличный ответ", компонент рендерит "Добавьте примеры"). Не связан с данными изменениями.
+- `ChatWindow.test.tsx` — pre-existing bug (test expects "Отличный ответ", component renders "Добавьте примеры"). Not related to these changes.
 
-## Итоговый статус
+## Final status
 
-✅ Шаги 1-4 выполнены успешно
+✅ Steps 1-4 completed successfully

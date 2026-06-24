@@ -2,43 +2,43 @@
 
 ## Goal
 
-При переходе на завершённую сессию из сайдбара — инпут для ответа заблокирован, кнопка отправки заблокирована, внизу чата отображается блок с результатами интервью. Результаты сохраняются в IndexedDB.
+When navigating to a completed session from the sidebar — answer input is disabled, send button is disabled, interview results block is displayed at the bottom of chat. Results are saved to IndexedDB.
 
 ## Problem
 
-При открытии завершённой сессии (все вопросы заданы):
-1. `isFinished` не инициализировался из `storedFeedbacks` — оставался `false`
-2. Инпут оставался активным (хотя отвечать уже не на что)
-3. Блок инпута скрывался через `{!isFinished && (...)}` — при навигации мелькал активный инпут перед скрытием
-4. `BottomSheet` с `SummaryView` не отображался при загрузке (только после ответа)
+When opening a completed session (all questions asked):
+1. `isFinished` wasn't initialized from `storedFeedbacks` — remained `false`
+2. Input remained active (even though there was nothing to answer)
+3. Input block was hidden via `{!isFinished && (...)}` — active input briefly flashed before hiding on navigation
+4. `BottomSheet` with `SummaryView` wasn't displayed on load (only after answering)
 
 ## Changes
 
 ### `packages/web/components/ChatWindow.tsx`
 
-1. **Инициализация `isFinished` из IndexedDB** — в `useEffect` для `storedFeedbacks`: если `storedFeedbacks.length >= TOTAL_QUESTIONS` → `setIsFinished(true)`
+1. **`isFinished` initialization from IndexedDB** — in `useEffect` for `storedFeedbacks`: if `storedFeedbacks.length >= TOTAL_QUESTIONS` → `setIsFinished(true)`
 
-2. **Инпут всегда виден** — вместо `{!isFinished && (<div>...</div>)}` блок рендерится всегда
+2. **Input always visible** — instead of `{!isFinished && (<div>...</div>)}`, block always renders
 
-3. **Disabled состояние:**
+3. **Disabled state:**
    - `textarea`: `disabled={isLoading || isFinished}`
    - `button`: `disabled={isLoading || !currentInput.trim() || isFinished}`
    - Placeholder: `{isFinished ? "Интервью завершено" : "Введите ваш ответ..."}`
-   - CSS: `disabled:opacity-50 disabled:cursor-not-allowed` на textarea
+   - CSS: `disabled:opacity-50 disabled:cursor-not-allowed` on textarea
 
-4. **Scrollbar инпута** скрывается при `isFinished`: `{!isFinished && inputThumbStyle && (...)}`
+4. **Input scrollbar** hides when `isFinished`: `{!isFinished && inputThumbStyle && (...)}`
 
 ### `packages/web/components/ChatWindow.test.tsx`
 
-1. **Добавлен `mockSessionData`** — мок объекта `SessionRecord` с `jobProfile` (нужен для `handleSend`)
+1. **Added `mockSessionData`** — mock `SessionRecord` object with `jobProfile` (needed for `handleSend`)
 
-2. **Тесты обновлены** — все тесты, вызывающие `sendAnswer`, теперь передают `sessionData={mockSessionData}`
+2. **Tests updated** — all tests calling `sendAnswer` now pass `sessionData={mockSessionData}`
 
-3. **Тест «disables input area when finished»** — вместо проверки `toBeNull()` проверяется `toBeDisabled()` с placeholder «Интервью завершено»
+3. **"disables input area when finished" test** — instead of checking `toBeNull()`, checks `toBeDisabled()` with placeholder "Интервью завершено"
 
 ## IndexedDB
 
-Результаты интервью (`allFeedbacks`) уже сохранялись в IndexedDB через `updateSession()` в `handleSend`. Изменения в `session-store.ts` не потребовались.
+Interview results (`allFeedbacks`) were already saved to IndexedDB via `updateSession()` in `handleSend`. No changes needed to `session-store.ts`.
 
 ## Verification
 

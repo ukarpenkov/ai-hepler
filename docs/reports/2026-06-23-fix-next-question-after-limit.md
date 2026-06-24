@@ -6,17 +6,17 @@
 
 ## Problem
 
-При `TOTAL_QUESTIONS = 1` после ответа на последний вопрос ИИ задавал следующий —尽管 интервью уже завершено. Сообщение с вопросом добавлялось в messages до проверки `isFinished`.
+With `TOTAL_QUESTIONS = 1`, after answering the last question AI asked the next one — even though the interview was already finished. The question message was added to messages before the `isFinished` check.
 
 ## Root Cause
 
-В `handleSend` следующий вопрос добавлялся в массив **всегда**, а проверка `nextCount >= TOTAL_QUESTIONS` шла **после**:
+In `handleSend`, the next question was added to the array **always**, and the `nextCount >= TOTAL_QUESTIONS` check came **after**:
 
 ```typescript
-// BEFORE — вопрос добавляется всегда
+// BEFORE — question always added
 setMessages((prev) => [...prev, feedbackMsg, nextQuestionMsg]);
 
-// Проверка идёт позже
+// Check happens later
 if (nextCount >= TOTAL_QUESTIONS) {
   setIsFinished(true);
 }
@@ -26,10 +26,10 @@ if (nextCount >= TOTAL_QUESTIONS) {
 
 **`packages/web/components/ChatWindow.tsx:137-143`**
 
-Вопрос добавляется только если `nextCount < TOTAL_QUESTIONS`:
+Question only added if `nextCount < TOTAL_QUESTIONS`:
 
 ```typescript
-// AFTER — условное добавление
+// AFTER — conditional addition
 const nextQuestionMsg: ChatMessage | null =
   nextCount < TOTAL_QUESTIONS
     ? { role: "assistant", content: response.nextQuestion.question, topic: response.nextQuestion.topic }
@@ -43,4 +43,4 @@ setMessages((prev) => [...prev, feedbackMsg, ...(nextQuestionMsg ? [nextQuestion
 - typecheck: pass
 - lint: pass
 - tests: 157/157 pass
-- При достижении лимита вопросов — показывается только фидбек, следующий вопрос не добавляется
+- When reaching question limit — only feedback is shown, next question is not added

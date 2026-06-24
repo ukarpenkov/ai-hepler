@@ -1,62 +1,62 @@
-# 003-redesign-main-page — Шаги 5-9
+# 003-redesign-main-page — Steps 5-9
 
-**Дата:** 2026-06-21
+**Date:** 2026-06-21
 
-## Что сделано
+## What was done
 
-### Шаг 5: Header
-- Создан компонент `packages/web/components/Header.tsx`
-- Логотип (градиентный бокс 36x36 с текстом "AI") + "AI Interview"
-- ThemeToggle и BurgerMenu в правой части
-- Fixed позиционирование, glass morphism
-- Создан тест `Header.test.tsx` (3 теста)
+### Step 5: Header
+- Created component `packages/web/components/Header.tsx`
+- Logo (gradient box 36x36 with text "AI") + "AI Interview"
+- ThemeToggle and BurgerMenu in the right section
+- Fixed positioning, glass morphism
+- Created test `Header.test.tsx` (3 tests)
 
-### Шаг 6: Sidebar
-- Создан компонент `packages/web/components/Sidebar.tsx`
-- Интерфейс Session { id, title, date }
-- Список сессий с hover-эффектами
-- Анимация появления/скрытия через left
-- Создан тест `Sidebar.test.tsx` (3 теста)
+### Step 6: Sidebar
+- Created component `packages/web/components/Sidebar.tsx`
+- Session interface { id, title, date }
+- Session list with hover effects
+- Show/hide animation via left property
+- Created test `Sidebar.test.tsx` (3 tests)
 
-### Шаг 7: JobInputForm
-- Создан компонент `packages/web/components/JobInputForm.tsx`
-- Заголовок "AI Interview Simulator" с градиентом
-- Textarea с placeholder
-- Кнопка "Начать интервью" с gradient + disabled состояние
-- Создан тест `JobInputForm.test.tsx` (4 теста)
+### Step 7: JobInputForm
+- Created component `packages/web/components/JobInputForm.tsx`
+- Title "AI Interview Simulator" with gradient
+- Textarea with placeholder
+- "Start Interview" button with gradient + disabled state
+- Created test `JobInputForm.test.tsx` (4 tests)
 
-### Шаг 8: BackgroundEffects
-- Создан компонент `packages/web/components/BackgroundEffects.tsx`
-- Два декоративных div с radial-gradient
-- Анимация float (20s и 25s reverse)
-- Создан тест `BackgroundEffects.test.tsx` (2 теста)
+### Step 8: BackgroundEffects
+- Created component `packages/web/components/BackgroundEffects.tsx`
+- Two decorative divs with radial-gradient
+- Float animation (20s and 25s reverse)
+- Created test `BackgroundEffects.test.tsx` (2 tests)
 
-### Шаг 9: layout.tsx
-- Обновлён `packages/web/app/layout.tsx`
-- Добавлен inline script для загрузки темы из localStorage (предотвращение FOUC)
-- suppressHydrationWarning на html теге
+### Step 9: layout.tsx
+- Updated `packages/web/app/layout.tsx`
+- Added inline script to load theme from localStorage (preventing FOUC)
+- suppressHydrationWarning on html tag
 
-## Изменённые файлы
+## Changed files
 
-| Файл | Тип |
-|------|-----|
-| `packages/web/components/Header.tsx` | Создан |
-| `packages/web/components/Header.test.tsx` | Создан |
-| `packages/web/components/Sidebar.tsx` | Создан |
-| `packages/web/components/Sidebar.test.tsx` | Создан |
-| `packages/web/components/JobInputForm.tsx` | Создан |
-| `packages/web/components/JobInputForm.test.tsx` | Создан |
-| `packages/web/components/BackgroundEffects.tsx` | Создан |
-| `packages/web/components/BackgroundEffects.test.tsx` | Создан |
-| `packages/web/app/layout.tsx` | Изменён |
-| `docs/tasks/feat/feat-main-pages-redesign-promted.md` | Изменён (статусы) |
+| File | Type |
+|------|------|
+| `packages/web/components/Header.tsx` | Created |
+| `packages/web/components/Header.test.tsx` | Created |
+| `packages/web/components/Sidebar.tsx` | Created |
+| `packages/web/components/Sidebar.test.tsx` | Created |
+| `packages/web/components/JobInputForm.tsx` | Created |
+| `packages/web/components/JobInputForm.test.tsx` | Created |
+| `packages/web/components/BackgroundEffects.tsx` | Created |
+| `packages/web/components/BackgroundEffects.test.tsx` | Created |
+| `packages/web/app/layout.tsx` | Modified |
+| `docs/tasks/feat/feat-main-pages-redesign-promted.md` | Modified (statuses) |
 
-## Результаты проверок
+## Verification results
 
-- `npm run typecheck`: ✅ проходит
-- `npm run test`: ✅ все новые тесты проходят (15/15)
-- Pre-existing: `ChatWindow.test.tsx` — 1 fail (не связан с данными изменениями)
+- `npm run typecheck`: ✅ passes
+- `npm run test`: ✅ all new tests pass (15/15)
+- Pre-existing: `ChatWindow.test.tsx` — 1 fail (not related to these changes)
 
-## Итоговый статус
+## Final status
 
-✅ Шаги 5-9 выполнены успешно
+✅ Steps 5-9 completed successfully

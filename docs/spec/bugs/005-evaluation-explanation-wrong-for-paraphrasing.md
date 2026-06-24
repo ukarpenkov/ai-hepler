@@ -1,44 +1,44 @@
 # Bug: Evaluation explanation doesn't match paraphrasing cheat detection
 
-**Дата:** 2026-06-24
-**Приоритет:** Medium
-**Статус:** Fixed
-**Компонент:** Backend — `src/tools/evaluate-answer.tool.ts`
+**Date:** 2026-06-24
+**Priority:** Medium
+**Status:** Fixed
+**Component:** Backend — `src/tools/evaluate-answer.tool.ts`
 
-## Описание
+## Description
 
-При копировании вопроса как ответа, система anti-cheat правильно определяет читерство и ставит оценку 1/10 с флагом `paraphrasing_question`. Однако поле `recommendation` содержитgeneric-сообщение типа "Никогда не оставляйте ответ пустым. Даже если не знаете точно..." вместо объяснения, что копирование вопроса — это не ответ.
+When copying the question as an answer, the anti-cheat system correctly detects cheating and assigns a score of 1/10 with the `paraphrasing_question` flag. However, the `recommendation` field contains a generic message like "Never leave an answer empty. Even if you don't know exactly..." instead of explaining that copying the question is not an answer.
 
-## Ожидаемое поведение
+## Expected Behavior
 
-При обнаружении `paraphrasing_question` в `recommendation` должно быть чёткое объяснение:
-- Копирование/перефразирование вопроса — это не ответ
-- На реальном собеседовании это немедленный отказ
-- Нужно отвечать честно, даже если не знаешь всего
+When `paraphrasing_question` is detected, the `recommendation` should clearly explain:
+- Copying/paraphrasing the question is not an answer
+- On a real interview, this results in immediate rejection
+- You need to answer honestly, even if you don't know everything
 
-## Фактическое поведение
+## Actual Behavior
 
 `recommendation`: "Never leave an answer empty. Even if you don't know exactly, say what you know about React.memo, useMemo, useCallback, and start explaining. An empty answer is a failure on an interview."
 
-Объяснение не соответствует действительной причине низкой оценки — проблема не в пустом ответе, а в копипасте вопроса.
+The explanation does not match the actual reason for the low score — the problem is not an empty answer, but copying the question.
 
-## Воспроизведение
+## Reproduction
 
-1. Начать интервью
-2. Скопировать текст вопроса и вставить как ответ
-3. Получить оценку 1/10 (правильно)
-4. Прочитать recommendation — сообщение про "пустой ответ" (неправильно)
+1. Start an interview
+2. Copy the question text and paste it as the answer
+3. Get a score of 1/10 (correct)
+4. Read the recommendation — message about "empty answer" (incorrect)
 
-## Корневая причина
+## Root Cause
 
-Промпт для LLM не содержит инструкцию привязывать `recommendation` к конкретным `antiCheatFlags`. Модель генерирует общее предупреждение вместо адресного объяснения.
+The LLM prompt does not contain an instruction to bind the `recommendation` to specific `antiCheatFlags`. The model generates a generic warning instead of a targeted explanation.
 
-## Файл для исправления
+## File to Fix
 
-`src/tools/evaluate-answer.tool.ts` — строка 23-24, инструкции anti-cheat.
+`src/tools/evaluate-answer.tool.ts` — lines 23-24, anti-cheat instructions.
 
-## Компоненты для изменения
+## Components to Change
 
-| Файл | Изменение |
-|------|-----------|
-| `src/tools/evaluate-answer.tool.ts` | Добавить в anti-cheat правила инструкцию: при `paraphrasing_question` recommendation ОБЯЗАН содержать объяснение что копирование вопроса — читерство |
+| File | Change |
+|------|--------|
+| `src/tools/evaluate-answer.tool.ts` | Add instruction to anti-cheat rules: when `paraphrasing_question`, recommendation MUST contain an explanation that copying the question is cheating |

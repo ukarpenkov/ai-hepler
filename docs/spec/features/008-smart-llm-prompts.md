@@ -1,113 +1,113 @@
 # Feature: Smart LLM Prompts — anti-cheat evaluation + adaptive questions
 
-**Дата:** 2026-06-24
-**Приоритет:** High
-**Статус:** Done
-**Компонент:** AI Core — Tools (evaluate-answer, generate-question, parse-job-description) + Coach Agent
+**Date:** 2026-06-24
+**Priority:** High
+**Status:** Done
+**Component:** AI Core — Tools (evaluate-answer, generate-question, parse-job-description) + Coach Agent
 
 ---
 
-## Описание
+## Description
 
-Переработаны промпты для LLM-вызовов в инструментах оценки ответов, генерации вопросов, парсинга вакансий и коучинга. Основная цель — исключить возможность накрутки баллов копипастом вопроса, сделать вопросы разнообразнее и умнее, улучшить качество обратной связи.
+Reworked prompts for LLM calls in answer evaluation, question generation, job description parsing, and coaching tools. The main goal is to eliminate the possibility of scoring inflation by copy-pasting the question, make questions more diverse and intelligent, and improve feedback quality.
 
-Ключевая проблема до изменений: кандидат мог скопировать текст вопроса и вставить как ответ — получал 7/10, потому что LLM видел релевантные ключевые слова и не имел критериев для детекции читерства.
-
----
-
-## Текущее поведение (до изменений)
-
-### Оценка ответов (`evaluate-answer.tool.ts`)
-- Плоский user message без system prompt
-- Единая оценка 1-10 без размерностей
-- Нет анти-чит проверок: копипаст вопроса → 7/10
-- Нет рубрики — модель оценивает произвольно
-
-### Генерация вопросов (`generate-question.tool.ts`)
-- Плоский user message без system prompt
-- Вопросы однотипные, без категорий (только theoretical)
-- Нет expected answer criteria для оценщика
-- Вопросы не привязаны к конкретному домену/ключевым словам вакансии
-
-### Коучинг (`coach.agent.ts`)
-- Плоский user message
-- Советы не привязаны к конкретным слабостям
-- Нет dimensional scores в контексте
-
-### Парсинг вакансий (`parse-job-description.tool.ts`)
-- Не разделяет hard skills и soft skills
-- Не извлекает требования к опыту (years of experience)
-
-### Типы
-- `EvaluationResult`: только score, strengths, weaknesses, recommendation
-- `QuestionResult`: только question, topic, difficulty
-- `ParsedJob`: нет softSkills, minYearsExperience
+The key problem before changes: a candidate could copy the question text and paste it as an answer — receiving 7/10, because the LLM saw relevant keywords and had no criteria for detecting cheating.
 
 ---
 
-## Ожидаемое поведение
+## Current Behavior (before changes)
+
+### Answer Evaluation (`evaluate-answer.tool.ts`)
+- Flat user message without system prompt
+- Single score 1-10 without dimensions
+- No anti-cheat checks: question copy-paste → 7/10
+- No rubric — model evaluates arbitrarily
+
+### Question Generation (`generate-question.tool.ts`)
+- Flat user message without system prompt
+- Questions are homogeneous, without categories (only theoretical)
+- No expected answer criteria for evaluator
+- Questions not tied to specific domain/keywords in job description
+
+### Coaching (`coach.agent.ts`)
+- Flat user message
+- Tips not tied to specific weaknesses
+- No dimensional scores in context
+
+### Job Description Parsing (`parse-job-description.tool.ts`)
+- Doesn't separate hard skills and soft skills
+- Doesn't extract experience requirements (years of experience)
+
+### Types
+- `EvaluationResult`: only score, strengths, weaknesses, recommendation
+- `QuestionResult`: only question, topic, difficulty
+- `ParsedJob`: no softSkills, minYearsExperience
+
+---
+
+## Expected Behavior
 
 ### 1. Anti-Cheat Multi-Dimension Evaluation
 
-**System prompt** задаёт роль строгого технического интервьюера с чёткими правилами:
+**System prompt** sets role of a strict technical interviewer with clear rules:
 
-- **Анти-чит правила:**
-  - Перефраз/эхо вопроса без оригинального контента → score 1-2, флаг `paraphrasing_question`
-  - Копипаст текста вопроса → score 1
-  - Баззворды без демонстрации понимания → флаг `buzzwords_without_substance`
-  - Общие фразы без конкретики → флаг `generic_answer`
-  - Отсутствие оригинальной мысли → флаг `no_original_thought`
-  - Ответ не по теме → флаг `off_topic`
+- **Anti-cheat rules:**
+  - Paraphrase/echo of question without original content → score 1-2, flag `paraphrasing_question`
+  - Copy-paste of question text → score 1
+  - Buzzwords without demonstrating understanding → flag `buzzwords_without_substance`
+  - Generic phrases without specifics → flag `generic_answer`
+  - No original thought → flag `no_original_thought`
+  - Off-topic answer → flag `off_topic`
 
-- **4-мерная рубрика (total 0-10):**
-  - Technical Accuracy (0-3) — корректность технических утверждений
-  - Depth of Understanding (0-3) — глубина, объяснение WHY, tradeoffs
-  - Relevance & Specificity (0-2) — релевантность и конкретика
-  - Examples & Application (0-2) — примеры и практическое применение
+- **4-dimension rubric (total 0-10):**
+  - Technical Accuracy (0-3) — correctness of technical statements
+  - Depth of Understanding (0-3) — depth, explanation of WHY, tradeoffs
+  - Relevance & Specificity (0-2) — relevance and specificity
+  - Examples & Application (0-2) — examples and practical application
 
-- **Новые поля в ответе:**
+- **New fields in response:**
   - `accuracy`, `depth`, `relevance`, `examples` — dimensional scores
-  - `antiCheatFlags: string[]` — флаги подозрительного поведения
-  - `perfectAnswerSummary: string` — что должно быть в идеальном ответе
+  - `antiCheatFlags: string[]` — flags for suspicious behavior
+  - `perfectAnswerSummary: string` — what should be in a perfect answer
 
 ### 2. Smarter Question Generation
 
-**System prompt** задаёт персону опытного интервьюера:
+**System prompt** sets persona of an experienced interviewer:
 
-- **5 типов вопросов:**
-  - `theoretical_explanation` — объяснение концепции
-  - `practical_implementation` — практическая реализация
-  - `system_design` — проектирование системы
-  - `debugging_scenario` — отладка/разбор бага
-  - `behavioral_experience` — поведенческий вопрос
+- **5 question types:**
+  - `theoretical_explanation` — concept explanation
+  - `practical_implementation` — practical implementation
+  - `system_design` — system design
+  - `debugging_scenario` — debugging/bug analysis
+  - `behavioral_experience` — behavioral question
 
 - **Difficulty guidelines:**
-  - easy — фундаментальные концепции
-  - medium — сравнение, практические сценарии, reasoning
+  - easy — fundamental concepts
+  - medium — comparison, practical scenarios, reasoning
   - hard — system design, tradeoff analysis, edge cases
 
-- **`expectedAnswerCriteria: string[]`** — 3-5 ключевых пунктов, которые должен покрыть хороший ответ (скрыты от кандидата, используются оценщиком)
+- **`expectedAnswerCriteria: string[]`** — 3-5 key points that a good answer should cover (hidden from candidate, used by evaluator)
 
-- Вопросы используют keywords и domain вакансии для контекстуализации
+- Questions use keywords and domain from job description for contextualization
 
 ### 3. Personalized Coaching
 
-**System prompt** с ролью supportive but honest coach:
+**System prompt** with role of supportive but honest coach:
 
-- Советы привязаны к конкретным weaknesses и antiCheatFlags
-- Model answer демонстрирует уровень 9-10/10
-- Dimensional scores передаются в контекст
+- Tips tied to specific weaknesses and antiCheatFlags
+- Model answer demonstrates level 9-10/10
+- Dimensional scores passed to context
 
 ### 4. Better Job Description Parsing
 
-- Разделение `skills` (hard/technical) и `softSkills` (soft/interpersonal)
-- Извлечение `minYearsExperience: number | null`
-- Улучшенный system prompt с инструкциями по точному извлечению
+- Separation of `skills` (hard/technical) and `softSkills` (soft/interpersonal)
+- Extraction of `minYearsExperience: number | null`
+- Improved system prompt with instructions for precise extraction
 
 ### 5. Type Updates
 
 ```typescript
-// EvaluationResult — новые поля
+// EvaluationResult — new fields
 accuracy: number;       // 0-3
 depth: number;          // 0-3
 relevance: number;      // 0-2
@@ -115,36 +115,36 @@ examples: number;       // 0-2
 antiCheatFlags: string[];
 perfectAnswerSummary: string;
 
-// QuestionResult — новые поля
+// QuestionResult — new fields
 questionType: "theoretical_explanation" | "practical_implementation" | "system_design" | "debugging_scenario" | "behavioral_experience";
 expectedAnswerCriteria: string[];
 
-// ParsedJob — новые поля
+// ParsedJob — new fields
 softSkills: string[];
 minYearsExperience: number | null;
 ```
 
 ---
 
-## Затронутые файлы
+## Affected Files
 
-| Файл | Изменение |
-|------|-----------|
-| `src/tools/evaluate-answer.tool.ts` | Переписан: system prompt, multi-dimension rubric, anti-cheat правила, 9 полей в ответе |
-| `src/tools/generate-question.tool.ts` | Переписан: system prompt, 5 типов вопросов, expectedAnswerCriteria, валидация questionType |
-| `src/tools/parse-job-description.tool.ts` | Переписан: system prompt, softSkills, minYearsExperience |
-| `src/agents/coach.agent.ts` | Переписан: system prompt, dimensional scores в контексте, antiCheatFlags |
-| `src/agents/types.ts` | EvaluationResult +5 полей, QuestionResult +2 поля, ParsedJob +2 поля |
-| `src/security/schemas.ts` | JobProfileSchema +2 поля, EvaluationSchema +6 полей |
-| `src/types/index.ts` | SessionSchema.jobProfile +2 поля |
-| `src/storage/session-store.ts` | JobProfile interface +2 поля |
-| `src/agents/orchestrator.ts` | Дефолтный QuestionResult с новыми полями |
-| `src/tools/__tests__/*.test.ts` | Обновлены моки (8 файлов) |
-| `src/agents/__tests__/*.test.ts` | Обновлены моки (6 файлов) |
-| `src/api/__tests__/*.test.ts` | Обновлены моки (4 файла) |
-| `src/__tests__/agentWorkflow.test.ts` | Обновлены моки |
-| `src/security/schemas.test.ts` | Обновлены тестовые данные |
-| `src/types/index.test.ts` | Обновлены тестовые данные |
+| File | Change |
+|------|--------|
+| `src/tools/evaluate-answer.tool.ts` | Rewritten: system prompt, multi-dimension rubric, anti-cheat rules, 9 fields in response |
+| `src/tools/generate-question.tool.ts` | Rewritten: system prompt, 5 question types, expectedAnswerCriteria, questionType validation |
+| `src/tools/parse-job-description.tool.ts` | Rewritten: system prompt, softSkills, minYearsExperience |
+| `src/agents/coach.agent.ts` | Rewritten: system prompt, dimensional scores in context, antiCheatFlags |
+| `src/agents/types.ts` | EvaluationResult +5 fields, QuestionResult +2 fields, ParsedJob +2 fields |
+| `src/security/schemas.ts` | JobProfileSchema +2 fields, EvaluationSchema +6 fields |
+| `src/types/index.ts` | SessionSchema.jobProfile +2 fields |
+| `src/storage/session-store.ts` | JobProfile interface +2 fields |
+| `src/agents/orchestrator.ts` | Default QuestionResult with new fields |
+| `src/tools/__tests__/*.test.ts` | Updated mocks (8 files) |
+| `src/agents/__tests__/*.test.ts` | Updated mocks (6 files) |
+| `src/api/__tests__/*.test.ts` | Updated mocks (4 files) |
+| `src/__tests__/agentWorkflow.test.ts` | Updated mocks |
+| `src/security/schemas.test.ts` | Updated test data |
+| `src/types/index.test.ts` | Updated test data |
 
 ---
 
@@ -158,8 +158,8 @@ npm run test        # 157/157 passed, 29 test files
 
 ### Manual smoke test
 
-1. **Parse job description** — проверить что `softSkills` и `minYearsExperience` заполняются
-2. **Generate question** — проверить что `questionType` и `expectedAnswerCriteria` присутствуют
-3. **Submit copy-pasted answer** (answer === question) — score должен быть ≤2, `antiCheatFlags` содержит `paraphrasing_question`
-4. **Submit buzzword-only answer** — score ≤3, флаг `buzzwords_without_substance`
+1. **Parse job description** — verify that `softSkills` and `minYearsExperience` are populated
+2. **Generate question** — verify that `questionType` and `expectedAnswerCriteria` are present
+3. **Submit copy-pasted answer** (answer === question) — score should be ≤2, `antiCheatFlags` contains `paraphrasing_question`
+4. **Submit buzzword-only answer** — score ≤3, flag `buzzwords_without_substance`
 5. **Submit genuinely good answer** — score 7-10, meaningful dimensional scores, empty `antiCheatFlags`

@@ -1,33 +1,33 @@
 # AI Job Interview Simulator — Technical Stack & Architecture
 
-## 1. Frontend (UI слой)
+## 1. Frontend (UI Layer)
 
 ### Next.js (TypeScript)
 
-**Почему:**
+**Why:**
 - fullstack UI framework
-- быстро собрать интерфейс
+- fast to build the interface
 - SSR / client components
-- легко интегрируется с API
+- easy API integration
 
-**Используется для:**
-- загрузка текста вакансии
-- экран интервью (чат UI)
-- отображение фидбека
-- прогресс пользователя
+**Used for:**
+- job description upload
+- interview screen (chat UI)
+- feedback display
+- user progress
 
 ---
 
-## 2. Backend (API слой)
+## 2. Backend (API Layer)
 
 ### Fastify (Node.js + TypeScript)
 
-**Роль:**
-- API gateway между UI и агентной системой
-- управление сессиями
-- маршрутизация запросов
+**Role:**
+- API gateway between UI and agent system
+- session management
+- request routing
 
-**Основные endpoints:**
+**Main endpoints:**
 - `POST /job/parse`
 - `POST /interview/start`
 - `POST /interview/answer`
@@ -35,46 +35,46 @@
 
 ---
 
-## 3. AI Agent Layer (ядро системы)
+## 3. AI Agent Layer (System Core)
 
 ### Google ADK (TypeScript)
 
-Это ядро проекта.
+This is the core of the project.
 
 ### Multi-Agent System:
 
 1. **JobParserAgent**
-   - анализирует вакансию
-   - извлекает:
+   - analyzes job description
+   - extracts:
      - skills
      - seniority
      - domain
 
 2. **InterviewerAgent**
-   - генерирует вопросы
-   - адаптирует сложность
-   - ведёт диалог
+   - generates questions
+   - adapts difficulty
+   - manages dialogue
 
 3. **EvaluatorAgent**
-   - оценивает ответ
-   - возвращает structured score
+   - evaluates answers
+   - returns structured score
 
 4. **CoachAgent**
-   - объясняет ошибки
-   - даёт улучшенный ответ
-   - даёт советы
+   - explains mistakes
+   - provides improved answers
+   - gives tips
 
 5. **MemoryAgent**
-   - хранит:
-     - слабые темы
-     - историю ответов
-   - влияет на будущие вопросы
+   - stores:
+     - weak topics
+     - answer history
+   - affects future questions
 
 ### Orchestration:
 
-Используется:
-- Sequential workflow (основной поток)
-- Loop workflow (интервью цикл)
+Uses:
+- Sequential workflow (main flow)
+- Loop workflow (interview cycle)
 - Agent-to-Agent calls
 
 ---
@@ -88,10 +88,10 @@
 - `updateMemoryTool`
 - `fetchWeakTopicsTool`
 
-**Роль tools:**
-- отделяют LLM от логики
-- делают систему "agent-based", а не prompt-based
-- используются внутри ADK agents
+**Role of tools:**
+- separate LLM from logic
+- make the system "agent-based" rather than "prompt-based"
+- used inside ADK agents
 
 ---
 
@@ -99,14 +99,14 @@
 
 ### Session-based memory system
 
-**Хранит:**
-- `session_id` (без регистрации)
-- история интервью
-- слабые навыки пользователя
-- прогресс
+**Stores:**
+- `session_id` (no registration required)
+- interview history
+- user weak skills
+- progress
 
 ### Storage:
-- Firestore (или Redis)
+- Firestore (or Redis)
 - `sessions/{sessionId}`
 - `users_state/{sessionId}`
 
@@ -114,7 +114,7 @@
 
 ## 6. Security Layer
 
-Реализуется через:
+Implemented via:
 - prompt injection protection
 - tool access control (agents only)
 - structured output validation (JSON schema)
@@ -126,7 +126,7 @@
 
 ### Cloud Run
 
-**Деплой:**
+**Deployment:**
 - Fastify backend + ADK runtime
 - stateless API
 - autoscaling
@@ -137,12 +137,12 @@
 
 ### Deployment Config
 
-Реального деплой-конфига в проекте пока нет:
+No real deployment config exists in the project yet:
 - ❌ Dockerfile
 - ❌ cloudbuild.yaml
 - ❌ CI/CD pipeline
 
-**Подход:** Docker + деплой через gcloud CLI команды вручную, без автоматизации через GitHub Actions.
+**Approach:** Docker + manual deployment via gcloud CLI commands, without GitHub Actions automation.
 
 ---
 
@@ -170,32 +170,32 @@ ADK Orchestrator
 
 ---
 
-## 9. Подход к замене LLM
+## 9. LLM Replacement Approach
 
-Рассматриваем два варианта интеграции DeepSeek вместо Gemini.
+We are considering two options for integrating DeepSeek instead of Gemini.
 
-### Вариант 1. Замена Gemini на DeepSeek внутри Google Gen AI SDK
+### Option 1. Replacing Gemini with DeepSeek inside Google Gen AI SDK
 
-Официальный JS SDK от Google позволяет переопределить адрес, куда отправляются запросы (`baseUrl`). Чтобы подсунуть туда DeepSeek, вам все равно понадобится **LiteLLM** (или Portkey/OpenRouter), запущенный как локальный прокси. Он будет принимать от SDK запросы в формате Google Gemini и "на лету" переводить их в формат DeepSeek.
+The official JS SDK from Google allows overriding the address where requests are sent (`baseUrl`). To point it at DeepSeek, you still need **LiteLLM** (or Portkey/OpenRouter) running as a local proxy. It will accept requests from the SDK in Google Gemini format and translate them to DeepSeek format on the fly.
 
-**Как настроить в коде:**
+**How to set up in code:**
 
 ```javascript
-import { GoogleGenAI } from '@google/genai'; // Новый SDK от Google
+import { GoogleGenAI } from '@google/genai'; // New SDK from Google
 
 const ai = new GoogleGenAI({
-  apiKey: "ваш_api_key_от_deepseek_или_прокси",
+  apiKey: "your_deepseek_or_proxy_api_key",
   httpOptions: {
-    // Указываем адрес вашего прокси (например LiteLLM),
-    // который умеет трансформировать формат Google Gemini -> DeepSeek
+    // Specify your proxy address (e.g. LiteLLM),
+    // which can transform Google Gemini format to DeepSeek format
     baseUrl: "http://localhost:4000"
   }
 });
 
-// Вызываем как обычный Gemini, но отвечать будет DeepSeek
+// Call it like regular Gemini, but DeepSeek will respond
 const response = await ai.models.generateContent({
-  model: 'deepseek-chat', // Имя модели, прописанное в вашем прокси
-  contents: 'Привет! Кто ты?',
+  model: 'deepseek-chat', // Model name configured in your proxy
+  contents: 'Hello! Who are you?',
 });
 
 console.log(response.text);
@@ -203,20 +203,20 @@ console.log(response.text);
 
 ---
 
-## 10. Как это закрывает ТЗ
+## 10. How This Meets Requirements
 
-| ТЗ пункт           | Реализация                             |
-|--------------------|----------------------------------------|
-| Multi-agent system | 5 специализированных agents            |
-| Tools / MCP        | отдельные tool functions               |
-| Memory & sessions  | session-based learning + weak topics   |
-| Security features  | injection protection, structured outputs |
-| Real-world use case | job-based interview simulation        |
+| Requirement        | Implementation                             |
+|--------------------|---------------------------------------------|
+| Multi-agent system | 5 specialized agents                        |
+| Tools / MCP        | separate tool functions                     |
+| Memory & sessions  | session-based learning + weak topics        |
+| Security features  | injection protection, structured outputs    |
+| Real-world use case | job-based interview simulation              |
 
 ---
 
-## Итоговое описание
+## Final Description
 
 The system is a full-stack AI Interview Simulator that transforms job descriptions into personalized adaptive interview sessions. It is built using Next.js, Fastify, and Google ADK (TypeScript). The architecture implements a multi-agent system consisting of JobParser, Interviewer, Evaluator, Coach, and Memory agents. The system leverages tools, session-based memory, and secure agent orchestration deployed on Google Cloud Run.
 
-> LLM: **DeepSeek** через **OpenRouter** (вместо Gemini).
+> LLM: **DeepSeek** via **OpenRouter** (instead of Gemini).

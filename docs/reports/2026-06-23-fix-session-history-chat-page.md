@@ -2,24 +2,24 @@
 
 ## Goal
 
-Исправить отсутствие истории сессий в сайдбаре на странице интервью.
+Fix missing session history in sidebar on the interview page.
 
 ## Problem
 
-На странице интервью (`/interview`) сайдбар был пустым — история сессий не отображалась, хотя на главной странице всё работало корректно. Две причины:
+On the interview page (`/interview`), the sidebar was empty — session history wasn't displayed, even though it worked correctly on the main page. Two reasons:
 
-1. **Неправильный источник данных** — в `interview/page.tsx` сессии загружались из бэкенд API (`fetch(${apiBase}/sessions)`), а не из IndexedDB. Бэкенд не хранит сессии — они хранятся только в браузере через `idb`.
+1. **Wrong data source** — in `interview/page.tsx`, sessions were loaded from backend API (`fetch(${apiBase}/sessions)`), not from IndexedDB. Backend doesn't store sessions — they're only stored in the browser via `idb`.
 
-2. **Отсутствует обработчик клика** — в компонент `Sidebar` не передавался проп `onSessionClick`, поэтому клик по сессиям ничего не делал.
+2. **Missing click handler** — the `onSessionClick` prop wasn't passed to the `Sidebar` component, so clicking sessions did nothing.
 
 ## Changes
 
 ### `packages/web/app/interview/page.tsx`
 
-- Добавлен импорт `listSessions` из `@/lib/session-store`
-- Заменён `fetch(${apiBase}/sessions)` на `listSessions()` с маппингом `{ id, title: jobProfile.role, date }` — аналогично главной странице
-- Добавлена функция `handleSessionClick` — загружает сессию из IndexedDB, извлекает последний вопрос из `history`, формирует URL-параметры и выполняет `router.push`
-- В `Sidebar` добавлен проп `onSessionClick={handleSessionClick}`
+- Added `listSessions` import from `@/lib/session-store`
+- Replaced `fetch(${apiBase}/sessions)` with `listSessions()` and mapping `{ id, title: jobProfile.role, date }` — same as main page
+- Added `handleSessionClick` function — loads session from IndexedDB, extracts last question from `history`, builds URL params and executes `router.push`
+- Added `onSessionClick={handleSessionClick}` prop to `Sidebar`
 
 ## Verification
 

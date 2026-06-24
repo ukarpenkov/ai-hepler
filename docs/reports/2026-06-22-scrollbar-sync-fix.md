@@ -2,31 +2,31 @@
 
 ## Goal
 
-Исправить кастомный скроллбар: синхронизировать позицию thumb с прокруткой контейнера и сделать thumb перетаскиваемым (drag-to-scroll).
+Fix the custom scrollbar: sync thumb position with container scrolling and make thumb draggable (drag-to-scroll).
 
 ## Problem
 
-Два бага:
+Two bugs:
 
-1. **Thumb не привязан к прокрутке** — при скролле позиция thumb не обновлялась, потому что трек скроллбара (`custom-scroll-track`) находился **внутри** скроллируемого контейнера (`scroll-overlay`). CSS `position: absolute` внутри overflow-контейнера не гарантировало фиксированную позицию — трек мог прокручиваться вместе с контентом.
+1. **Thumb not synced to scroll** — on scroll, thumb position wasn't updating because the scrollbar track (`custom-scroll-track`) was **inside** the scrollable container (`scroll-overlay`). CSS `position: absolute` inside an overflow container didn't guarantee a fixed position — the track could scroll with the content.
 
-2. **Thumb не перетаскивается** — в `CustomScrollbar` обработчики `onPointerDown/Move/Up` были на thumb, но в `JobInputForm` thumb был display-only (без обработчиков drag).
+2. **Thumb not draggable** — in `CustomScrollbar`, `onPointerDown/Move/Up` handlers were on the thumb, but in `JobInputForm` the thumb was display-only (no drag handlers).
 
 ## Changes
 
 ### `components/CustomScrollbar.tsx`
 
-- **Реструктуризация DOM**: добавлен wrapper `<div className="... relative">` вокруг скролл-контейнера и трека
-- Скролл-контейнер теперь `scroll-overlay h-full overflow-y-auto` — отдельный от трека
-- Трек (`custom-scroll-track`) теперь sibling скролл-контейнера, positioned relative к wrapper — **не скроллится с контентом**
-- Новый проп `contentClassName` для стилей контента (padding, flex, gap)
-- `className` теперь только для sizing (flex-1, min-h-0, h-full)
+- **DOM restructure**: added wrapper `<div className="... relative">` around scroll container and track
+- Scroll container is now `scroll-overlay h-full overflow-y-auto` — separate from track
+- Track (`custom-scroll-track`) is now a sibling of scroll container, positioned relative to wrapper — **does not scroll with content**
+- New `contentClassName` prop for content styles (padding, flex, gap)
+- `className` now only for sizing (flex-1, min-h-0, h-full)
 
 ### `components/JobInputForm.tsx`
 
-- Добавлены обработчики `handleThumbPointerDown`, `handleThumbPointerMove`, `handleThumbPointerUp` (аналогично `CustomScrollbar`)
-- Thumb стал интерактивным: `setPointerCapture` для drag-to-scroll
-- Курсор `grab`/`grabbing` на thumb
+- Added `handleThumbPointerDown`, `handleThumbPointerMove`, `handleThumbPointerUp` handlers (similar to `CustomScrollbar`)
+- Thumb became interactive: `setPointerCapture` for drag-to-scroll
+- Cursor `grab`/`grabbing` on thumb
 
 ### `components/ChatWindow.tsx`
 
@@ -34,11 +34,11 @@
 
 ### `components/BottomSheet.tsx`
 
-- `className="h-full"` вместо `className="h-full overflow-y-auto"` (overflow теперь внутри)
+- `className="h-full"` instead of `className="h-full overflow-y-auto"` (overflow now inside)
 
 ### `components/Sidebar.tsx`
 
-- Аналогично BottomSheet: `className="h-full"`
+- Similar to BottomSheet: `className="h-full"`
 
 ## Architecture Fix
 
@@ -67,5 +67,5 @@ AFTER (fixed):
 - typecheck: pass
 - lint: pass
 - tests: 158/158 pass
-- Thumb корректно следует за прокруткой во всех компонентах: chat window, job input textarea, sidebar, bottom sheet
-- Thumb доступен для drag-to-scroll через pointer events
+- Thumb correctly follows scroll in all components: chat window, job input textarea, sidebar, bottom sheet
+- Thumb is interactive for drag-to-scroll via pointer events

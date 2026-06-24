@@ -1,40 +1,40 @@
-# Финальный деплой — Backend + Frontend на Cloud Run
+# Final Deployment — Backend + Frontend on Cloud Run
 
-**Дата:** 2026-06-21
-**Статус:** ✅ Успешно
+**Date:** 2026-06-21
+**Status:** ✅ Successful
 
 ---
 
 ## URLs
 
-| Сервис | URL |
-|--------|-----|
+| Service | URL |
+|---------|-----|
 | **Backend** | https://interview-sim-606232140580.us-central1.run.app |
 | **Frontend** | https://interview-sim-frontend-606232140580.us-central1.run.app |
 
-## Параметры деплоя
+## Deployment Parameters
 
 ### Backend
 
-| Параметр | Значение |
-|----------|----------|
-| Сервис | interview-sim |
-| Проект | project-045dea81-cef3-4b7e-a28 |
-| Регион | us-central1 |
-| Порт | 3001 |
-| Память | 512Mi |
+| Parameter | Value |
+|-----------|-------|
+| Service | interview-sim |
+| Project | project-045dea81-cef3-4b7e-a28 |
+| Region | us-central1 |
+| Port | 3001 |
+| Memory | 512Mi |
 | CPU | 1 |
 | Secrets | DEEPSEEK_API_KEY |
 
 ### Frontend
 
-| Параметр | Значение |
-|----------|----------|
-| Сервис | interview-sim-frontend |
-| Проект | project-045dea81-cef3-4b7e-a28 |
-| Регион | us-central1 |
-| Порт | 3000 |
-| Память | 512Mi |
+| Parameter | Value |
+|-----------|-------|
+| Service | interview-sim-frontend |
+| Project | project-045dea81-cef3-4b7e-a28 |
+| Region | us-central1 |
+| Port | 3000 |
+| Memory | 512Mi |
 | CPU | 1 |
 
 ## Smoke Test
@@ -47,7 +47,7 @@ POST /job/parse
   "text": "Frontend developer React TypeScript 3 years experience"
 }
 
-Ответ:
+Response:
 {
   "sessionId": "a6155c51-1550-4a26-ab63-72f3f7d1c7b3",
   "jobProfile": {
@@ -60,26 +60,26 @@ POST /job/parse
 }
 ```
 
-**Статус:** ✅ Pass
+**Status:** ✅ Pass
 
 ### Frontend
 
 ```
 GET /
-Ответ: HTML страница
+Response: HTML page
 ```
 
-**Статус:** ✅ Pass
+**Status:** ✅ Pass
 
-## Исправления
+## Fixes
 
-- Удалена строка `COPY --from=builder /app/public ./public` из Dockerfile frontend (директория `public` отсутствует)
-- Добавлен `.dockerignore` для frontend
+- Removed `COPY --from=builder /app/public ./public` from frontend Dockerfile (directory `public` does not exist)
+- Added `.dockerignore` for frontend
 
-## Файлы
+## Files
 
-- `docs/deployment/backend-url.txt` — URL backend
-- `docs/deployment/frontend-url.txt` — URL frontend
-- `docs/reports/2026-06-21-phase6-deploy.md` — отчёт backend деплоя
-- `docs/reports/2026-06-21-phase6-final-deployment.md` — этот отчёт
-- `README.md` — обновлён с URLs деплоя
+- `docs/deployment/backend-url.txt` — backend URL
+- `docs/deployment/frontend-url.txt` — frontend URL
+- `docs/reports/2026-06-21-phase6-deploy.md` — backend deployment report
+- `docs/reports/2026-06-21-phase6-final-deployment.md` — this report
+- `README.md` — updated with deployment URLs

@@ -2,73 +2,73 @@
 
 ## Goal
 
-Два изменения:
-1. Вопросы интервью, оценка и коучинг выводятся на языке вакансии
-2. В placeholder textarea добавлена подсказка о клавишах (Enter / Shift+Enter)
+Two changes:
+1. Interview questions, evaluation, and coaching are output in the job description's language
+2. Keyboard hint (Enter / Shift+Enter) added to textarea placeholder
 
 ## Problem
 
-1. Все промпты LLM всегда генерировали ответ на английском — даже если вакансия на русском, вопросы, оценка и советы были на английском. Пользователь не понимал контекст.
-2. Не было подсказки о клавишах — новые пользователи не знали, что Enter отправляет, а Shift+Enter делает перенос строки.
+1. All LLM prompts always generated responses in English — even if the job description was in Russian, questions, evaluation, and tips were in English. Users couldn't understand the context.
+2. No keyboard hint — new users didn't know that Enter submits and Shift+Enter creates a line break.
 
 ## Changes
 
-### 1. `src/agents/types.ts` — поле `language` в `ParsedJob`
+### 1. `src/agents/types.ts` — `language` field in `ParsedJob`
 
-Добавлено `language: string` — ISO 639-1 код языка вакансии.
+Added `language: string` — ISO 639-1 code of the job description language.
 
 ### 2. `src/security/schemas.ts` — `JobProfileSchema`
 
-Добавлено `language: z.string().min(1)`.
+Added `language: z.string().min(1)`.
 
 ### 3. `src/types/index.ts` — `SessionSchema.jobProfile`
 
-Добавлено `language: z.string()` в embedded jobProfile.
+Added `language: z.string()` in embedded jobProfile.
 
 ### 4. `src/storage/session-store.ts` — `JobProfile` interface
 
-Добавлено `language: string`.
+Added `language: string`.
 
-### 5. `src/tools/parse-job-description.tool.ts` — определение языка
+### 5. `src/tools/parse-job-description.tool.ts` — language detection
 
-- User prompt расширен: `"language: ISO 639-1 code of the language the job description is written in"`
-- JSON schema ответа включает `"language": string`
-- При парсинге: `typeof parsed.language === "string"` → используем, иначе fallback `"en"`
+- User prompt expanded: `"language: ISO 639-1 code of the language the job description is written in"`
+- JSON response schema includes `"language": string`
+- On parsing: `typeof parsed.language === "string"` → use it, otherwise fallback to `"en"`
 
-### 6. `src/tools/generate-question.tool.ts` — язык вопросов
+### 6. `src/tools/generate-question.tool.ts` — question language
 
-System prompt дополнен:
+System prompt extended:
 ```
 LANGUAGE: The job description is in ${langName}. You MUST generate the question, topic, and expectedAnswerCriteria in ${langName}.
 ```
-Маппинг: `{ ru: "Russian", de: "German", fr: "French", es: "Spanish", zh: "Chinese" }`, fallback → `"English"`.
+Mapping: `{ ru: "Russian", de: "German", fr: "French", es: "Spanish", zh: "Chinese" }`, fallback → `"English"`.
 
-### 7. `src/tools/evaluate-answer.tool.ts` — язык оценки
+### 7. `src/tools/evaluate-answer.tool.ts` — evaluation language
 
-System prompt дополнен:
+System prompt extended:
 ```
 LANGUAGE: The job description and interview are in ${langName}. You MUST output all evaluation fields (strengths, weaknesses, recommendation, perfectAnswerSummary) in ${langName}.
 ```
 
-### 8. `src/agents/coach.agent.ts` — язык коучинга
+### 8. `src/agents/coach.agent.ts` — coaching language
 
-System prompt дополнен:
+System prompt extended:
 ```
 LANGUAGE: The job description and interview are in ${langName}. You MUST output all coaching feedback (explanation, improvedAnswer, tips) in ${langName}.
 ```
 
 ### 9. `packages/web/components/ChatWindow.tsx` — placeholder
 
-**Было:** `"Введите ваш ответ..."`
-**Стало:** `"Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)"`
+**Before:** `"Введите ваш ответ..."`
+**After:** `"Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)"`
 
-### 10. `packages/web/components/ChatWindow.test.tsx` — обновление моков
+### 10. `packages/web/components/ChatWindow.test.tsx` — mock updates
 
-6 вхождений `getByPlaceholderText` обновлены под новый текст.
+6 `getByPlaceholderText` occurrences updated for new text.
 
-### 11. Тесты — добавлено `language: "en"` во все ParsedJob-литералы
+### 11. Tests — added `language: "en"` to all ParsedJob literals
 
-15 файлов тестов обновлены: `evaluate-answer`, `generate-question`, `parse-job-description`, `schemas`, `types`, `evaluator`, `coach`, `interviewer`, `job-parser`, `orchestrator`, `server`, `job`, `interview`, `integration`, `agentWorkflow`.
+15 test files updated: `evaluate-answer`, `generate-question`, `parse-job-description`, `schemas`, `types`, `evaluator`, `coach`, `interviewer`, `job-parser`, `orchestrator`, `server`, `job`, `interview`, `integration`, `agentWorkflow`.
 
 ## Verification
 
