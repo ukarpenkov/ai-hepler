@@ -34,9 +34,16 @@ export default function MessageBubble({ role, content, topic, timestamp }: Messa
           }`}
         >
           {topic && (
-            <span className="inline-block px-2.5 py-0.5 mb-2 text-sm font-medium rounded-full bg-primary/15 text-primary border border-primary/20">
-              {topic}
-            </span>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {topic.split(",").map((t) => (
+                <span
+                  key={t.trim()}
+                  className="inline-block px-2.5 py-0.5 text-sm font-medium rounded-full bg-primary/15 text-primary border border-primary/20"
+                >
+                  {t.trim()}
+                </span>
+              ))}
+            </div>
           )}
           <p className="whitespace-pre-wrap break-words">{content}</p>
         </div>

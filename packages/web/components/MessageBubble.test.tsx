@@ -21,4 +21,23 @@ describe("MessageBubble", () => {
     render(<MessageBubble role="user" content="Test" timestamp="12:00" />);
     expect(screen.getByText("12:00")).toBeDefined();
   });
+
+  it("renders single topic chip", () => {
+    render(<MessageBubble role="assistant" content="Question" topic="React" />);
+    expect(screen.getByText("React")).toBeDefined();
+  });
+
+  it("renders multiple topic chips from comma-separated string", () => {
+    render(<MessageBubble role="assistant" content="Question" topic="React, JSX, SCSS" />);
+    expect(screen.getByText("React")).toBeDefined();
+    expect(screen.getByText("JSX")).toBeDefined();
+    expect(screen.getByText("SCSS")).toBeDefined();
+  });
+
+  it("trims whitespace around topics", () => {
+    render(<MessageBubble role="assistant" content="Question" topic="React , JSX , SCSS" />);
+    expect(screen.getByText("React")).toBeDefined();
+    expect(screen.getByText("JSX")).toBeDefined();
+    expect(screen.getByText("SCSS")).toBeDefined();
+  });
 });

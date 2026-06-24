@@ -43,7 +43,7 @@ export default function Header({ isSidebarOpen, onMenuToggle, progress, totalQue
           className="flex items-center gap-2 md:gap-3 cursor-pointer bg-transparent border-none p-0 ml-2 md:ml-4"
         >
           <LogoSvg />
-          <span className="text-[1.5rem] font-semibold text-content-primary hidden md:inline" style={{ fontFamily: "var(--font-black-ops-one)" }}>
+          <span className="text-[1.875rem] font-semibold text-content-primary hidden md:inline" style={{ fontFamily: "var(--font-black-ops-one)" }}>
             HireChat
           </span>
         </button>
