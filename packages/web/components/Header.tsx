@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import BurgerMenu from "./BurgerMenu";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useI18n } from "@/lib/i18n-context";
 
 interface HeaderProps {
   isSidebarOpen: boolean;
@@ -32,6 +34,7 @@ function LogoSvg() {
 
 export default function Header({ isSidebarOpen, onMenuToggle, progress, totalQuestions, onClose }: HeaderProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const hasProgress = progress !== undefined && totalQuestions !== undefined;
 
   return (
@@ -61,11 +64,11 @@ export default function Header({ isSidebarOpen, onMenuToggle, progress, totalQue
           </div>
         )}
       </div>
-      <div className="flex items-center gap-3 md:gap-4 shrink-0">
+      <div className="flex items-center gap-2 md:gap-3 shrink-0">
         {onClose && (
           <button
             onClick={onClose}
-            title="Закрыть чат"
+            title={t.closeChat}
             className="w-10 h-10 flex items-center justify-center bg-surface-card border border-[var(--border)] rounded-card backdrop-blur-[10px] cursor-pointer transition-all duration-300 text-content-primary hover:bg-red-500 hover:text-white hover:scale-105 hover:rotate-90 hover:border-transparent"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -74,6 +77,7 @@ export default function Header({ isSidebarOpen, onMenuToggle, progress, totalQue
             </svg>
           </button>
         )}
+        <LanguageSwitcher />
         <ThemeToggle />
       </div>
     </header>

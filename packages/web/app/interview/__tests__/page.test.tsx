@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import InterviewPage from "../page";
+import { Wrapper } from "../../../test-utils";
 
 const mockPush = vi.fn();
 
@@ -42,12 +43,12 @@ vi.mock("@/lib/session-store", () => ({
 
 describe("InterviewPage", () => {
   it("renders ChatWindow", () => {
-    render(<InterviewPage />);
+    render(<InterviewPage />, { wrapper: Wrapper });
     expect(screen.getByTestId("chat-window")).toBeDefined();
   });
 
   it("renders Header", () => {
-    render(<InterviewPage />);
+    render(<InterviewPage />, { wrapper: Wrapper });
     expect(screen.getByTestId("header")).toBeDefined();
   });
 });

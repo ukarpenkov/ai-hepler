@@ -11,6 +11,7 @@ import CustomScrollbar from "./CustomScrollbar";
 import BottomSheet from "./BottomSheet";
 import SummaryView from "./SummaryView";
 import type { QuestionFeedback } from "./SummaryView";
+import { useI18n } from "@/lib/i18n-context";
 
 const TOTAL_QUESTIONS = 6;
 
@@ -103,6 +104,7 @@ export default function ChatWindow({
   );
   const [isSummaryOpen, setIsSummaryOpen] = useState(!!(storedFeedbacks && storedFeedbacks.length > 0));
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [inputThumbStyle, setInputThumbStyle] = useState<{ top: number; height: number } | null>(null);
   const inputDragging = useRef(false);
@@ -213,12 +215,12 @@ export default function ChatWindow({
       console.error("sendAnswer error:", err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: `Ошибка: ${err instanceof Error ? err.message : "Неизвестная ошибка"}` },
+        { role: "assistant", content: `${t.errorPrefix} ${err instanceof Error ? err.message : t.unknownError}` },
       ]);
     } finally {
       setIsLoading(false);
     }
-  }, [currentInput, isLoading, isFinished, sessionId, questionCount, currentSessionData]);
+  }, [currentInput, isLoading, isFinished, sessionId, questionCount, currentSessionData, allFeedbacks, messages, t.errorPrefix, t.unknownError]);
 
   const summaryFeedbacks: QuestionFeedback[] = allFeedbacks.map((fb) => ({
     number: fb.questionNum,
@@ -245,7 +247,7 @@ export default function ChatWindow({
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm sm:text-lg font-medium text-primary">
-                    Оценка: {msg.evaluation.score}/10
+                    {t.score}: {msg.evaluation.score}/10
                   </span>
                 </div>
                 {msg.coach.tips.length > 0 && (
@@ -276,7 +278,7 @@ export default function ChatWindow({
               ref={textareaRef}
               className="scrollbar-hidden w-full h-full min-h-[50px] max-h-[120px] p-4 pr-5 sm:p-4 sm:pr-5 bg-[var(--input-bg)] border-2 border-[var(--border)] rounded-2xl text-lg font-[inherit] text-content-primary resize-none transition-all duration-300 backdrop-blur-[10px] focus:outline-none focus:border-primary focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-content-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               rows={1}
-              placeholder={isFinished ? "Интервью завершено" : "Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)"}
+              placeholder={isFinished ? t.interviewFinished : t.answerPlaceholder}
               value={currentInput}
               onChange={(e) => {
                 setCurrentInput(e.target.value);
@@ -339,7 +341,7 @@ export default function ChatWindow({
         <BottomSheet
           isOpen={isSummaryOpen}
           onToggle={() => setIsSummaryOpen((prev) => !prev)}
-          title="Результаты интервью"
+          title={t.interviewResults}
         >
           <SummaryView feedbacks={summaryFeedbacks} />
         </BottomSheet>

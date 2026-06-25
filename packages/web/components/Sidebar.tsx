@@ -1,6 +1,7 @@
 "use client";
 
 import CustomScrollbar from "./CustomScrollbar";
+import { useI18n } from "@/lib/i18n-context";
 
 interface Session {
   id: string;
@@ -15,6 +16,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, sessions, onSessionClick }: SidebarProps) {
+  const { t } = useI18n();
   return (
     <aside
       className={`fixed top-0 left-0 w-full sm:w-96 h-screen glass border-r border-[var(--border)] z-[99] pt-[84px] px-2 pb-8 transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
@@ -23,7 +25,7 @@ export default function Sidebar({ isOpen, sessions, onSessionClick }: SidebarPro
     >
       <CustomScrollbar className="h-full" contentClassName="overflow-x-hidden">
         <div className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-5 mt-1 px-2.5">
-          История сессий
+          {t.sessionHistory}
         </div>
         <div className="space-y-2 pb-4">
           {sessions.map((session) => (

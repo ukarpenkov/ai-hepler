@@ -8,6 +8,7 @@ import { getSession, listSessions } from "@/lib/session-store";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import ChatWindow from "@/components/ChatWindow";
+import { useI18n } from "@/lib/i18n-context";
 
 const MOBILE_BREAKPOINT = 768;
 
@@ -20,6 +21,7 @@ interface Session {
 function InterviewContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useI18n();
 
   const sessionId = searchParams.get("sessionId");
   const question = searchParams.get("question");
@@ -49,13 +51,13 @@ function InterviewContent() {
         setSessions(
           rows.map((s) => ({
             id: s.id,
-            title: s.jobProfile?.role ?? "Новая сессия",
+            title: s.jobProfile?.role ?? t.newSession,
             date: new Date(s.createdAt).toLocaleDateString("ru-RU"),
           }))
         )
       )
       .catch(() => {});
-  }, []);
+  }, [t.newSession]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -118,7 +120,7 @@ function InterviewContent() {
   if (!sessionId || !question || !topic || !difficulty) {
     return (
       <div className="flex items-center justify-center h-screen text-content-primary">
-        Загрузка...
+        {t.loading}
       </div>
     );
   }
@@ -161,7 +163,7 @@ function InterviewContent() {
 
 export default function InterviewPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-screen text-content-primary">Загрузка...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-screen text-content-primary">Loading...</div>}>
       <InterviewContent />
     </Suspense>
   );

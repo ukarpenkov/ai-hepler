@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import Sidebar from "./Sidebar";
+import { Wrapper } from "../test-utils";
 
 const sessions = [
   { id: "1", title: "Frontend Developer", date: "22 июня 2026" },
@@ -9,12 +10,12 @@ const sessions = [
 
 describe("Sidebar", () => {
   it("renders without errors", () => {
-    render(<Sidebar isOpen={true} sessions={sessions} />);
-    expect(screen.getByText("История сессий")).toBeDefined();
+    render(<Sidebar isOpen={true} sessions={sessions} />, { wrapper: Wrapper });
+    expect(screen.getByText("Session history")).toBeDefined();
   });
 
   it("displays session list", () => {
-    render(<Sidebar isOpen={true} sessions={sessions} />);
+    render(<Sidebar isOpen={true} sessions={sessions} />, { wrapper: Wrapper });
     expect(screen.getByText("Frontend Developer")).toBeDefined();
     expect(screen.getByText("Product Manager")).toBeDefined();
     expect(screen.getByText("22 июня 2026")).toBeDefined();
@@ -22,7 +23,8 @@ describe("Sidebar", () => {
 
   it("applies classes based on isOpen", () => {
     const { container, rerender } = render(
-      <Sidebar isOpen={true} sessions={sessions} />
+      <Sidebar isOpen={true} sessions={sessions} />,
+      { wrapper: Wrapper }
     );
     const aside = container.querySelector("aside")!;
     expect(aside.className).toContain("translate-x-0");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n-context";
 
 export interface QuestionFeedback {
   number: number;
@@ -19,6 +20,7 @@ interface SummaryViewProps {
 }
 
 export default function SummaryView({ feedbacks }: SummaryViewProps) {
+  const { t } = useI18n();
   const [activeQuestion, setActiveQuestion] = useState(1);
 
   const averageScore = feedbacks.reduce((sum, f) => sum + f.score, 0) / feedbacks.length;
@@ -37,7 +39,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
         }}
       >
         <h2 className="text-lg sm:text-xl font-semibold" style={{ color: "var(--success)" }}>
-          Интервью завершено! Все {feedbacks.length} вопросов задано.
+          {t.interviewComplete(feedbacks.length)}
         </h2>
       </div>
 
@@ -58,7 +60,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
             {averageScore.toFixed(1)}
           </div>
           <div className="text-sm sm:text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
-            Средний
+            {t.average}
           </div>
         </div>
         <div
@@ -77,7 +79,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
             {bestScore}
           </div>
           <div className="text-sm sm:text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
-            Лучший
+            {t.best}
           </div>
         </div>
         <div
@@ -96,7 +98,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
             {worstScore}
           </div>
           <div className="text-sm sm:text-lg font-medium" style={{ color: "var(--text-secondary)" }}>
-            Худший
+            {t.worst}
           </div>
         </div>
       </div>
@@ -118,7 +120,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
                 activeQuestion === f.number ? "0 4px 12px rgba(99, 102, 241, 0.3)" : "none",
             }}
           >
-            Вопрос {f.number}
+            {t.question} {f.number}
           </button>
         ))}
       </div>
@@ -132,7 +134,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
           style={{ borderBottom: "1px solid var(--border)" }}
         >
           <div className="text-lg font-semibold" style={{ color: "var(--text-secondary)" }}>
-            Вопрос {active.number} / {feedbacks.length}
+            {t.question} {active.number} / {feedbacks.length}
           </div>
           <div className="flex items-baseline gap-1 sm:gap-2">
             <span
@@ -154,7 +156,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
 
         <div className="mb-5 sm:mb-7">
           <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
-            Ваш ответ
+            {t.yourAnswer}
           </h3>
           <div
             className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
@@ -166,7 +168,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
 
         <div className="mb-5 sm:mb-7">
           <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--success)" }}>
-            Сильные стороны
+            {t.strengths}
           </h3>
           <div
             className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
@@ -181,14 +183,14 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
                 ))}
               </ul>
             ) : (
-              <p className="text-center text-2xl" style={{ color: "var(--text-secondary)" }}>😔</p>
+              <p className="text-center text-2xl" style={{ color: "var(--text-secondary)" }}>&#128532;</p>
             )}
           </div>
         </div>
 
         <div className="mb-5 sm:mb-7">
           <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--danger)" }}>
-            Слабые стороны
+            {t.weaknesses}
           </h3>
           <div
             className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
@@ -203,14 +205,14 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
                 ))}
               </ul>
             ) : (
-              <p className="text-center text-2xl" style={{ color: "var(--text-secondary)" }}>😔</p>
+              <p className="text-center text-2xl" style={{ color: "var(--text-secondary)" }}>&#128532;</p>
             )}
           </div>
         </div>
 
         <div className="mb-5 sm:mb-7">
           <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
-            Рекомендация
+            {t.recommendation}
           </h3>
           <div
             className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
@@ -222,7 +224,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
 
         <div className="mb-5 sm:mb-7">
           <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--warning)" }}>
-            Разбор ответа
+            {t.answerAnalysis}
           </h3>
           <div
             className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
@@ -234,7 +236,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
 
         <div className="mb-5 sm:mb-7">
           <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--success)" }}>
-            Улучшенный ответ
+            {t.improvedAnswer}
           </h3>
           <div
             className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"
@@ -246,7 +248,7 @@ export default function SummaryView({ feedbacks }: SummaryViewProps) {
 
         <div>
           <h3 className="text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2" style={{ color: "var(--accent)" }}>
-            Советы
+            {t.tips}
           </h3>
           <div
             className="rounded-lg sm:rounded-xl p-3 sm:p-5 leading-relaxed text-lg"

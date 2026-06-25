@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import Header from "./Header";
+import { Wrapper } from "../test-utils";
 
 const mockPush = vi.fn();
 
@@ -28,18 +29,18 @@ vi.mock("./BurgerMenu", () => ({
 
 describe("Header", () => {
   it("renders without errors", () => {
-    render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />);
+    render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />, { wrapper: Wrapper });
     expect(screen.getByText("HireChat")).toBeDefined();
   });
 
   it("displays logo SVG and text", () => {
-    render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />);
+    render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />, { wrapper: Wrapper });
     expect(document.querySelector("svg")).toBeDefined();
     expect(screen.getByText("HireChat")).toBeDefined();
   });
 
   it("contains ThemeToggle and BurgerMenu", () => {
-    render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />);
+    render(<Header isSidebarOpen={false} onMenuToggle={() => {}} />, { wrapper: Wrapper });
     expect(screen.getByTestId("theme-toggle")).toBeDefined();
     expect(screen.getByTestId("burger-menu")).toBeDefined();
   });

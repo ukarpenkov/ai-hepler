@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import SummaryView, { type QuestionFeedback } from "./SummaryView";
+import { Wrapper } from "../test-utils";
 
 const mockFeedbacks: QuestionFeedback[] = [
   {
@@ -29,51 +30,51 @@ const mockFeedbacks: QuestionFeedback[] = [
 
 describe("SummaryView", () => {
   it("renders without errors", () => {
-    render(<SummaryView feedbacks={mockFeedbacks} />);
-    expect(screen.getByText(/Интервью завершено/)).toBeDefined();
+    render(<SummaryView feedbacks={mockFeedbacks} />, { wrapper: Wrapper });
+    expect(screen.getByText(/Interview complete/)).toBeDefined();
   });
 
   it("displays stats grid with correct values", () => {
-    render(<SummaryView feedbacks={mockFeedbacks} />);
+    render(<SummaryView feedbacks={mockFeedbacks} />, { wrapper: Wrapper });
     expect(screen.getByText("6.0")).toBeDefined();
     expect(screen.getAllByText("7").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("5")).toBeDefined();
-    expect(screen.getByText("Средний")).toBeDefined();
-    expect(screen.getByText("Лучший")).toBeDefined();
-    expect(screen.getByText("Худший")).toBeDefined();
+    expect(screen.getByText("Average")).toBeDefined();
+    expect(screen.getByText("Best")).toBeDefined();
+    expect(screen.getByText("Worst")).toBeDefined();
   });
 
   it("displays question navigation", () => {
-    render(<SummaryView feedbacks={mockFeedbacks} />);
-    expect(screen.getByText("Вопрос 1")).toBeDefined();
-    expect(screen.getByText("Вопрос 2")).toBeDefined();
+    render(<SummaryView feedbacks={mockFeedbacks} />, { wrapper: Wrapper });
+    expect(screen.getByText("Question 1")).toBeDefined();
+    expect(screen.getByText("Question 2")).toBeDefined();
   });
 
   it("switches question on button click", () => {
-    render(<SummaryView feedbacks={mockFeedbacks} />);
-    fireEvent.click(screen.getByText("Вопрос 2"));
-    expect(screen.getByText("Вопрос 2 / 2")).toBeDefined();
+    render(<SummaryView feedbacks={mockFeedbacks} />, { wrapper: Wrapper });
+    fireEvent.click(screen.getByText("Question 2"));
+    expect(screen.getByText("Question 2 / 2")).toBeDefined();
   });
 
   it("displays all feedback sections for active question", () => {
-    render(<SummaryView feedbacks={mockFeedbacks} />);
-    expect(screen.getByText("Ваш ответ")).toBeDefined();
-    expect(screen.getByText("Сильные стороны")).toBeDefined();
-    expect(screen.getByText("Слабые стороны")).toBeDefined();
-    expect(screen.getByText("Рекомендация")).toBeDefined();
-    expect(screen.getByText("Разбор ответа")).toBeDefined();
-    expect(screen.getByText("Улучшенный ответ")).toBeDefined();
-    expect(screen.getByText("Советы")).toBeDefined();
+    render(<SummaryView feedbacks={mockFeedbacks} />, { wrapper: Wrapper });
+    expect(screen.getByText("Your answer")).toBeDefined();
+    expect(screen.getByText("Strengths")).toBeDefined();
+    expect(screen.getByText("Weaknesses")).toBeDefined();
+    expect(screen.getByText("Recommendation")).toBeDefined();
+    expect(screen.getByText("Answer analysis")).toBeDefined();
+    expect(screen.getByText("Improved answer")).toBeDefined();
+    expect(screen.getByText("Tips")).toBeDefined();
   });
 
   it("displays correct score for active question", () => {
-    render(<SummaryView feedbacks={mockFeedbacks} />);
+    render(<SummaryView feedbacks={mockFeedbacks} />, { wrapper: Wrapper });
     expect(screen.getAllByText("7").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("/ 10")).toBeDefined();
   });
 
   it("shows correct total questions in banner", () => {
-    render(<SummaryView feedbacks={mockFeedbacks} />);
-    expect(screen.getByText(/Интервью завершено!/)).toBeDefined();
+    render(<SummaryView feedbacks={mockFeedbacks} />, { wrapper: Wrapper });
+    expect(screen.getByText(/Interview complete!/)).toBeDefined();
   });
 });

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ChatWindow from "../components/ChatWindow";
 import type { QuestionResult } from "@/lib/types";
+import { Wrapper } from "../test-utils";
 
 const mockSendAnswer = vi.fn();
 
@@ -89,7 +90,7 @@ describe("ChatWindow", () => {
   });
 
   it("renders initial question", () => {
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} />, { wrapper: Wrapper });
     expect(screen.getByText("Введение")).toBeDefined();
     expect(screen.getByText("Расскажите о себе")).toBeDefined();
   });
@@ -97,9 +98,9 @@ describe("ChatWindow", () => {
   it("adds user message on send", async () => {
     mockSendAnswer.mockResolvedValue(makeResponse(1));
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />, { wrapper: Wrapper });
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
+    const textarea = screen.getByPlaceholderText("Type your answer... (Enter to send, Shift+Enter for new line)");
     fireEvent.change(textarea, { target: { value: "Меня зовут Иван" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -111,9 +112,9 @@ describe("ChatWindow", () => {
   it("displays FeedbackCard after answer", async () => {
     mockSendAnswer.mockResolvedValue(makeResponse(1));
 
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />, { wrapper: Wrapper });
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
+    const textarea = screen.getByPlaceholderText("Type your answer... (Enter to send, Shift+Enter for new line)");
     fireEvent.change(textarea, { target: { value: "Мой ответ" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -133,10 +134,11 @@ describe("ChatWindow", () => {
         initialQuestion={mockQuestion}
         sessionData={mockSessionData}
         onProgressChange={onProgressChange}
-      />
+      />,
+      { wrapper: Wrapper }
     );
 
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
+    const textarea = screen.getByPlaceholderText("Type your answer... (Enter to send, Shift+Enter for new line)");
     fireEvent.change(textarea, { target: { value: "Ответ" } });
     fireEvent.keyDown(textarea, { key: "Enter" });
 
@@ -145,51 +147,44 @@ describe("ChatWindow", () => {
     });
   });
 
+  async function sendFiveAnswers() {
+    mockSendAnswer.mockResolvedValue(makeResponse(1));
+    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />, { wrapper: Wrapper });
+    const textarea = screen.getByPlaceholderText("Type your answer... (Enter to send, Shift+Enter for new line)");
+    for (let i = 0; i < 5; i++) {
+      await waitFor(() => { expect(textarea).not.toBeDisabled(); });
+      fireEvent.change(textarea, { target: { value: `Ответ ${i + 1}` } });
+      fireEvent.keyDown(textarea, { key: "Enter" });
+      if (i < 4) {
+        await waitFor(() => { expect(textarea).not.toBeDisabled(); });
+      }
+    }
+  }
+
   it("shows BottomSheet with SummaryView after finishing", async () => {
-    mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
-
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
-
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
-    fireEvent.change(textarea, { target: { value: "Ответ 1" } });
-    fireEvent.keyDown(textarea, { key: "Enter" });
-
+    await sendFiveAnswers();
     await waitFor(() => {
       expect(screen.getByTestId("bottom-sheet")).toBeDefined();
       expect(screen.getByTestId("summary-view")).toBeDefined();
-      expect(screen.getByTestId("feedbacks-count").textContent).toBe("1");
+      expect(screen.getByTestId("feedbacks-count").textContent).toBe("5");
     });
   });
 
   it("disables input area when finished", async () => {
-    mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
-
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
-
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
-    fireEvent.change(textarea, { target: { value: "Ответ 1" } });
-    fireEvent.keyDown(textarea, { key: "Enter" });
-
+    await sendFiveAnswers();
     await waitFor(() => {
-      const disabledTextarea = screen.getByPlaceholderText("Интервью завершено");
+      const disabledTextarea = screen.getByPlaceholderText("Interview finished");
       expect(disabledTextarea).toBeDisabled();
     });
   });
 
   it("toggles BottomSheet when handle bar clicked", async () => {
-    mockSendAnswer.mockResolvedValueOnce(makeResponse(1));
-
-    render(<ChatWindow sessionId="test-id" initialQuestion={mockQuestion} sessionData={mockSessionData} />);
-
-    const textarea = screen.getByPlaceholderText("Введите ваш ответ... (Enter — отправить, Shift+Enter — перенос строки)");
-    fireEvent.change(textarea, { target: { value: "Ответ 1" } });
-    fireEvent.keyDown(textarea, { key: "Enter" });
-
+    await sendFiveAnswers();
     await waitFor(() => {
       expect(screen.getByTestId("bottom-sheet").getAttribute("data-open")).toBe("true");
     });
 
-    fireEvent.click(screen.getByText("Результаты интервью"));
+    fireEvent.click(screen.getByText("Interview results"));
 
     await waitFor(() => {
       expect(screen.getByTestId("bottom-sheet").getAttribute("data-open")).toBe("false");

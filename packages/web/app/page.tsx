@@ -12,6 +12,7 @@ import {
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import JobInputForm from "@/components/JobInputForm";
+import { useI18n } from "@/lib/i18n-context";
 
 const MOBILE_BREAKPOINT = 768;
 
@@ -23,6 +24,7 @@ interface Session {
 
 export default function Home() {
   const router = useRouter();
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -46,13 +48,13 @@ export default function Home() {
         setSessions(
           rows.map((s) => ({
             id: s.id,
-            title: s.jobProfile?.role ?? "Новая сессия",
+            title: s.jobProfile?.role ?? t.newSession,
             date: new Date(s.createdAt).toLocaleDateString("ru-RU"),
           }))
         )
       )
       .catch(() => {});
-  }, []);
+  }, [t.newSession]);
 
   const closeSidebar = useCallback(() => {
     if (isMobile) setIsSidebarOpen(false);
@@ -81,7 +83,7 @@ export default function Home() {
 
       router.push(`/interview?${params.toString()}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Произошла ошибка");
+      setError(err instanceof Error ? err.message : t.error);
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +124,7 @@ export default function Home() {
 
       router.push(`/interview?${params.toString()}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Произошла ошибка");
+      setError(err instanceof Error ? err.message : t.error);
     }
   };
 
