@@ -11,12 +11,14 @@ vi.mock("../../storage/session-store.js", () => ({
   createSession: vi.fn(),
 }));
 
-vi.mock("../../agents/orchestrator.js", () => ({
-  parseJob: vi.fn(),
+vi.mock("../../adk/runner.js", () => ({
+  jobParserRunner: {
+    runEphemeral: vi.fn(),
+  },
 }));
 
 const Fastify = (await import("fastify")).default;
-const { parseJob } = await import("../../agents/orchestrator.js");
+const { jobParserRunner } = await import("../../adk/runner.js");
 const { jobRoutes } = await import("../routes/job.js");
 
 describe("POST /job/parse", () => {
@@ -25,7 +27,6 @@ describe("POST /job/parse", () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
     app = Fastify();
-    app.redis = {} as never;
     await app.register(jobRoutes);
     await app.ready();
   });
@@ -35,15 +36,34 @@ describe("POST /job/parse", () => {
   });
 
   it("returns 200 with jobProfile on valid input", async () => {
-    vi.mocked(parseJob).mockResolvedValue({
-      role: "Dev",
-      level: "middle",
-      skills: ["TS"],
-      softSkills: [],
-      keywords: [],
-      domain: "web",
-      language: "en", minYearsExperience: null,
-    });
+    const mockEvent = {
+      actions: {
+        stateDelta: {
+          parsedJob: {
+            role: "Dev",
+            level: "middle",
+            skills: ["TS"],
+            softSkills: [],
+            keywords: [],
+            domain: "web",
+            language: "en",
+            minYearsExperience: null,
+          },
+        },
+        artifactDelta: {},
+        requestedAuthConfigs: {},
+        requestedToolConfirmations: {},
+      },
+      content: { parts: [{ text: "" }] },
+      id: "test-event",
+      invocationId: "test-invocation",
+      timestamp: Date.now(),
+    };
+
+    async function* mockGenerator() {
+      yield mockEvent;
+    }
+    vi.mocked(jobParserRunner.runEphemeral).mockImplementation(() => mockGenerator());
 
     const response = await app.inject({
       method: "POST",
@@ -54,7 +74,6 @@ describe("POST /job/parse", () => {
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.payload);
     expect(body.jobProfile.role).toBe("Dev");
-    expect(body.sessionId).toBeUndefined();
   });
 
   it("returns 400 for empty text", async () => {

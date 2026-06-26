@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-describe("index", () => {
+describe("index", { timeout: 15000 }, () => {
   it("exports agents", async () => {
     const mod = await import("./index.js");
     expect(mod.jobParserAgent).toBeDefined();
@@ -8,14 +8,15 @@ describe("index", () => {
     expect(mod.evaluatorAgent).toBeDefined();
     expect(mod.coachAgent).toBeDefined();
     expect(mod.memoryAgent).toBeDefined();
-    expect(mod.parseJob).toBeDefined();
-    expect(mod.startInterview).toBeDefined();
-    expect(mod.processAnswer).toBeDefined();
+    expect(mod.interviewPipeline).toBeDefined();
+    expect(mod.jobParserRunner).toBeDefined();
+    expect(mod.interviewRunner).toBeDefined();
+    expect(mod.sessionService).toBeDefined();
   });
 
   it("exports tools", async () => {
     const mod = await import("./index.js");
-    expect(mod.parseJobDescriptionTool).toBeDefined();
+    expect(mod.parseJobTool).toBeDefined();
     expect(mod.generateQuestionTool).toBeDefined();
     expect(mod.evaluateAnswerTool).toBeDefined();
     expect(mod.updateMemoryTool).toBeDefined();

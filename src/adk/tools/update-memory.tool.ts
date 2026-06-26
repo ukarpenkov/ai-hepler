@@ -1,6 +1,6 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
-import type { MemoryUpdate } from "../../agents/types.js";
+import type { MemoryUpdate } from "../types.js";
 
 const updateMemoryParams = z.object({
   evaluation: z

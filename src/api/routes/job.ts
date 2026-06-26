@@ -1,10 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import { randomUUID } from "node:crypto";
-import { parseJob } from "../../agents/orchestrator.js";
+import { jobParserRunner } from "../../adk/runner.js";
 import { isValidJobText } from "../../utils/validators.js";
 import { sanitizeJobText } from "../../utils/sanitize.js";
 import { sanitizeInput, InputValidationError } from "../../security/sanitizer.js";
-import config from "../../config.js";
 
 export async function jobRoutes(app: FastifyInstance) {
   app.post("/job/parse", async (request, reply) => {
@@ -24,10 +23,19 @@ export async function jobRoutes(app: FastifyInstance) {
       throw e;
     }
 
-    const tempId = randomUUID();
-    const llmConfig = { apiKey: config.apiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
-    const jobProfile = await parseJob(sanitized, tempId, app.redis, llmConfig);
+    const userId = randomUUID();
+    let parsedJob: Record<string, unknown> = {};
 
-    return { jobProfile };
+    for await (const event of jobParserRunner.runEphemeral({
+      userId,
+      newMessage: { parts: [{ text: sanitized }] },
+    })) {
+      const delta = event.actions?.stateDelta;
+      if (delta && "parsedJob" in delta) {
+        parsedJob = delta.parsedJob as Record<string, unknown>;
+      }
+    }
+
+    return { jobProfile: parsedJob };
   });
 }

@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-26
 **Priority:** Critical
-**Status:** Open
+**Status:** Done
 **Component:** Backend — AI Core
 
 ---
@@ -299,17 +299,17 @@ const coach = new LlmAgent({
 
 ## Acceptance Criteria
 
-- [ ] `@google/adk` and `@google/genai` installed
-- [ ] All 5 agents rewritten as `LlmAgent` instances
-- [ ] All 5 tools rewritten as `FunctionTool` instances
-- [ ] `SequentialAgent` replaces manual orchestration
-- [ ] API routes use ADK Runner
-- [ ] Session management uses ADK SessionService
-- [ ] All existing tests pass (adapted for ADK)
-- [ ] `npm run typecheck` passes
-- [ ] `npm run lint` passes
-- [ ] No API keys or secrets in code
-- [ ] Demo works end-to-end: parse job → start interview → answer → evaluate → next question
+- [x] `@google/adk` and `@google/genai` installed
+- [x] All 5 agents rewritten as `LlmAgent` instances
+- [x] All 5 tools rewritten as `FunctionTool` instances
+- [x] `SequentialAgent` replaces manual orchestration
+- [x] API routes use ADK Runner
+- [x] Session management uses ADK SessionService
+- [x] All existing tests pass (adapted for ADK)
+- [x] `npm run typecheck` passes
+- [x] `npm run lint` passes
+- [x] No API keys or secrets in code
+- [x] Demo works end-to-end: parse job → start interview → answer → evaluate → next question
 
 ---
 

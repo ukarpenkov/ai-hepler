@@ -65,4 +65,43 @@ describe("config", () => {
       "OPENROUTER_API_KEY or DEEPSEEK_API_KEY environment variable is required"
     );
   });
+
+  it("returns default adkModel", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.adkModel).toBe("deepseek/deepseek-chat");
+  });
+
+  it("returns adkModel from ADK_MODEL env when set", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+    process.env.ADK_MODEL = "custom-model";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.adkModel).toBe("custom-model");
+  });
+
+  it("returns default adkBaseUrl", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.adkBaseUrl).toBe("https://api.deepseek.com");
+  });
+
+  it("returns adkBaseUrl from ADK_BASE_URL env when set", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+    process.env.ADK_BASE_URL = "https://custom.api.com";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.adkBaseUrl).toBe("https://custom.api.com");
+  });
+
+  it("returns adkBaseUrl from LLM_BASE_URL when ADK_BASE_URL not set", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+    delete process.env.ADK_BASE_URL;
+    process.env.LLM_BASE_URL = "https://llm.api.com";
+
+    const { default: cfg } = await import("../../config.js");
+    expect(cfg.adkBaseUrl).toBe("https://llm.api.com");
+  });
 });

@@ -12,16 +12,38 @@ vi.mock("../../storage/session-store.js", () => ({
   getSession: vi.fn(),
 }));
 
-vi.mock("../../agents/orchestrator.js", () => ({
-  parseJob: vi.fn(),
-  startInterviewStateless: vi.fn(),
-  processAnswerStateless: vi.fn(),
+vi.mock("../../adk/runner.js", () => ({
+  jobParserRunner: {
+    runEphemeral: vi.fn(),
+  },
+  interviewerRunner: {
+    runEphemeral: vi.fn(),
+  },
+  interviewRunner: {
+    runEphemeral: vi.fn(),
+  },
+  sessionService: {},
 }));
 
 const { server } = await import("../server.js");
-const { parseJob, startInterviewStateless, processAnswerStateless } = await import("../../agents/orchestrator.js");
+const { jobParserRunner, interviewerRunner, interviewRunner } = await import("../../adk/runner.js");
 
 const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", language: "en", minYearsExperience: null };
+
+function makeEvent(stateDelta: Record<string, unknown>) {
+  return {
+    actions: {
+      stateDelta,
+      artifactDelta: {},
+      requestedAuthConfigs: {},
+      requestedToolConfirmations: {},
+    },
+    content: { parts: [{ text: "" }] },
+    id: "test-event",
+    invocationId: "test-invocation",
+    timestamp: Date.now(),
+  };
+}
 
 describe("server", () => {
   beforeAll(async () => {
@@ -57,7 +79,10 @@ describe("server", () => {
 
   describe("route registration", () => {
     it("POST /job/parse is available", async () => {
-      vi.mocked(parseJob).mockResolvedValue(mockJobProfile);
+      async function* mockGenerator() {
+        yield makeEvent({ parsedJob: mockJobProfile });
+      }
+      vi.mocked(jobParserRunner.runEphemeral).mockImplementation(() => mockGenerator());
 
       const response = await server.inject({
         method: "POST",
@@ -72,10 +97,12 @@ describe("server", () => {
     });
 
     it("POST /interview/start is available", async () => {
-      vi.mocked(startInterviewStateless).mockResolvedValue({
-        question: { question: "What is TypeScript?", topic: "TS", difficulty: "medium", questionType: "theoretical_explanation" as const, expectedAnswerCriteria: [] },
-        updatedHistory: [],
-      });
+      async function* mockGenerator() {
+        yield makeEvent({
+          currentQuestion: { question: "What is TypeScript?", topic: "TS", difficulty: "medium", questionType: "theoretical_explanation", expectedAnswerCriteria: [] },
+        });
+      }
+      vi.mocked(interviewerRunner.runEphemeral).mockImplementation(() => mockGenerator());
 
       const response = await server.inject({
         method: "POST",
@@ -94,13 +121,15 @@ describe("server", () => {
     });
 
     it("POST /interview/answer is available", async () => {
-      vi.mocked(processAnswerStateless).mockResolvedValue({
-        evaluation: { score: 7, accuracy: 2, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "good" },
-        coach: { explanation: "", improvedAnswer: "", tips: [] },
-        nextQuestion: { question: "Q2?", topic: "React", difficulty: "easy", questionType: "theoretical_explanation" as const, expectedAnswerCriteria: [] },
-        updatedHistory: [],
-        updatedWeakSkills: [],
-      });
+      async function* mockGenerator() {
+        yield makeEvent({
+          evaluation: { score: 7, accuracy: 2, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "good" },
+          coachFeedback: { explanation: "", improvedAnswer: "", tips: [] },
+          memoryUpdate: { weakSkills: [], answeredTopics: [] },
+          currentQuestion: { question: "Q2?", topic: "React", difficulty: "easy", questionType: "theoretical_explanation", expectedAnswerCriteria: [] },
+        });
+      }
+      vi.mocked(interviewRunner.runEphemeral).mockImplementation(() => mockGenerator());
 
       const response = await server.inject({
         method: "POST",

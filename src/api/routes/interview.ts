@@ -1,10 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import type { ParsedJob } from "../../agents/types.js";
+import type { ParsedJob } from "../../adk/types.js";
 import type { InterviewMessage } from "../../storage/session-store.js";
-import { startInterviewStateless, processAnswerStateless } from "../../agents/orchestrator.js";
+import { interviewerRunner, interviewRunner } from "../../adk/runner.js";
 import { isValidSessionId, isValidAnswer } from "../../utils/validators.js";
 import { sanitizeInput, InputValidationError } from "../../security/sanitizer.js";
-import config from "../../config.js";
 
 export async function interviewRoutes(app: FastifyInstance) {
   app.post("/interview/start", async (request, reply) => {
@@ -23,18 +22,30 @@ export async function interviewRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: "jobProfile is required" });
     }
 
-    const llmConfig = { apiKey: config.apiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
     try {
-      const result = await startInterviewStateless(
-        {
-          sessionId: body.sessionId,
+      let currentQuestion: Record<string, unknown> = {};
+      let updatedHistory: InterviewMessage[] = body.history ?? [];
+
+      for await (const event of interviewerRunner.runEphemeral({
+        userId: body.sessionId,
+        newMessage: { parts: [{ text: "Generate the first interview question" }] },
+        stateDelta: {
           jobProfile: body.jobProfile,
           weakSkills: body.weakSkills ?? [],
-          history: body.history ?? [],
+          previousQuestions: (body.history ?? []).map((m) => m.content),
         },
-        llmConfig
-      );
-      return { question: result.question, updatedHistory: result.updatedHistory };
+      })) {
+        const delta = event.actions?.stateDelta;
+        if (delta && "currentQuestion" in delta) {
+          currentQuestion = delta.currentQuestion as Record<string, unknown>;
+          updatedHistory = [
+            ...updatedHistory,
+            { role: "assistant", content: JSON.stringify(currentQuestion), timestamp: new Date().toISOString() },
+          ];
+        }
+      }
+
+      return { question: currentQuestion, updatedHistory };
     } catch (e) {
       request.log.error(e, "startInterview failed");
       return reply.status(500).send({ error: "Failed to start interview. Please try again." });
@@ -74,24 +85,61 @@ export async function interviewRoutes(app: FastifyInstance) {
       throw e;
     }
 
-    const llmConfig = { apiKey: config.apiKey, baseUrl: config.llmBaseUrl, model: config.llmModel };
     try {
-      const result = await processAnswerStateless(
-        {
-          sessionId: body.sessionId,
+      const history = body.sessionData.history ?? [];
+      const lastAssistant = history.filter((m) => m.role === "assistant").pop();
+      const currentQuestion = lastAssistant ? JSON.parse(lastAssistant.content) : { question: "", topic: "", difficulty: "easy", questionType: "theoretical_explanation", expectedAnswerCriteria: [] };
+
+      let evaluation: Record<string, unknown> = {};
+      let coachFeedback: Record<string, unknown> = {};
+      let memoryUpdate: Record<string, unknown> = {};
+      let nextQuestion: Record<string, unknown> = {};
+      let updatedWeakSkills = body.sessionData.weakSkills ?? [];
+
+      for await (const event of interviewRunner.runEphemeral({
+        userId: body.sessionId,
+        newMessage: { parts: [{ text: sanitized }] },
+        stateDelta: {
           jobProfile: body.sessionData.jobProfile,
-          history: body.sessionData.history ?? [],
           weakSkills: body.sessionData.weakSkills ?? [],
+          history,
+          question: currentQuestion.question,
+          answer: sanitized,
+          currentQuestion,
         },
-        sanitized,
-        llmConfig
-      );
+      })) {
+        const delta = event.actions?.stateDelta;
+        if (!delta) continue;
+
+        if ("evaluation" in delta) {
+          evaluation = delta.evaluation as Record<string, unknown>;
+        }
+        if ("coachFeedback" in delta) {
+          coachFeedback = delta.coachFeedback as Record<string, unknown>;
+        }
+        if ("memoryUpdate" in delta) {
+          memoryUpdate = delta.memoryUpdate as Record<string, unknown>;
+          if (memoryUpdate.weakSkills) {
+            updatedWeakSkills = memoryUpdate.weakSkills as string[];
+          }
+        }
+        if ("currentQuestion" in delta) {
+          nextQuestion = delta.currentQuestion as Record<string, unknown>;
+        }
+      }
+
+      const updatedHistory: InterviewMessage[] = [
+        ...history,
+        { role: "user", content: sanitized, timestamp: new Date().toISOString() },
+        { role: "assistant", content: JSON.stringify(nextQuestion), timestamp: new Date().toISOString() },
+      ];
+
       return {
-        evaluation: result.evaluation,
-        coach: result.coach,
-        nextQuestion: result.nextQuestion,
-        updatedHistory: result.updatedHistory,
-        updatedWeakSkills: result.updatedWeakSkills,
+        evaluation,
+        coach: coachFeedback,
+        nextQuestion,
+        updatedHistory,
+        updatedWeakSkills,
       };
     } catch (e) {
       request.log.error(e, "processAnswer failed");

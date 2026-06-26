@@ -1,17 +1,39 @@
-import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 
 process.env.DEEPSEEK_API_KEY = "test-key";
 
-vi.mock("ioredis", () => {
+vi.mock("../../storage/redis.js", () => ({
+  createRedisClient: vi.fn(() => ({})),
+  closeRedisClient: vi.fn(),
+}));
+
+vi.mock("../../adk/runner.js", () => ({
+  jobParserRunner: {
+    runEphemeral: vi.fn(),
+  },
+  interviewerRunner: {
+    runEphemeral: vi.fn(),
+  },
+  interviewRunner: {
+    runEphemeral: vi.fn(),
+  },
+  sessionService: {},
+}));
+
+function makeEvent(stateDelta: Record<string, unknown>) {
   return {
-    Redis: vi.fn().mockImplementation(() => ({
-      set: vi.fn(async () => {}),
-      get: vi.fn(async () => null),
-      del: vi.fn(async () => {}),
-      quit: vi.fn(async () => {}),
-    })),
+    actions: {
+      stateDelta,
+      artifactDelta: {},
+      requestedAuthConfigs: {},
+      requestedToolConfirmations: {},
+    },
+    content: { parts: [{ text: "" }] },
+    id: "test-event",
+    invocationId: "test-invocation",
+    timestamp: Date.now(),
   };
-});
+}
 
 const jobProfileResponse = {
   role: "Frontend Developer",
@@ -58,55 +80,33 @@ const nextQuestionResponse = {
   expectedAnswerCriteria: [],
 };
 
-let fetchCallCount = 0;
-
 describe("API integration test", () => {
-  beforeAll(() => {
-    vi.stubGlobal("fetch", vi.fn(async () => {
-      fetchCallCount++;
+  beforeAll(async () => {
+    const { jobParserRunner, interviewerRunner, interviewRunner } = await import("../../adk/runner.js");
 
-      if (fetchCallCount === 1) {
-        return new Response(JSON.stringify({
-          choices: [{ message: { content: JSON.stringify(jobProfileResponse) } }],
-        }), { status: 200, headers: { "Content-Type": "application/json" } });
-      }
+    async function* jobParserGenerator() {
+      yield makeEvent({ parsedJob: jobProfileResponse });
+    }
+    vi.mocked(jobParserRunner.runEphemeral).mockImplementation(() => jobParserGenerator());
 
-      if (fetchCallCount === 2) {
-        return new Response(JSON.stringify({
-          choices: [{ message: { content: JSON.stringify(questionResponse) } }],
-        }), { status: 200, headers: { "Content-Type": "application/json" } });
-      }
+    async function* interviewerGenerator() {
+      yield makeEvent({ currentQuestion: questionResponse });
+    }
+    vi.mocked(interviewerRunner.runEphemeral).mockImplementation(() => interviewerGenerator());
 
-      if (fetchCallCount === 3) {
-        return new Response(JSON.stringify({
-          choices: [{ message: { content: JSON.stringify(evaluationResponse) } }],
-        }), { status: 200, headers: { "Content-Type": "application/json" } });
-      }
-
-      if (fetchCallCount === 4) {
-        return new Response(JSON.stringify({
-          choices: [{ message: { content: JSON.stringify(coachResponse) } }],
-        }), { status: 200, headers: { "Content-Type": "application/json" } });
-      }
-
-      if (fetchCallCount === 5) {
-        return new Response(JSON.stringify({
-          choices: [{ message: { content: JSON.stringify(nextQuestionResponse) } }],
-        }), { status: 200, headers: { "Content-Type": "application/json" } });
-      }
-
-      return new Response(JSON.stringify({
-        choices: [{ message: { content: "" } }],
-      }), { status: 200, headers: { "Content-Type": "application/json" } });
-    }) as typeof fetch);
+    async function* interviewGenerator() {
+      yield makeEvent({
+        evaluation: evaluationResponse,
+        coachFeedback: coachResponse,
+        memoryUpdate: { weakSkills: [], answeredTopics: ["TypeScript"] },
+        currentQuestion: nextQuestionResponse,
+      });
+    }
+    vi.mocked(interviewRunner.runEphemeral).mockImplementation(() => interviewGenerator());
   });
 
   afterAll(() => {
     vi.restoreAllMocks();
-  });
-
-  beforeEach(() => {
-    fetchCallCount = 0;
   });
 
   it("full interview flow works end-to-end", async () => {
@@ -156,8 +156,7 @@ describe("API integration test", () => {
 
     expect(answerResponse.statusCode).toBe(200);
     const answerBody = JSON.parse(answerResponse.payload);
-    expect(answerBody.evaluation.score).toBeGreaterThanOrEqual(1);
-    expect(answerBody.evaluation.score).toBeLessThanOrEqual(10);
+    expect(answerBody.evaluation.score).toBe(7);
     expect(answerBody.coach.explanation).toBe("Interfaces are extendable, types support unions and intersections.");
     expect(answerBody.coach.improvedAnswer).toBeDefined();
     expect(Array.isArray(answerBody.coach.tips)).toBe(true);

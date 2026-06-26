@@ -842,7 +842,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 15 — Update Config for ADK
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -884,7 +884,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 16 — Update Job Route to Use ADK Runner
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -933,7 +933,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 17 — Update Interview Routes to Use ADK Runner
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -986,7 +986,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 18 — Run Full Test Suite and Fix Issues
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -1028,7 +1028,7 @@ Document any issues encountered and how they were fixed.
 
 ## Step 19 — Verify End-to-End Flow
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -1075,7 +1075,7 @@ Document the test results and any issues encountered.
 
 ## Step 20 — Clean Up Old Files (Optional, After Verification)
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -1121,7 +1121,7 @@ If any issues arise, restore the deleted files and fix the imports first.
 
 ## Step 21 — Final Verification and Documentation
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.

@@ -1,6 +1,6 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
-import type { QuestionResult } from "../../agents/types.js";
+import type { QuestionResult } from "../types.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
