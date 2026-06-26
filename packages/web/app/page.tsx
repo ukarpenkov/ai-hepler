@@ -68,13 +68,15 @@ export default function Home() {
     try {
       const { jobProfile } = await parseJob(text);
       const session = await createSession();
-      await updateSession(session.id, { jobProfile });
+      await updateSession(session.id, { jobText: text, jobProfile });
       const { question, updatedHistory } = await startInterview(session.id, {
+        jobText: text,
         jobProfile,
         weakSkills: [],
         history: [],
       });
       await updateSession(session.id, {
+        jobText: text,
         jobProfile,
         history: updatedHistory as SessionRecord["history"],
       });

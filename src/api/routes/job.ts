@@ -10,7 +10,9 @@ function isValidParsedJob(value: Record<string, unknown>): boolean {
   return (
     typeof value.role === "string" &&
     typeof value.level === "string" &&
-    Array.isArray(value.skills)
+    Array.isArray(value.skills) &&
+    typeof value.language === "string" &&
+    value.language.length > 0
   );
 }
 

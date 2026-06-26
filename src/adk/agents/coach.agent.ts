@@ -9,6 +9,7 @@ import {
   toolResultAsModelResponse,
 } from "../utils/llm-request-helpers.js";
 import type { EvaluationResult, ParsedJob } from "../types.js";
+import { resolveInterviewLanguage } from "../utils/language.js";
 
 const coachResultSchema = z.object({
   explanation: z.string().min(40),
@@ -32,7 +33,10 @@ function readEvaluation(state: Record<string, unknown>): EvaluationResult | unde
 
 function readLanguage(state: Record<string, unknown>): string {
   const jobProfile = state.jobProfile as ParsedJob | undefined;
-  return typeof jobProfile?.language === "string" ? jobProfile.language : "en";
+  if (!jobProfile) return "en";
+
+  const jobText = typeof state.jobText === "string" ? state.jobText : undefined;
+  return resolveInterviewLanguage(jobProfile, jobText);
 }
 
 export const coachAgent = new LlmAgent({

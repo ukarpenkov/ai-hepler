@@ -2,6 +2,8 @@ import { LlmAgent, type LlmResponse } from "@google/adk";
 import { z } from "zod";
 import { evaluateAnswerTool } from "../tools/evaluate-answer.tool.js";
 import { llm } from "../llm.js";
+import type { ParsedJob } from "../types.js";
+import { resolveInterviewLanguage } from "../utils/language.js";
 import {
   forcedToolCall,
   getFunctionResponse,
@@ -44,12 +46,22 @@ export const evaluatorAgent = new LlmAgent({
     const currentQuestion = state.currentQuestion as { question?: string } | undefined;
     const question = state.question ?? currentQuestion?.question;
     const answer = state.answer ?? getLastUserText(request);
-    const jobProfile = state.jobProfile;
+    const jobProfile = state.jobProfile as ParsedJob | undefined;
 
     if (!question || !answer || !jobProfile) {
       return undefined;
     }
 
-    return forcedToolCall("evaluateAnswer", { question, answer, jobProfile });
+    const jobText = typeof state.jobText === "string" ? state.jobText : undefined;
+    const resolvedProfile: ParsedJob = {
+      ...jobProfile,
+      language: resolveInterviewLanguage(jobProfile, jobText),
+    };
+
+    return forcedToolCall("evaluateAnswer", {
+      question,
+      answer,
+      jobProfile: resolvedProfile,
+    });
   },
 });

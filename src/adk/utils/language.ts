@@ -32,13 +32,55 @@ export function detectLanguageFromText(text: string): string {
   const cjk = countMatches(sample, /[\u4E00-\u9FFF]/g);
   const korean = countMatches(sample, /[\uAC00-\uD7AF]/g);
   const japaneseKana = countMatches(sample, /[\u3040-\u30FF]/g);
+  const letterTotal = cyrillic + latin + cjk + korean + japaneseKana;
 
-  if (korean > 20 && korean >= latin) return "ko";
-  if (japaneseKana > 20 && japaneseKana + cjk > latin) return "ja";
-  if (cjk > 20 && cjk >= latin) return "zh";
-  if (cyrillic > 20 && cyrillic >= latin * 0.4) return "ru";
+  if (letterTotal === 0) return "en";
+
+  if (korean >= 8 && korean >= cyrillic && korean / letterTotal >= 0.15) {
+    return "ko";
+  }
+  if (japaneseKana >= 8 && (japaneseKana + cjk) / letterTotal >= 0.15) {
+    return "ja";
+  }
+  if (cjk >= 8 && cjk / letterTotal >= 0.15) return "zh";
+
+  if (cyrillic >= 5) {
+    const cyrillicRatio = cyrillic / (cyrillic + latin);
+    if (cyrillicRatio >= 0.08 || cyrillic >= 15) return "ru";
+  }
 
   return "en";
+}
+
+export interface InterviewLanguageSource {
+  language?: string;
+  role?: string;
+  domain?: string;
+  keywords?: string[];
+  softSkills?: string[];
+  skills?: string[];
+}
+
+export function buildInterviewLanguageText(
+  jobProfile: InterviewLanguageSource,
+  sourceText?: string,
+): string {
+  return [
+    sourceText ?? "",
+    jobProfile.role ?? "",
+    jobProfile.domain ?? "",
+    ...(jobProfile.keywords ?? []),
+    ...(jobProfile.softSkills ?? []),
+    ...(jobProfile.skills ?? []),
+  ].join(" ");
+}
+
+export function resolveInterviewLanguage(
+  jobProfile: InterviewLanguageSource,
+  sourceText?: string,
+): string {
+  const combinedText = buildInterviewLanguageText(jobProfile, sourceText);
+  return resolveLanguage(jobProfile.language, combinedText);
 }
 
 export function resolveLanguage(

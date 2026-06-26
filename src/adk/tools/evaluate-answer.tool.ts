@@ -2,7 +2,7 @@ import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 import type { EvaluationResult } from "../types.js";
 import { isParaphrasingQuestion } from "../utils/answer-similarity.js";
-import { getLanguageName } from "../utils/language.js";
+import { getLanguageName, resolveInterviewLanguage } from "../utils/language.js";
 import {
   buildAntiCheatRules,
   buildEvaluationPhilosophy,
@@ -107,16 +107,17 @@ async function executeEvaluateAnswer(
   }
 
   const { question, answer, jobProfile } = params;
+  const interviewLanguage = resolveInterviewLanguage(jobProfile);
 
   if (isParaphrasingQuestion(question, answer)) {
-    return buildParaphrasingEvaluation(jobProfile.language);
+    return buildParaphrasingEvaluation(interviewLanguage);
   }
 
-  const langName = getLanguageName(jobProfile.language);
+  const langName = getLanguageName(interviewLanguage);
 
   const systemPrompt = `${buildEvaluatorPersona(jobProfile)}
 
-${buildEvaluatorLanguageRule(jobProfile.language)}
+${buildEvaluatorLanguageRule(interviewLanguage)}
 
 ${buildEvaluationPhilosophy()}
 
@@ -224,7 +225,7 @@ Evaluate the answer using the rubric and philosophy above. Be generous with effo
   const clampDimension = (v: number, max: number) =>
     Math.round(Math.max(0, Math.min(max, v)));
 
-  return enforceAntiCheat(question, answer, jobProfile.language, {
+  return enforceAntiCheat(question, answer, interviewLanguage, {
     score,
     accuracy: clampDimension(parsed.accuracy, 3),
     depth: clampDimension(parsed.depth, 3),

@@ -1,7 +1,7 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 import type { ParsedJob } from "../types.js";
-import { resolveLanguage } from "../utils/language.js";
+import { resolveInterviewLanguage } from "../utils/language.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
@@ -112,8 +112,18 @@ ${params.jobText}`;
     throw new Error("Missing required fields in parsed job");
   }
 
-  const language = resolveLanguage(
-    typeof parsed.language === "string" ? parsed.language : undefined,
+  const language = resolveInterviewLanguage(
+    {
+      language:
+        typeof parsed.language === "string" ? parsed.language : undefined,
+      role: parsed.role as string,
+      domain: parsed.domain as string,
+      skills: parsed.skills as string[],
+      softSkills: Array.isArray(parsed.softSkills)
+        ? (parsed.softSkills as string[])
+        : [],
+      keywords: parsed.keywords as string[],
+    },
     params.jobText,
   );
 

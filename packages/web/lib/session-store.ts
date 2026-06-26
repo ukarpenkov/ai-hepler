@@ -22,6 +22,7 @@ interface FeedbackData {
 
 interface SessionRecord {
   id: string;
+  jobText: string | null;
   jobProfile: ParsedJob | null;
   history: Array<{
     role: "user" | "assistant";
@@ -71,6 +72,7 @@ export async function createSession(): Promise<SessionRecord> {
   const now = new Date().toISOString();
   const session: SessionRecord = {
     id: crypto.randomUUID(),
+    jobText: null,
     jobProfile: null,
     history: [],
     weakSkills: [],

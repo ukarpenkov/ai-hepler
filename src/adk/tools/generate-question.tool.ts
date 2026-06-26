@@ -5,6 +5,7 @@ import {
   getLanguageName,
   normalizeLanguageCode,
   questionMatchesLanguage,
+  resolveInterviewLanguage,
 } from "../utils/language.js";
 
 interface LLMResponse {
@@ -195,10 +196,14 @@ async function executeGenerateQuestion(
   }
 
   const { jobProfile, weakSkills, previousQuestions } = params;
+  const resolvedProfile = {
+    ...jobProfile,
+    language: resolveInterviewLanguage(jobProfile),
+  };
 
   for (const strictLanguageRetry of [false, true]) {
     const { systemPrompt, userPrompt, languageCode } = buildPrompts(
-      jobProfile,
+      resolvedProfile,
       weakSkills,
       previousQuestions,
       strictLanguageRetry,
@@ -212,7 +217,7 @@ async function executeGenerateQuestion(
   }
 
   throw new Error(
-    `Generated question is not in required language: ${jobProfile.language}`,
+    `Generated question is not in required language: ${resolvedProfile.language}`,
   );
 }
 

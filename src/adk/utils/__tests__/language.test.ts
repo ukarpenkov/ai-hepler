@@ -4,6 +4,7 @@ import {
   getLanguageName,
   normalizeLanguageCode,
   questionMatchesLanguage,
+  resolveInterviewLanguage,
   resolveLanguage,
   textMatchesLanguage,
 } from "../language.js";
@@ -29,6 +30,28 @@ describe("language utils", () => {
     const text =
       "We are looking for a frontend developer with React, TypeScript, and performance optimization experience.";
     expect(detectLanguageFromText(text)).toBe("en");
+  });
+
+  it("detects Russian in mixed Russian/English tech job descriptions", () => {
+    const text =
+      "We are looking for a Senior Frontend Developer. Требования: опыт React, TypeScript, Redux, CI/CD, microservices. Обязанности: разработка UI, code review, ментoring команды.";
+    expect(detectLanguageFromText(text)).toBe("ru");
+  });
+
+  it("resolves interview language from profile fields when LLM stored en", () => {
+    expect(
+      resolveInterviewLanguage(
+        {
+          language: "en",
+          role: "Frontend Developer",
+          domain: "gaming",
+          skills: ["React", "TypeScript"],
+          softSkills: ["коммуникация"],
+          keywords: ["оптимизация", "интерфейсы"],
+        },
+        "Ищем frontend-разработчика с опытом React и TypeScript.",
+      ),
+    ).toBe("ru");
   });
 
   it("prefers detected non-English language when LLM returns en", () => {

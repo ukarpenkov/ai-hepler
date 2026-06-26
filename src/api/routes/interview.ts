@@ -39,6 +39,7 @@ export async function interviewRoutes(app: FastifyInstance) {
   app.post("/interview/start", async (request, reply) => {
     const body = request.body as {
       sessionId?: string;
+      jobText?: string;
       jobProfile?: ParsedJob;
       weakSkills?: string[];
       history?: InterviewMessage[];
@@ -61,6 +62,7 @@ export async function interviewRoutes(app: FastifyInstance) {
         newMessage: { parts: [{ text: "Generate the first interview question" }] },
         stateDelta: {
           jobProfile: body.jobProfile,
+          jobText: body.jobText,
           weakSkills: body.weakSkills ?? [],
           previousQuestions: previousQuestionsFromHistory(body.history ?? []),
         },
@@ -94,6 +96,7 @@ export async function interviewRoutes(app: FastifyInstance) {
       sessionId?: string;
       answer?: string;
       sessionData?: {
+        jobText?: string;
         jobProfile: ParsedJob;
         history: InterviewMessage[];
         weakSkills: string[];
@@ -146,6 +149,7 @@ export async function interviewRoutes(app: FastifyInstance) {
         newMessage: { parts: [{ text: sanitized }] },
         stateDelta: {
           jobProfile: body.sessionData.jobProfile,
+          jobText: body.sessionData.jobText,
           weakSkills: body.sessionData.weakSkills ?? [],
           history,
           previousQuestions: previousQuestionsFromHistory(history),

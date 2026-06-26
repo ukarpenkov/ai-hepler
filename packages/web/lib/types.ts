@@ -2,8 +2,11 @@ export interface ParsedJob {
   role: string;
   level: "junior" | "middle" | "senior";
   skills: string[];
+  softSkills?: string[];
   keywords: string[];
   domain: string;
+  language: string;
+  minYearsExperience?: number | null;
 }
 
 export interface QuestionResult {

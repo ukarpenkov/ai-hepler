@@ -2,6 +2,8 @@ import { LlmAgent, type LlmResponse } from "@google/adk";
 import { z } from "zod";
 import { generateQuestionTool } from "../tools/generate-question.tool.js";
 import { llm } from "../llm.js";
+import type { ParsedJob } from "../types.js";
+import { resolveInterviewLanguage } from "../utils/language.js";
 import {
   extractPreviousQuestions,
   forcedToolCall,
@@ -42,13 +44,19 @@ export const interviewerAgent = new LlmAgent({
     }
 
     const state = readStateRecord(context.state);
-    const jobProfile = state.jobProfile;
+    const jobProfile = state.jobProfile as ParsedJob | undefined;
     if (!jobProfile) {
       return undefined;
     }
 
+    const jobText = typeof state.jobText === "string" ? state.jobText : undefined;
+    const resolvedProfile: ParsedJob = {
+      ...jobProfile,
+      language: resolveInterviewLanguage(jobProfile, jobText),
+    };
+
     return forcedToolCall("generateQuestion", {
-      jobProfile,
+      jobProfile: resolvedProfile,
       weakSkills: state.weakSkills ?? [],
       previousQuestions: extractPreviousQuestions(state),
     });

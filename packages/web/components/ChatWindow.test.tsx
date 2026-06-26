@@ -46,12 +46,14 @@ const mockQuestion: QuestionResult = {
 
 const mockSessionData = {
   id: "test-id",
+  jobText: "Ищем frontend-разработчика с опытом React и TypeScript.",
   jobProfile: {
     role: "Frontend Developer",
     level: "middle" as const,
     skills: ["React", "TypeScript"],
     keywords: ["frontend"],
     domain: "IT",
+    language: "ru",
   },
   history: [],
   weakSkills: [],

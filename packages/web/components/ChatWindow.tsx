@@ -185,6 +185,7 @@ export default function ChatWindow({
 
     try {
       const response = await sendAnswer(sessionId, answer, {
+        jobText: currentSessionData.jobText ?? undefined,
         jobProfile: currentSessionData.jobProfile,
         weakSkills: currentSessionData.weakSkills,
         history,
