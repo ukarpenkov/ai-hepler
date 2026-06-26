@@ -1,8 +1,9 @@
 import { LlmAgent } from "@google/adk";
+import { llm } from "../llm.js";
 
 export const coachAgent = new LlmAgent({
   name: "CoachAgent",
-  model: process.env.LLM_MODEL || "deepseek/deepseek-chat",
+  model: llm,
   description:
     "Provides coaching feedback and improvement tips based on evaluation",
   instruction: `You are an expert interview coach. Based on the evaluation of the candidate's answer, provide helpful feedback.

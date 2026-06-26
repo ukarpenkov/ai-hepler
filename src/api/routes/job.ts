@@ -34,6 +34,15 @@ export async function jobRoutes(app: FastifyInstance) {
       if (delta && "parsedJob" in delta) {
         parsedJob = delta.parsedJob as Record<string, unknown>;
       }
+
+      for (const part of event.content?.parts || []) {
+        if (part.functionResponse?.response) {
+          const resp = part.functionResponse.response as Record<string, unknown>;
+          if (resp.role && resp.level) {
+            parsedJob = resp;
+          }
+        }
+      }
     }
 
     return { jobProfile: parsedJob };

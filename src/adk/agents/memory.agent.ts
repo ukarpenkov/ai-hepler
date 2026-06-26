@@ -1,9 +1,10 @@
 import { LlmAgent } from "@google/adk";
 import { updateMemoryTool } from "../tools/update-memory.tool.js";
+import { llm } from "../llm.js";
 
 export const memoryAgent = new LlmAgent({
   name: "MemoryAgent",
-  model: process.env.LLM_MODEL || "deepseek/deepseek-chat",
+  model: llm,
   description: "Updates user memory with weak skills and answered topics",
   instruction: `You are a memory manager for the interview system. Update the user's skill memory based on their performance.
 

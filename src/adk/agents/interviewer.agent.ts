@@ -1,9 +1,10 @@
 import { LlmAgent } from "@google/adk";
 import { generateQuestionTool } from "../tools/generate-question.tool.js";
+import { llm } from "../llm.js";
 
 export const interviewerAgent = new LlmAgent({
   name: "InterviewerAgent",
-  model: process.env.LLM_MODEL || "deepseek/deepseek-chat",
+  model: llm,
   description:
     "Generates personalized interview questions based on job profile and user's weak areas",
   instruction: `You are an expert technical interviewer. Generate interview questions based on:

@@ -1,9 +1,10 @@
 import { LlmAgent } from "@google/adk";
 import { evaluateAnswerTool } from "../tools/evaluate-answer.tool.js";
+import { llm } from "../llm.js";
 
 export const evaluatorAgent = new LlmAgent({
   name: "EvaluatorAgent",
-  model: process.env.LLM_MODEL || "deepseek/deepseek-chat",
+  model: llm,
   description:
     "Evaluates interview answers and provides detailed feedback with scores",
   instruction: `You are an expert technical evaluator. Evaluate the candidate's answer to the interview question.

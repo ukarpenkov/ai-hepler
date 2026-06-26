@@ -1,4 +1,5 @@
 import { BaseLlm, LlmRequest, LlmResponse, BaseLlmConnection } from "@google/adk";
+import type { FunctionDeclaration, Type, Content as GenaiContent } from "@google/genai";
 
 interface DeepSeekConfig {
   apiKey: string;
@@ -8,8 +9,19 @@ interface DeepSeekConfig {
 
 interface OpenAIMessage {
   role: "system" | "user" | "assistant" | "tool";
-  content: string;
+  content: string | null;
   name?: string;
+  tool_calls?: OpenAIToolCall[];
+  tool_call_id?: string;
+}
+
+interface OpenAIToolCall {
+  id: string;
+  type: "function";
+  function: {
+    name: string;
+    arguments: string;
+  };
 }
 
 interface OpenAIResponse {
@@ -18,7 +30,8 @@ interface OpenAIResponse {
     index: number;
     message: {
       role: string;
-      content: string;
+      content: string | null;
+      tool_calls?: OpenAIToolCall[];
     };
     finish_reason: string;
   }>;
@@ -29,6 +42,16 @@ interface OpenAIResponse {
   };
 }
 
+interface OpenAIStreamToolCall {
+  index: number;
+  id?: string;
+  type?: "function";
+  function?: {
+    name?: string;
+    arguments?: string;
+  };
+}
+
 interface OpenAIStreamChunk {
   id: string;
   choices: Array<{
@@ -36,9 +59,97 @@ interface OpenAIStreamChunk {
     delta: {
       role?: string;
       content?: string;
+      tool_calls?: OpenAIStreamToolCall[];
     };
     finish_reason: string | null;
   }>;
+}
+
+interface OpenAIToolDefinition {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
+}
+
+const TYPE_MAP: Record<string, string> = {
+  STRING: "string",
+  NUMBER: "number",
+  INTEGER: "integer",
+  BOOLEAN: "boolean",
+  ARRAY: "array",
+  OBJECT: "object",
+};
+
+function googleSchemaToOpenAI(schema: { type?: Type | string; [key: string]: unknown }): Record<string, unknown> {
+  if (!schema || typeof schema !== "object") {
+    return {};
+  }
+
+  const result: Record<string, unknown> = {};
+
+  if (schema.type) {
+    result.type = TYPE_MAP[schema.type as string] ?? schema.type;
+  }
+
+  if (schema.description) {
+    result.description = schema.description;
+  }
+
+  if (schema.enum) {
+    result.enum = schema.enum;
+  }
+
+  if (schema.format) {
+    result.format = schema.format;
+  }
+
+  if (schema.items) {
+    result.items = googleSchemaToOpenAI(schema.items as { type?: Type | string; [key: string]: unknown });
+  }
+
+  if (schema.properties) {
+    const props: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(schema.properties)) {
+      props[key] = googleSchemaToOpenAI(value as { type?: Type | string; [key: string]: unknown });
+    }
+    result.properties = props;
+  }
+
+  if (schema.required) {
+    result.required = schema.required;
+  }
+
+  if (schema.nullable) {
+    result.nullable = true;
+  }
+
+  if (schema.default !== undefined) {
+    result.default = schema.default;
+  }
+
+  if (schema.example !== undefined) {
+    result.examples = [schema.example];
+  }
+
+  return result;
+}
+
+function declarationsToOpenAITools(declarations: FunctionDeclaration[]): OpenAIToolDefinition[] {
+  return declarations
+    .filter((d) => d.name)
+    .map((d) => ({
+      type: "function" as const,
+      function: {
+        name: d.name!,
+        description: d.description || "",
+        parameters: d.parameters
+          ? googleSchemaToOpenAI(d.parameters as { type?: Type | string; [key: string]: unknown })
+          : { type: "object", properties: {} },
+      },
+    }));
 }
 
 export class DeepSeekLlm extends BaseLlm {
@@ -58,15 +169,34 @@ export class DeepSeekLlm extends BaseLlm {
     const messages = this.convertToOpenAIMessages(llmRequest);
     const model = llmRequest.model || this.model;
 
+    const tools = this.extractTools(llmRequest);
+
     if (stream) {
-      yield* this.streamResponse(messages, model);
+      yield* this.streamResponse(messages, model, tools);
     } else {
-      yield* this.nonStreamingResponse(messages, model);
+      yield* this.nonStreamingResponse(messages, model, tools);
     }
   }
 
   async connect(_llmRequest: LlmRequest): Promise<BaseLlmConnection> {
     throw new Error("Live connection not supported for DeepSeek");
+  }
+
+  private extractTools(llmRequest: LlmRequest): OpenAIToolDefinition[] {
+    const declarations: FunctionDeclaration[] = [];
+
+    for (const tool of Object.values(llmRequest.toolsDict)) {
+      const decl = tool._getDeclaration?.();
+      if (decl) {
+        declarations.push(decl);
+      }
+    }
+
+    if (declarations.length === 0) {
+      return [];
+    }
+
+    return declarationsToOpenAITools(declarations);
   }
 
   private convertToOpenAIMessages(llmRequest: LlmRequest): OpenAIMessage[] {
@@ -81,32 +211,49 @@ export class DeepSeekLlm extends BaseLlm {
 
     for (const content of llmRequest.contents) {
       if (!content.parts) continue;
-      const role = content.role || "user";
+
       const textParts = content.parts
         .filter((p) => p.text)
         .map((p) => p.text!);
-      if (textParts.length > 0) {
+
+      const functionCalls = content.parts
+        .filter((p) => p.functionCall)
+        .map((p) => p.functionCall!);
+
+      const functionResponses = content.parts
+        .filter((p) => p.functionResponse)
+        .map((p) => p.functionResponse!);
+
+      if (textParts.length > 0 && functionCalls.length === 0) {
         messages.push({
-          role: role as "user" | "assistant" | "system" | "tool",
+          role: (content.role || "user") as "user" | "assistant" | "system" | "tool",
           content: textParts.join("\n"),
         });
       }
 
-      const functionCalls = content.parts.filter((p) => p.functionCall);
-      for (const fc of functionCalls) {
+      if (functionCalls.length > 0) {
+        const toolCalls: OpenAIToolCall[] = functionCalls.map((fc, i) => ({
+          id: fc.id || `call_${i}`,
+          type: "function" as const,
+          function: {
+            name: fc.name || "",
+            arguments: JSON.stringify(fc.args || {}),
+          },
+        }));
         messages.push({
           role: "assistant",
-          content: JSON.stringify({
-            function_call: fc.functionCall,
-          }),
+          content: textParts.length > 0 ? textParts.join("\n") : null,
+          tool_calls: toolCalls,
         });
       }
 
-      const functionResponses = content.parts.filter((p) => p.functionResponse);
       for (const fr of functionResponses) {
         messages.push({
           role: "tool",
-          content: JSON.stringify(fr.functionResponse),
+          content: typeof fr.response === "string"
+            ? fr.response
+            : JSON.stringify(fr.response),
+          tool_call_id: fr.id || "",
         });
       }
     }
@@ -141,18 +288,25 @@ export class DeepSeekLlm extends BaseLlm {
   private async *nonStreamingResponse(
     messages: OpenAIMessage[],
     model: string,
+    tools: OpenAIToolDefinition[],
   ): AsyncGenerator<LlmResponse, void> {
+    const body: Record<string, unknown> = {
+      model,
+      messages,
+      stream: false,
+    };
+
+    if (tools.length > 0) {
+      body.tools = tools;
+    }
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        stream: false,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -174,24 +328,59 @@ export class DeepSeekLlm extends BaseLlm {
       return;
     }
 
+    if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
+      const parts: GenaiContent["parts"] = choice.message.tool_calls.map((tc) => ({
+        functionCall: {
+          id: tc.id,
+          name: tc.function.name,
+          args: JSON.parse(tc.function.arguments),
+        },
+      }));
+
+      if (choice.message.content) {
+        parts.unshift({ text: choice.message.content });
+      }
+
+      yield {
+        content: { parts, role: "model" },
+        turnComplete: true,
+        finishReason: choice.finish_reason as LlmResponse["finishReason"],
+        usageMetadata: data.usage
+          ? {
+              promptTokenCount: data.usage.prompt_tokens,
+              candidatesTokenCount: data.usage.completion_tokens,
+              totalTokenCount: data.usage.total_tokens,
+            }
+          : undefined,
+      };
+      return;
+    }
+
     yield this.convertToLlmResponse(choice.message.content, choice.finish_reason, data.usage);
   }
 
   private async *streamResponse(
     messages: OpenAIMessage[],
     model: string,
+    tools: OpenAIToolDefinition[],
   ): AsyncGenerator<LlmResponse, void> {
+    const body: Record<string, unknown> = {
+      model,
+      messages,
+      stream: true,
+    };
+
+    if (tools.length > 0) {
+      body.tools = tools;
+    }
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        stream: true,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -214,6 +403,7 @@ export class DeepSeekLlm extends BaseLlm {
     const decoder = new TextDecoder();
     let buffer = "";
     let fullContent = "";
+    const streamedToolCalls: Map<number, OpenAIToolCall> = new Map();
 
     try {
       while (true) {
@@ -237,6 +427,25 @@ export class DeepSeekLlm extends BaseLlm {
             const content = choice.delta?.content || "";
             const finishReason = choice.finish_reason;
 
+            if (choice.delta?.tool_calls) {
+              for (const tc of choice.delta.tool_calls) {
+                const existing = streamedToolCalls.get(tc.index);
+                if (existing) {
+                  existing.function.name += tc.function?.name || "";
+                  existing.function.arguments += tc.function?.arguments || "";
+                } else {
+                  streamedToolCalls.set(tc.index, {
+                    id: tc.id || `call_${tc.index}`,
+                    type: "function",
+                    function: {
+                      name: tc.function?.name || "",
+                      arguments: tc.function?.arguments || "",
+                    },
+                  });
+                }
+              }
+            }
+
             if (content) {
               fullContent += content;
               yield {
@@ -250,7 +459,27 @@ export class DeepSeekLlm extends BaseLlm {
             }
 
             if (finishReason) {
-              yield this.convertToLlmResponse(fullContent, finishReason, undefined);
+              if (streamedToolCalls.size > 0) {
+                const parts: GenaiContent["parts"] = Array.from(streamedToolCalls.values()).map((tc) => ({
+                  functionCall: {
+                    id: tc.id,
+                    name: tc.function.name,
+                    args: JSON.parse(tc.function.arguments),
+                  },
+                }));
+
+                if (fullContent) {
+                  parts.unshift({ text: fullContent });
+                }
+
+                yield {
+                  content: { parts, role: "model" },
+                  turnComplete: true,
+                  finishReason: finishReason as LlmResponse["finishReason"],
+                };
+              } else {
+                yield this.convertToLlmResponse(fullContent, finishReason, undefined);
+              }
               yield { turnComplete: true };
             }
           } catch {
@@ -264,13 +493,13 @@ export class DeepSeekLlm extends BaseLlm {
   }
 
   private convertToLlmResponse(
-    content: string,
+    content: string | null,
     finishReason: string,
     usage?: OpenAIResponse["usage"],
   ): LlmResponse {
     return {
       content: {
-        parts: [{ text: content }],
+        parts: [{ text: content || "" }],
         role: "model",
       },
       turnComplete: true,
