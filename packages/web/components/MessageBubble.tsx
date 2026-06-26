@@ -1,3 +1,5 @@
+import ChatAvatar from "./ChatAvatar";
+
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
@@ -16,15 +18,7 @@ export default function MessageBubble({ role, content, topic, timestamp }: Messa
 
   return (
     <div className={`flex gap-3 max-w-[85%] animate-[messageIn_0.4s_ease] ${isUser ? "self-end flex-row-reverse" : "self-start"}`}>
-      <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 shadow-[0_4px_12px_var(--shadow)] ${
-          isUser
-            ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white"
-            : "bg-gradient-to-br from-primary to-pink-500 text-white"
-        }`}
-      >
-        {isUser ? "" : ""}
-      </div>
+      <ChatAvatar role={role} />
       <div className="min-w-0">
         <div
           className={`px-[18px] py-3.5 rounded-[18px] text-lg leading-[1.5] backdrop-blur-[10px] border border-[var(--border)] shadow-[0_4px_15px_var(--shadow)] break-words ${
