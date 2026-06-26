@@ -84,7 +84,7 @@ export default function ChatWindow({
     if (storedFeedbacks && storedFeedbacks.length > 0) {
       setAllFeedbacks(storedFeedbacks);
       setQuestionCount(storedFeedbacks.length + 1);
-      if (storedFeedbacks.length >= TOTAL_QUESTIONS) {
+      if (storedFeedbacks.length >= TOTAL_QUESTIONS - 1) {
         setIsFinished(true);
       }
       setIsSummaryOpen(true);
