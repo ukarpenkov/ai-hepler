@@ -89,6 +89,44 @@ describe("parseJobTool", () => {
     expect(resultObj.minYearsExperience).toBe(3);
   });
 
+  it("falls back to detected language when LLM returns en for Russian text", async () => {
+    const mockResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              role: "Frontend Developer",
+              level: "middle",
+              skills: ["React", "TypeScript"],
+              softSkills: ["коммуникация"],
+              keywords: ["оптимизация", "интерфейсы"],
+              domain: "gaming",
+              language: "en",
+              minYearsExperience: 3,
+            }),
+          },
+        },
+      ],
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      }),
+    );
+
+    const result = await parseJobTool.runAsync({
+      args: {
+        jobText:
+          "Ищем frontend-разработчика с опытом React, TypeScript и оптимизации производительности игровых интерфейсов.",
+      },
+    } as never);
+
+    expect((result as Record<string, unknown>).language).toBe("ru");
+  });
+
   it("handles invalid JSON response", async () => {
     const mockResponse = {
       choices: [{ message: { content: "This is not valid JSON" } }],

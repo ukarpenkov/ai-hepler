@@ -95,9 +95,15 @@ describe("EvaluationSchema", () => {
 
 describe("CoachSchema", () => {
   const valid: Coach = {
-    explanation: "React is a UI library",
-    improvedAnswer: "React is a JavaScript library for building UIs",
-    tips: ["use hooks", "follow patterns"],
+    explanation:
+      "Your answer shows basic awareness of React but lacks a structured debugging workflow and concrete optimization techniques for frequent updates.",
+    improvedAnswer:
+      "I would profile the component with React DevTools and Chrome Performance, identify unnecessary re-renders, stabilize props with memo/useMemo/useCallback, split high-frequency state, and validate improvements with before/after captures.",
+    tips: [
+      "Profile first before changing code to find the real bottleneck.",
+      "Isolate websocket-driven stats updates from unrelated UI state.",
+      "Use list virtualization when rendering many live player rows.",
+    ],
   };
 
   it("accepts valid data", () => {

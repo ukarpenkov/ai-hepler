@@ -1,6 +1,15 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 import type { EvaluationResult } from "../types.js";
+import { isParaphrasingQuestion } from "../utils/answer-similarity.js";
+import { getLanguageName } from "../utils/language.js";
+import {
+  buildAntiCheatRules,
+  buildEvaluationPhilosophy,
+  buildEvaluatorLanguageRule,
+  buildEvaluatorPersona,
+  buildScoringRubric,
+} from "../utils/evaluation-prompts.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
@@ -23,6 +32,67 @@ const evaluateAnswerParams = z.object({
   jobProfile: jobProfileSchema.describe("The parsed job profile"),
 });
 
+function buildParaphrasingEvaluation(language: string): EvaluationResult {
+  const copy = {
+    en: {
+      strengths: [] as string[],
+      weaknesses: [
+        "The answer repeats the question without adding your own reasoning, steps, or experience.",
+        "On a real interview, interviewers expect you to engage with the problem — even a partial attempt is better than copying the prompt.",
+      ],
+      recommendation:
+        "This response does not count as an answer yet. Don't copy the question — explain how you would think through it, what you know, and what you would clarify first. Honest partial reasoning is always better than an empty copy.",
+      perfectAnswerSummary:
+        "A strong answer walks through your approach in your own words: concrete steps, tradeoffs, tools, and at least one realistic example or past experience.",
+    },
+    ru: {
+      strengths: [] as string[],
+      weaknesses: [
+        "Ответ повторяет вопрос без собственных рассуждений, шагов или опыта.",
+        "На реальном собеседовании ожидают попытку разобраться в задаче — даже частичный ответ лучше, чем копия формулировки вопроса.",
+      ],
+      recommendation:
+        "Это пока не ответ. Не копируйте вопрос — опишите, как бы вы подошли к задаче, что знаете точно и что уточнили бы в первую очередь. Честная попытка рассуждать всегда лучше пустой копии.",
+      perfectAnswerSummary:
+        "Сильный ответ своими словами проходит по шагам: конкретные действия, компромиссы, инструменты и хотя бы один реалистичный пример или опыт.",
+    },
+  };
+
+  const text = copy[language as keyof typeof copy] ?? copy.en;
+
+  return {
+    score: 1,
+    accuracy: 0,
+    depth: 0,
+    relevance: 0,
+    examples: 0,
+    strengths: text.strengths,
+    weaknesses: text.weaknesses,
+    recommendation: text.recommendation,
+    antiCheatFlags: ["paraphrasing_question"],
+    perfectAnswerSummary: text.perfectAnswerSummary,
+  };
+}
+
+function enforceAntiCheat(
+  question: string,
+  answer: string,
+  language: string,
+  result: EvaluationResult,
+): EvaluationResult {
+  if (!isParaphrasingQuestion(question, answer)) {
+    return result;
+  }
+
+  const fallback = buildParaphrasingEvaluation(language);
+  return {
+    ...fallback,
+    recommendation: result.antiCheatFlags.includes("paraphrasing_question")
+      ? result.recommendation
+      : fallback.recommendation,
+  };
+}
+
 async function executeEvaluateAnswer(
   params: z.infer<typeof evaluateAnswerParams>,
 ): Promise<EvaluationResult> {
@@ -38,53 +108,27 @@ async function executeEvaluateAnswer(
 
   const { question, answer, jobProfile } = params;
 
-  const langNames: Record<string, string> = {
-    ru: "Russian",
-    de: "German",
-    fr: "French",
-    es: "Spanish",
-    zh: "Chinese",
-  };
-  const langName = langNames[jobProfile.language] || "English";
+  if (isParaphrasingQuestion(question, answer)) {
+    return buildParaphrasingEvaluation(jobProfile.language);
+  }
 
-  const systemPrompt = `You are a strict technical interviewer and evaluator for a ${jobProfile.level} ${jobProfile.role} position. You must evaluate candidate answers ruthlessly and honestly. Your goal is to identify real competence, not just fluent-sounding text.
+  const langName = getLanguageName(jobProfile.language);
 
-LANGUAGE: The job description and interview are in ${langName}. You MUST output all evaluation fields (strengths, weaknesses, recommendation, perfectAnswerSummary) in ${langName}.
+  const systemPrompt = `${buildEvaluatorPersona(jobProfile)}
 
-CRITICAL ANTI-CHEAT RULES:
-- If the answer merely paraphrases or echoes the question without adding original content, this is CHEATING — score it 1-2 and flag "paraphrasing_question". When flagged, the recommendation MUST explain that paraphrasing the question is not a valid answer and the candidate should provide original content.
-- If the answer copy-pastes the question text or rephrases it without adding any substance, score it 1 and flag "paraphrasing_question". When "paraphrasing_question" is flagged, the recommendation MUST explicitly state that copying or paraphrasing the question is unacceptable and not a real answer — e.g. "Copying the question is not an answer. On a real interview this would be an immediate rejection. Answer honestly even if you don't know everything."
-- If the answer uses buzzwords without demonstrating understanding (e.g. says "use microservices" without explaining why/how), flag "buzzwords_without_substance".
-- If the answer consists of generic platitudes (e.g. "it depends", "I would use best practices", "follow SOLID principles") without any specifics or concrete reasoning, flag "generic_answer".
-- If the answer shows no original thought, personal experience, or independent reasoning, flag "no_original_thought".
-- If the answer is about a completely different topic than the question asked, flag "off_topic".
-- You MUST check: does the answer actually address the specific question asked, or is it a word-salad of adjacent keywords?
+${buildEvaluatorLanguageRule(jobProfile.language)}
 
-SCORING RUBRIC (total 0-10 points):
+${buildEvaluationPhilosophy()}
 
-Dimension 1 — Technical Accuracy (0-3 points):
-- 3: All technical claims are correct, precise, and use terminology properly
-- 2: Mostly correct, minor imprecisions or oversimplifications
-- 1: Contains factual errors, misconceptions, or outdated information
-- 0: Fundamentally wrong, no technical content, or the answer is just paraphrasing the question
+${buildAntiCheatRules()}
 
-Dimension 2 — Depth of Understanding (0-3 points):
-- 3: Shows deep understanding beyond surface level — explains WHY not just WHAT, discusses tradeoffs, edge cases, or underlying principles
-- 2: Adequate understanding, some depth but could go further — covers the basics competently
-- 1: Shallow/superficial explanation — only surface-level knowledge, textbook definitions without insight
-- 0: No demonstration of real understanding — pure keyword matching or question paraphrasing
+${buildScoringRubric()}
 
-Dimension 3 — Relevance & Specificity (0-2 points):
-- 2: Answer is directly and fully relevant with specific, concrete details tied to the question
-- 1: Partially relevant, somewhat vague, or partially off-topic
-- 0: Off-topic, generic platitudes with no connection to the question, or just rephrases the question
-
-Dimension 4 — Examples & Application (0-2 points):
-- 2: Provides concrete, realistic examples or practical applications that demonstrate hands-on experience
-- 1: Mentions examples but they are vague, hypothetical, or textbook-sourced without elaboration
-- 0: No examples at all, or examples are fabricated/generic (e.g. "we used microservices to scale")
-
-The total score is the sum of the four dimension scores.`;
+OUTPUT QUALITY:
+- strengths: 1-3 specific observations about what the candidate did well (effort, insight, experience, honest reasoning). Empty only for blank copies.
+- weaknesses: 1-3 constructive gaps — what was missing or imprecise, without being dismissive.
+- recommendation: 2-4 sentences in a warm but professional HR + expert tone. Acknowledge effort when present. Say whether this answer would move them forward at ${jobProfile.level} level and what to improve next.
+- perfectAnswerSummary: one sentence describing what an excellent answer would cover for THIS question.`;
 
   const userPrompt = `Job context: ${jobProfile.role} (${jobProfile.level}), domain: ${jobProfile.domain}.
 Required skills: ${jobProfile.skills.join(", ")}.
@@ -96,7 +140,7 @@ ${question}
 CANDIDATE ANSWER:
 ${answer}
 
-Evaluate the answer strictly according to the rubric. Return ONLY valid JSON (no markdown, no explanation outside the JSON):
+Evaluate the answer using the rubric and philosophy above. Be generous with effort and honest reasoning; be strict only with empty copies and hollow fluff. Return ONLY valid JSON (no markdown, no explanation outside the JSON):
 {
   "score": <number 1-10, sum of the four dimension scores>,
   "accuracy": <number 0-3>,
@@ -105,7 +149,7 @@ Evaluate the answer strictly according to the rubric. Return ONLY valid JSON (no
   "examples": <number 0-2>,
   "strengths": [<string>, ...],
   "weaknesses": [<string>, ...],
-  "recommendation": "<string: 1-2 sentences evaluating the candidate for this position based on this answer>",
+  "recommendation": "<string: 2-4 sentences of human, expert HR-style feedback in ${langName}>",
   "antiCheatFlags": [<string>, ...],
   "perfectAnswerSummary": "<string: one sentence describing what a strong (8-10/10) answer would contain>"
 }`;
@@ -122,6 +166,7 @@ Evaluate the answer strictly according to the rubric. Return ONLY valid JSON (no
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
+      response_format: { type: "json_object" },
     }),
   });
 
@@ -179,7 +224,7 @@ Evaluate the answer strictly according to the rubric. Return ONLY valid JSON (no
   const clampDimension = (v: number, max: number) =>
     Math.round(Math.max(0, Math.min(max, v)));
 
-  return {
+  return enforceAntiCheat(question, answer, jobProfile.language, {
     score,
     accuracy: clampDimension(parsed.accuracy, 3),
     depth: clampDimension(parsed.depth, 3),
@@ -190,7 +235,7 @@ Evaluate the answer strictly according to the rubric. Return ONLY valid JSON (no
     recommendation: parsed.recommendation,
     antiCheatFlags: parsed.antiCheatFlags,
     perfectAnswerSummary: parsed.perfectAnswerSummary,
-  };
+  });
 }
 
 export const evaluateAnswerTool = new FunctionTool({

@@ -4,6 +4,15 @@ import { jobParserRunner } from "../../adk/runner.js";
 import { isValidJobText } from "../../utils/validators.js";
 import { sanitizeJobText } from "../../utils/sanitize.js";
 import { sanitizeInput, InputValidationError } from "../../security/sanitizer.js";
+import { mergeAgentOutput } from "../../adk/utils/extract-output.js";
+
+function isValidParsedJob(value: Record<string, unknown>): boolean {
+  return (
+    typeof value.role === "string" &&
+    typeof value.level === "string" &&
+    Array.isArray(value.skills)
+  );
+}
 
 export async function jobRoutes(app: FastifyInstance) {
   app.post("/job/parse", async (request, reply) => {
@@ -26,23 +35,21 @@ export async function jobRoutes(app: FastifyInstance) {
     const userId = randomUUID();
     let parsedJob: Record<string, unknown> = {};
 
-    for await (const event of jobParserRunner.runEphemeral({
-      userId,
-      newMessage: { parts: [{ text: sanitized }] },
-    })) {
-      const delta = event.actions?.stateDelta;
-      if (delta && "parsedJob" in delta) {
-        parsedJob = delta.parsedJob as Record<string, unknown>;
+    try {
+      for await (const event of jobParserRunner.runEphemeral({
+        userId,
+        newMessage: { parts: [{ text: sanitized }] },
+      })) {
+        parsedJob = mergeAgentOutput(parsedJob, event, "parsedJob", isValidParsedJob);
       }
+    } catch (e) {
+      request.log.error(e, "parseJob failed");
+      return reply.status(500).send({ error: "Failed to parse job description. Please try again." });
+    }
 
-      for (const part of event.content?.parts || []) {
-        if (part.functionResponse?.response) {
-          const resp = part.functionResponse.response as Record<string, unknown>;
-          if (resp.role && resp.level) {
-            parsedJob = resp;
-          }
-        }
-      }
+    if (!isValidParsedJob(parsedJob)) {
+      request.log.error({ parsedJob }, "parseJob returned invalid profile");
+      return reply.status(500).send({ error: "Failed to parse job description. Please try again." });
     }
 
     return { jobProfile: parsedJob };

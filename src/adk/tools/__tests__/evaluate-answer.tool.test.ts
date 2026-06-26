@@ -31,6 +31,86 @@ describe("evaluateAnswerTool", () => {
     );
   });
 
+  it("returns score 1 without calling LLM when answer copies the question", async () => {
+    const question = "Explain how you would design a URL shortening service with scaling in mind.";
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await evaluateAnswerTool.runAsync({
+      args: {
+        question,
+        answer: question,
+        jobProfile: {
+          role: "Backend Developer",
+          level: "middle",
+          skills: ["Node.js"],
+          softSkills: [],
+          keywords: [],
+          domain: "web",
+          language: "en",
+          minYearsExperience: 3,
+        },
+      },
+    } as never);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    const resultObj = result as Record<string, unknown>;
+    expect(resultObj.score).toBe(1);
+    expect(resultObj.antiCheatFlags).toContain("paraphrasing_question");
+  });
+
+  it("calls LLM when answer quotes the question but adds substance", async () => {
+    const question =
+      "Design a URL shortening service like TinyURL. Walk me through your approach, including database schema, API design, and scaling.";
+    const answer = `${question} I would use base62 codes, PostgreSQL for durable storage, Redis for hot redirects, and shard reads as traffic grows.`;
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  score: 6,
+                  accuracy: 2,
+                  depth: 2,
+                  relevance: 1,
+                  examples: 1,
+                  strengths: ["Shows a reasonable architectural direction"],
+                  weaknesses: ["Could expand on API design details"],
+                  recommendation:
+                    "Good effort — you outlined a credible storage and scaling path. To improve, walk through API endpoints and failure modes more explicitly.",
+                  antiCheatFlags: [],
+                  perfectAnswerSummary: "Include API contract, schema, and scaling tradeoffs",
+                }),
+              },
+            },
+          ],
+        }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await evaluateAnswerTool.runAsync({
+      args: {
+        question,
+        answer,
+        jobProfile: {
+          role: "Backend Developer",
+          level: "middle",
+          skills: ["Node.js"],
+          softSkills: [],
+          keywords: [],
+          domain: "web",
+          language: "en",
+          minYearsExperience: 3,
+        },
+      },
+    } as never);
+
+    expect(fetchMock).toHaveBeenCalled();
+    expect((result as Record<string, unknown>).score).toBe(6);
+  });
+
   it("calls LLM API with correct parameters", async () => {
     const mockResponse = {
       choices: [

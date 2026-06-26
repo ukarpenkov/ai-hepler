@@ -1,6 +1,7 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 import type { ParsedJob } from "../types.js";
+import { resolveLanguage } from "../utils/language.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
@@ -23,11 +24,17 @@ async function executeParseJob(
     throw new Error("DEEPSEEK_API_KEY environment variable is required");
   }
 
-  const systemPrompt = `You are a job description analyzer. Extract structured data from the job posting.
+  const systemPrompt = `You are a job description and resume analyzer. Extract structured data from the posting or candidate resume text.
 
-Be precise. Extract exact technology names as they appear. Separate hard/technical skills from soft skills. Note any experience requirements.`;
+Be precise. Extract exact technology names as they appear. Separate hard/technical skills from soft skills. Note any experience requirements.
 
-  const userPrompt = `Analyze this job description. Extract:
+LANGUAGE DETECTION (critical):
+- Detect the language of the INPUT TEXT itself — the language the candidate or employer wrote in.
+- Do NOT infer language from company location, required spoken languages, or tech stack names.
+- If the text is mostly in Russian, language MUST be "ru". Same rule for any other language.
+- Return ISO 639-1 code only (e.g. "en", "ru", "de", "fr", "es", "zh").`;
+
+  const userPrompt = `Analyze this job description or resume text. Extract:
 
 - role: normalized job title (e.g. "Frontend Developer", "Backend Developer", "DevOps Engineer")
 - level: junior | middle | senior (based on required experience, title, and responsibilities)
@@ -35,7 +42,7 @@ Be precise. Extract exact technology names as they appear. Separate hard/technic
 - softSkills: soft skills / interpersonal requirements (e.g. "communication", "team leadership", "agile methodology", "mentoring")
 - keywords: key phrases from the description (e.g. "CI/CD", "microservices", "test-driven development")
 - domain: industry or domain (e.g. fintech, healthcare, e-commerce, web, cloud, gaming, etc.)
-- language: ISO 639-1 code of the language the job description is written in (e.g. "en", "ru", "de", "fr", "es", "zh", etc.)
+- language: ISO 639-1 code of the language this text is written in (e.g. "en", "ru", "de", "fr", "es", "zh", etc.)
 - minYearsExperience: number of years of experience required if explicitly mentioned, null otherwise
 
 Return ONLY valid JSON (no markdown, no explanation outside the JSON):
@@ -105,10 +112,10 @@ ${params.jobText}`;
     throw new Error("Missing required fields in parsed job");
   }
 
-  const language =
-    typeof parsed.language === "string" && parsed.language.length > 0
-      ? parsed.language
-      : "en";
+  const language = resolveLanguage(
+    typeof parsed.language === "string" ? parsed.language : undefined,
+    params.jobText,
+  );
 
   const softSkills: string[] = Array.isArray(parsed.softSkills)
     ? parsed.softSkills.filter(

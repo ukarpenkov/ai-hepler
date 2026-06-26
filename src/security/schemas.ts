@@ -39,9 +39,9 @@ export const EvaluationSchema = z
 
 export const CoachSchema = z
   .object({
-    explanation: z.string().min(1),
-    improvedAnswer: z.string().min(1),
-    tips: z.array(z.string()),
+    explanation: z.string().min(40),
+    improvedAnswer: z.string().min(80),
+    tips: z.array(z.string().min(15)).min(2),
   })
   .strict();
 

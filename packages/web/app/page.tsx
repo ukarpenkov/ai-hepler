@@ -8,6 +8,7 @@ import {
   updateSession,
   listSessions,
   getSession,
+  type SessionRecord,
 } from "@/lib/session-store";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -68,10 +69,14 @@ export default function Home() {
       const { jobProfile } = await parseJob(text);
       const session = await createSession();
       await updateSession(session.id, { jobProfile });
-      const { question } = await startInterview(session.id, {
+      const { question, updatedHistory } = await startInterview(session.id, {
         jobProfile,
         weakSkills: [],
         history: [],
+      });
+      await updateSession(session.id, {
+        jobProfile,
+        history: updatedHistory as SessionRecord["history"],
       });
 
       const params = new URLSearchParams({

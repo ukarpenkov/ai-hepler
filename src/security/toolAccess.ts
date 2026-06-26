@@ -30,5 +30,6 @@ export const defaultGuard = new ToolAccessGuard();
 defaultGuard.registerTool("parseJobDescriptionTool", "system");
 defaultGuard.registerTool("generateQuestionTool", "system");
 defaultGuard.registerTool("evaluateAnswerTool", "system");
+defaultGuard.registerTool("coachAnswerTool", "system");
 defaultGuard.registerTool("updateMemoryTool", "memory");
 defaultGuard.registerTool("fetchWeakTopicsTool", "memory");

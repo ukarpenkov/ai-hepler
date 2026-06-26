@@ -28,6 +28,7 @@ export interface Translations {
   closeChat: string;
   errorPrefix: string;
   unknownError: string;
+  answerTooShort: string;
 }
 
 export const translations: Record<Locale, Translations> = {
@@ -59,6 +60,7 @@ export const translations: Record<Locale, Translations> = {
     closeChat: "Закрыть чат",
     errorPrefix: "Ошибка:",
     unknownError: "Неизвестная ошибка",
+    answerTooShort: "Ответ должен содержать минимум 10 символов.",
   },
   en: {
     newSession: "New session",
@@ -88,5 +90,6 @@ export const translations: Record<Locale, Translations> = {
     closeChat: "Close chat",
     errorPrefix: "Error:",
     unknownError: "Unknown error",
+    answerTooShort: "Answer must be at least 10 characters.",
   },
 };

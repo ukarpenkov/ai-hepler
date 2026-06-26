@@ -20,6 +20,18 @@ const Fastify = (await import("fastify")).default;
 const { interviewerRunner, interviewRunner } = await import("../../adk/runner.js");
 const { interviewRoutes } = await import("../routes/interview.js");
 
+const mockCoachFeedback = {
+  explanation:
+    "Your answer shows basic TypeScript knowledge but could include more depth about structural typing and practical use cases.",
+  improvedAnswer:
+    "TypeScript is a typed superset of JavaScript that adds static types, interfaces, generics, and compile-time checks while compiling to plain JavaScript for runtime execution.",
+  tips: [
+    "Mention how TypeScript catches errors before runtime through the compiler.",
+    "Compare interfaces and type aliases with a concrete example.",
+    "Explain how TypeScript improves maintainability in large codebases.",
+  ],
+};
+
 const mockJobProfile = { role: "Dev", level: "middle" as const, skills: ["TS"], softSkills: [], keywords: [], domain: "web", language: "en", minYearsExperience: null };
 
 function makeEvent(stateDelta: Record<string, unknown>) {
@@ -104,7 +116,7 @@ describe("interview routes", () => {
       async function* mockGenerator() {
         yield makeEvent({
           evaluation: { score: 7, accuracy: 2, depth: 2, relevance: 2, examples: 1, strengths: [], weaknesses: [], recommendation: "", antiCheatFlags: [], perfectAnswerSummary: "good" },
-          coachFeedback: { explanation: "", improvedAnswer: "", tips: [] },
+          coachFeedback: mockCoachFeedback,
           memoryUpdate: { weakSkills: [], answeredTopics: [] },
           currentQuestion: { question: "Q2?", topic: "React", difficulty: "easy", questionType: "theoretical_explanation", expectedAnswerCriteria: [] },
         });

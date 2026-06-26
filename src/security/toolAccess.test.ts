@@ -9,6 +9,7 @@ describe("ToolAccessGuard", () => {
     guard.registerTool("parseJobDescriptionTool", "system");
     guard.registerTool("generateQuestionTool", "system");
     guard.registerTool("evaluateAnswerTool", "system");
+    guard.registerTool("coachAnswerTool", "system");
     guard.registerTool("updateMemoryTool", "memory");
     guard.registerTool("fetchWeakTopicsTool", "memory");
   });
@@ -57,10 +58,11 @@ describe("defaultGuard", () => {
     expect(defaultGuard).toBeInstanceOf(ToolAccessGuard);
   });
 
-  it("has all 5 tools registered", () => {
+  it("has all 6 tools registered", () => {
     expect(defaultGuard.hasTool("parseJobDescriptionTool")).toBe(true);
     expect(defaultGuard.hasTool("generateQuestionTool")).toBe(true);
     expect(defaultGuard.hasTool("evaluateAnswerTool")).toBe(true);
+    expect(defaultGuard.hasTool("coachAnswerTool")).toBe(true);
     expect(defaultGuard.hasTool("updateMemoryTool")).toBe(true);
     expect(defaultGuard.hasTool("fetchWeakTopicsTool")).toBe(true);
   });

@@ -152,6 +152,22 @@ function declarationsToOpenAITools(declarations: FunctionDeclaration[]): OpenAIT
     }));
 }
 
+function mapRoleToOpenAI(role?: string): OpenAIMessage["role"] {
+  if (role === "model" || role === "assistant") return "assistant";
+  if (role === "system") return "system";
+  if (role === "tool") return "tool";
+  return "user";
+}
+
+function parseToolArguments(raw: string): Record<string, unknown> {
+  if (!raw.trim()) return {};
+  try {
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
 export class DeepSeekLlm extends BaseLlm {
   private apiKey: string;
   private baseUrl: string;
@@ -172,9 +188,9 @@ export class DeepSeekLlm extends BaseLlm {
     const tools = this.extractTools(llmRequest);
 
     if (stream) {
-      yield* this.streamResponse(messages, model, tools);
+      yield* this.streamResponse(messages, model, tools, llmRequest);
     } else {
-      yield* this.nonStreamingResponse(messages, model, tools);
+      yield* this.nonStreamingResponse(messages, model, tools, llmRequest);
     }
   }
 
@@ -226,7 +242,7 @@ export class DeepSeekLlm extends BaseLlm {
 
       if (textParts.length > 0 && functionCalls.length === 0) {
         messages.push({
-          role: (content.role || "user") as "user" | "assistant" | "system" | "tool",
+          role: mapRoleToOpenAI(content.role),
           content: textParts.join("\n"),
         });
       }
@@ -285,11 +301,12 @@ export class DeepSeekLlm extends BaseLlm {
     return "";
   }
 
-  private async *nonStreamingResponse(
+  private buildRequestBody(
     messages: OpenAIMessage[],
     model: string,
     tools: OpenAIToolDefinition[],
-  ): AsyncGenerator<LlmResponse, void> {
+    llmRequest: LlmRequest,
+  ): Record<string, unknown> {
     const body: Record<string, unknown> = {
       model,
       messages,
@@ -298,7 +315,35 @@ export class DeepSeekLlm extends BaseLlm {
 
     if (tools.length > 0) {
       body.tools = tools;
+
+      const mode = llmRequest.config?.toolConfig?.functionCallingConfig?.mode;
+      const allowedNames =
+        llmRequest.config?.toolConfig?.functionCallingConfig?.allowedFunctionNames;
+
+      if (mode === "ANY" && allowedNames?.length === 1) {
+        body.tool_choice = {
+          type: "function",
+          function: { name: allowedNames[0] },
+        };
+      } else if (mode === "ANY") {
+        body.tool_choice = "required";
+      }
     }
+
+    if (llmRequest.config?.responseMimeType === "application/json") {
+      body.response_format = { type: "json_object" };
+    }
+
+    return body;
+  }
+
+  private async *nonStreamingResponse(
+    messages: OpenAIMessage[],
+    model: string,
+    tools: OpenAIToolDefinition[],
+    llmRequest: LlmRequest,
+  ): AsyncGenerator<LlmResponse, void> {
+    const body = this.buildRequestBody(messages, model, tools, llmRequest);
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
@@ -333,7 +378,7 @@ export class DeepSeekLlm extends BaseLlm {
         functionCall: {
           id: tc.id,
           name: tc.function.name,
-          args: JSON.parse(tc.function.arguments),
+          args: parseToolArguments(tc.function.arguments),
         },
       }));
 
@@ -363,16 +408,12 @@ export class DeepSeekLlm extends BaseLlm {
     messages: OpenAIMessage[],
     model: string,
     tools: OpenAIToolDefinition[],
+    llmRequest: LlmRequest,
   ): AsyncGenerator<LlmResponse, void> {
-    const body: Record<string, unknown> = {
-      model,
-      messages,
+    const body = {
+      ...this.buildRequestBody(messages, model, tools, llmRequest),
       stream: true,
     };
-
-    if (tools.length > 0) {
-      body.tools = tools;
-    }
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
@@ -464,7 +505,7 @@ export class DeepSeekLlm extends BaseLlm {
                   functionCall: {
                     id: tc.id,
                     name: tc.function.name,
-                    args: JSON.parse(tc.function.arguments),
+                    args: parseToolArguments(tc.function.arguments),
                   },
                 }));
 

@@ -58,6 +58,23 @@ function buildInitialFeedbacks(stored?: StoredFeedbackData[]): FeedbackData[] {
   return [];
 }
 
+function buildHistoryForAnswer(
+  history: SessionRecord["history"],
+  initialQuestion: QuestionResult,
+): SessionRecord["history"] {
+  if (history.length > 0) {
+    return history;
+  }
+
+  return [
+    {
+      role: "assistant",
+      content: JSON.stringify(initialQuestion),
+      timestamp: new Date().toISOString(),
+    },
+  ];
+}
+
 export default function ChatWindow({
   sessionId,
   initialQuestion,
@@ -72,10 +89,10 @@ export default function ChatWindow({
   );
 
   useEffect(() => {
-    if (sessionData) {
+    if (sessionData?.jobProfile && !currentSessionData?.jobProfile) {
       setCurrentSessionData(sessionData);
     }
-  }, [sessionData]);
+  }, [sessionData, currentSessionData?.jobProfile]);
 
   useEffect(() => {
     if (storedChatMessages && storedChatMessages.length > 0) {
@@ -106,6 +123,7 @@ export default function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const sendingRef = useRef(false);
   const [inputThumbStyle, setInputThumbStyle] = useState<{ top: number; height: number } | null>(null);
   const inputDragging = useRef(false);
   const inputDragStartY = useRef(0);
@@ -146,17 +164,30 @@ export default function ChatWindow({
 
   const handleSend = useCallback(async () => {
     const answer = currentInput.trim();
-    if (!answer || isLoading || isFinished || !currentSessionData?.jobProfile) return;
+    if (!answer || isLoading || isFinished || !currentSessionData?.jobProfile || sendingRef.current) {
+      return;
+    }
 
+    if (answer.length < 10) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: `${t.errorPrefix} ${t.answerTooShort}` },
+      ]);
+      return;
+    }
+
+    sendingRef.current = true;
     setCurrentInput("");
     setMessages((prev) => [...prev, { role: "user", content: answer }]);
     setIsLoading(true);
 
+    const history = buildHistoryForAnswer(currentSessionData.history, initialQuestion);
+
     try {
       const response = await sendAnswer(sessionId, answer, {
-        jobProfile: currentSessionData!.jobProfile!,
-        weakSkills: currentSessionData!.weakSkills,
-        history: currentSessionData!.history,
+        jobProfile: currentSessionData.jobProfile,
+        weakSkills: currentSessionData.weakSkills,
+        history,
       });
 
       const nextCount = questionCount + 1;
@@ -219,8 +250,9 @@ export default function ChatWindow({
       ]);
     } finally {
       setIsLoading(false);
+      sendingRef.current = false;
     }
-  }, [currentInput, isLoading, isFinished, sessionId, questionCount, currentSessionData, allFeedbacks, messages, t.errorPrefix, t.unknownError]);
+  }, [currentInput, isLoading, isFinished, sessionId, questionCount, currentSessionData, allFeedbacks, messages, initialQuestion, t.errorPrefix, t.unknownError, t.answerTooShort]);
 
   const summaryFeedbacks: QuestionFeedback[] = allFeedbacks.map((fb) => ({
     number: fb.questionNum,
@@ -287,7 +319,7 @@ export default function ChatWindow({
                 requestAnimationFrame(() => updateInputThumb());
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey && !isLoading && !isFinished) {
                   e.preventDefault();
                   handleSend();
                 }

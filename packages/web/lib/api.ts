@@ -26,7 +26,7 @@ export function parseJob(text: string): Promise<{ sessionId: string; jobProfile:
 export function startInterview(
   sessionId: string,
   sessionData: { jobProfile: ParsedJob; weakSkills: string[]; history: Array<{ role: string; content: string }> }
-): Promise<{ question: QuestionResult }> {
+): Promise<{ question: QuestionResult; updatedHistory: Array<{ role: string; content: string; timestamp: string }> }> {
   return request("/interview/start", {
     method: "POST",
     body: JSON.stringify({ sessionId, jobProfile: sessionData.jobProfile, weakSkills: sessionData.weakSkills, history: sessionData.history }),

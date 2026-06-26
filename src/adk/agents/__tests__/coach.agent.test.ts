@@ -20,4 +20,9 @@ describe("coachAgent", () => {
   it("has correct outputKey", () => {
     expect(coachAgent.outputKey).toBe("coachFeedback");
   });
+
+  it("has coachAnswerTool in tools", () => {
+    const tools = coachAgent.tools || [];
+    expect(tools.length).toBeGreaterThan(0);
+  });
 });

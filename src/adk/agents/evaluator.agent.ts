@@ -1,27 +1,55 @@
-import { LlmAgent } from "@google/adk";
+import { LlmAgent, type LlmResponse } from "@google/adk";
+import { z } from "zod";
 import { evaluateAnswerTool } from "../tools/evaluate-answer.tool.js";
 import { llm } from "../llm.js";
+import {
+  forcedToolCall,
+  getFunctionResponse,
+  getLastUserText,
+  readStateRecord,
+  toolResultAsModelResponse,
+} from "../utils/llm-request-helpers.js";
+
+const evaluationResultSchema = z.object({
+  score: z.number(),
+  accuracy: z.number(),
+  depth: z.number(),
+  relevance: z.number(),
+  examples: z.number(),
+  strengths: z.array(z.string()),
+  weaknesses: z.array(z.string()),
+  recommendation: z.string(),
+  antiCheatFlags: z.array(z.string()),
+  perfectAnswerSummary: z.string(),
+});
 
 export const evaluatorAgent = new LlmAgent({
   name: "EvaluatorAgent",
   model: llm,
   description:
     "Evaluates interview answers and provides detailed feedback with scores",
-  instruction: `You are an expert technical evaluator. Evaluate the candidate's answer to the interview question.
-
-Use the evaluateAnswer tool with:
-- question: the current interview question
-- answer: the user's answer
-- jobProfile: the parsed job profile
-
-Provide a comprehensive evaluation including:
-- Overall score (0-10)
-- Accuracy, depth, relevance, examples scores
-- Strengths and weaknesses
-- Recommendation
-- Perfect answer summary
-
-Be fair but thorough in your evaluation.`,
+  instruction: `You evaluate the candidate's answer to the interview question using the evaluateAnswer tool, then return the tool result as structured output.`,
   tools: [evaluateAnswerTool],
   outputKey: "evaluation",
+  outputSchema: evaluationResultSchema,
+  disallowTransferToParent: true,
+  disallowTransferToPeers: true,
+  beforeModelCallback: ({ request, context }): LlmResponse | undefined => {
+    const toolResult = getFunctionResponse(request, "evaluateAnswer");
+    if (toolResult) {
+      return toolResultAsModelResponse(toolResult);
+    }
+
+    const state = readStateRecord(context.state);
+    const currentQuestion = state.currentQuestion as { question?: string } | undefined;
+    const question = state.question ?? currentQuestion?.question;
+    const answer = state.answer ?? getLastUserText(request);
+    const jobProfile = state.jobProfile;
+
+    if (!question || !answer || !jobProfile) {
+      return undefined;
+    }
+
+    return forcedToolCall("evaluateAnswer", { question, answer, jobProfile });
+  },
 });

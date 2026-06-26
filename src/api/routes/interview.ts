@@ -4,6 +4,36 @@ import type { InterviewMessage } from "../../storage/session-store.js";
 import { interviewerRunner, interviewRunner } from "../../adk/runner.js";
 import { isValidSessionId, isValidAnswer } from "../../utils/validators.js";
 import { sanitizeInput, InputValidationError } from "../../security/sanitizer.js";
+import { mergeAgentOutput } from "../../adk/utils/extract-output.js";
+import { extractPreviousQuestions } from "../../adk/utils/llm-request-helpers.js";
+
+function previousQuestionsFromHistory(history: InterviewMessage[]): string[] {
+  return extractPreviousQuestions({ history });
+}
+
+function isValidQuestion(value: Record<string, unknown>): boolean {
+  return typeof value.question === "string" && typeof value.topic === "string";
+}
+
+function isValidEvaluation(value: Record<string, unknown>): boolean {
+  return typeof value.score === "number";
+}
+
+function isValidCoach(value: Record<string, unknown>): boolean {
+  return (
+    typeof value.explanation === "string" &&
+    value.explanation.length >= 40 &&
+    typeof value.improvedAnswer === "string" &&
+    value.improvedAnswer.length >= 80 &&
+    Array.isArray(value.tips) &&
+    value.tips.length >= 2 &&
+    value.tips.every((tip) => typeof tip === "string" && tip.length >= 15)
+  );
+}
+
+function isValidMemoryUpdate(value: Record<string, unknown>): boolean {
+  return Array.isArray(value.weakSkills) && Array.isArray(value.answeredTopics);
+}
 
 export async function interviewRoutes(app: FastifyInstance) {
   app.post("/interview/start", async (request, reply) => {
@@ -32,18 +62,25 @@ export async function interviewRoutes(app: FastifyInstance) {
         stateDelta: {
           jobProfile: body.jobProfile,
           weakSkills: body.weakSkills ?? [],
-          previousQuestions: (body.history ?? []).map((m) => m.content),
+          previousQuestions: previousQuestionsFromHistory(body.history ?? []),
         },
       })) {
-        const delta = event.actions?.stateDelta;
-        if (delta && "currentQuestion" in delta) {
-          currentQuestion = delta.currentQuestion as Record<string, unknown>;
-          updatedHistory = [
-            ...updatedHistory,
-            { role: "assistant", content: JSON.stringify(currentQuestion), timestamp: new Date().toISOString() },
-          ];
-        }
+        currentQuestion = mergeAgentOutput(currentQuestion, event, "currentQuestion", isValidQuestion);
       }
+
+      if (!isValidQuestion(currentQuestion)) {
+        request.log.error({ currentQuestion }, "startInterview returned invalid question");
+        return reply.status(500).send({ error: "Failed to start interview. Please try again." });
+      }
+
+      updatedHistory = [
+        ...updatedHistory,
+        {
+          role: "assistant",
+          content: JSON.stringify(currentQuestion),
+          timestamp: new Date().toISOString(),
+        },
+      ];
 
       return { question: currentQuestion, updatedHistory };
     } catch (e) {
@@ -88,7 +125,15 @@ export async function interviewRoutes(app: FastifyInstance) {
     try {
       const history = body.sessionData.history ?? [];
       const lastAssistant = history.filter((m) => m.role === "assistant").pop();
-      const currentQuestion = lastAssistant ? JSON.parse(lastAssistant.content) : { question: "", topic: "", difficulty: "easy", questionType: "theoretical_explanation", expectedAnswerCriteria: [] };
+      const currentQuestion = lastAssistant
+        ? JSON.parse(lastAssistant.content)
+        : {
+            question: "",
+            topic: "",
+            difficulty: "easy",
+            questionType: "theoretical_explanation",
+            expectedAnswerCriteria: [],
+          };
 
       let evaluation: Record<string, unknown> = {};
       let coachFeedback: Record<string, unknown> = {};
@@ -103,29 +148,25 @@ export async function interviewRoutes(app: FastifyInstance) {
           jobProfile: body.sessionData.jobProfile,
           weakSkills: body.sessionData.weakSkills ?? [],
           history,
+          previousQuestions: previousQuestionsFromHistory(history),
           question: currentQuestion.question,
           answer: sanitized,
           currentQuestion,
         },
       })) {
-        const delta = event.actions?.stateDelta;
-        if (!delta) continue;
+        evaluation = mergeAgentOutput(evaluation, event, "evaluation", isValidEvaluation);
+        coachFeedback = mergeAgentOutput(coachFeedback, event, "coachFeedback", isValidCoach);
+        memoryUpdate = mergeAgentOutput(memoryUpdate, event, "memoryUpdate", isValidMemoryUpdate);
+        nextQuestion = mergeAgentOutput(nextQuestion, event, "currentQuestion", isValidQuestion);
 
-        if ("evaluation" in delta) {
-          evaluation = delta.evaluation as Record<string, unknown>;
+        if (Array.isArray(memoryUpdate.weakSkills)) {
+          updatedWeakSkills = memoryUpdate.weakSkills as string[];
         }
-        if ("coachFeedback" in delta) {
-          coachFeedback = delta.coachFeedback as Record<string, unknown>;
-        }
-        if ("memoryUpdate" in delta) {
-          memoryUpdate = delta.memoryUpdate as Record<string, unknown>;
-          if (memoryUpdate.weakSkills) {
-            updatedWeakSkills = memoryUpdate.weakSkills as string[];
-          }
-        }
-        if ("currentQuestion" in delta) {
-          nextQuestion = delta.currentQuestion as Record<string, unknown>;
-        }
+      }
+
+      if (!isValidEvaluation(evaluation) || !isValidCoach(coachFeedback) || !isValidQuestion(nextQuestion)) {
+        request.log.error({ evaluation, coachFeedback, nextQuestion }, "processAnswer incomplete pipeline result");
+        return reply.status(500).send({ error: "Failed to process answer. Please try again." });
       }
 
       const updatedHistory: InterviewMessage[] = [

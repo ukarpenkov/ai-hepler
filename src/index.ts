@@ -9,6 +9,7 @@ import { jobParserRunner, interviewRunner, sessionService } from "./adk/runner.j
 import { parseJobTool } from "./adk/tools/parse-job.tool.js";
 import { generateQuestionTool } from "./adk/tools/generate-question.tool.js";
 import { evaluateAnswerTool } from "./adk/tools/evaluate-answer.tool.js";
+import { coachAnswerTool } from "./adk/tools/coach-answer.tool.js";
 import { updateMemoryTool } from "./adk/tools/update-memory.tool.js";
 import { fetchWeakTopicsTool } from "./adk/tools/fetch-weak-topics.tool.js";
 
@@ -33,6 +34,7 @@ export {
   parseJobTool,
   generateQuestionTool,
   evaluateAnswerTool,
+  coachAnswerTool,
   updateMemoryTool,
   fetchWeakTopicsTool,
   createRedisClient,

@@ -1,6 +1,11 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 import type { QuestionResult } from "../types.js";
+import {
+  getLanguageName,
+  normalizeLanguageCode,
+  questionMatchesLanguage,
+} from "../utils/language.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
@@ -31,37 +36,31 @@ const generateQuestionParams = z.object({
   previousQuestions: z.array(z.string()).describe("Questions already asked"),
 });
 
-async function executeGenerateQuestion(
-  params: z.infer<typeof generateQuestionParams>,
-): Promise<QuestionResult> {
-  const config = {
-    apiKey: process.env.DEEPSEEK_API_KEY || "",
-    baseUrl: process.env.LLM_BASE_URL || "https://api.deepseek.com",
-    model: process.env.LLM_MODEL || "deepseek-chat",
-  };
+interface LlmConfig {
+  apiKey: string;
+  baseUrl: string;
+  model: string;
+}
 
-  if (!config.apiKey) {
-    throw new Error("DEEPSEEK_API_KEY environment variable is required");
-  }
-
-  const { jobProfile, weakSkills, previousQuestions } = params;
-
+function buildPrompts(
+  jobProfile: z.infer<typeof jobProfileSchema>,
+  weakSkills: string[],
+  previousQuestions: string[],
+  strictLanguageRetry: boolean,
+) {
   const weakText = weakSkills.length > 0 ? weakSkills.join(", ") : "none";
   const previousText =
     previousQuestions.length > 0 ? previousQuestions.join("; ") : "none";
+  const languageCode = normalizeLanguageCode(jobProfile.language);
+  const langName = getLanguageName(languageCode);
 
-  const langNames: Record<string, string> = {
-    ru: "Russian",
-    de: "German",
-    fr: "French",
-    es: "Spanish",
-    zh: "Chinese",
-  };
-  const langName = langNames[jobProfile.language] || "English";
+  const languageRule = strictLanguageRetry
+    ? `CRITICAL: Your previous attempt used the wrong language. You MUST write question, topic, and every expectedAnswerCriteria entry ONLY in ${langName} (${languageCode}). Do NOT use English or any other language.`
+    : `CRITICAL LANGUAGE RULE: The interview language is ${langName} (${languageCode}). You MUST write question, topic, and every expectedAnswerCriteria entry ONLY in ${langName}. Never switch to English or another language. Tech terms may stay in Latin script when commonly used (React, API, Docker), but the sentence structure and wording must be ${langName}.`;
 
   const systemPrompt = `You are a seasoned technical interviewer at a top tech company. You conduct interviews for ${jobProfile.level} ${jobProfile.role} positions. Your questions should be challenging, relevant, and reveal true competence — not just memorized answers.
 
-LANGUAGE: The job description is in ${langName}. You MUST generate the question, topic, and expectedAnswerCriteria in ${langName}.
+${languageRule}
 
 QUESTION DESIGN PRINCIPLES:
 1. Ask questions that require THINKING, not recall. Avoid "What is X?" — prefer "When would you use X over Y?" or "How would you design a system for..."
@@ -81,20 +80,29 @@ AVOID:
 - Questions that have already been asked: ${previousText}`;
 
   const userPrompt = `Position: ${jobProfile.role} (${jobProfile.level})
+Interview language: ${langName} (${languageCode})
 Domain: ${jobProfile.domain}
 Tech stack / required skills: ${jobProfile.skills.join(", ")}
 Keywords from job description: ${jobProfile.keywords.join(", ")}
 Weak areas of candidate (focus on these): ${weakText}
 
-Generate ONE interview question. Vary the question type from previous rounds. Return ONLY valid JSON (no markdown, no explanation outside the JSON):
+Generate ONE interview question in ${langName}. Vary the question type from previous rounds. Return ONLY valid JSON (no markdown, no explanation outside the JSON):
 {
-  "question": "<string: the question text>",
-  "topic": "<string: specific topic/skill this question tests>",
+  "question": "<string: the question text in ${langName}>",
+  "topic": "<string: specific topic/skill this question tests, in ${langName}>",
   "difficulty": "easy"|"medium"|"hard",
   "questionType": "theoretical_explanation"|"practical_implementation"|"system_design"|"debugging_scenario"|"behavioral_experience",
-  "expectedAnswerCriteria": ["<string: specific point a good answer must include>", ...]
+  "expectedAnswerCriteria": ["<string: specific point in ${langName}>", ...]
 }`;
 
+  return { systemPrompt, userPrompt, languageCode };
+}
+
+async function callQuestionLlm(
+  config: LlmConfig,
+  systemPrompt: string,
+  userPrompt: string,
+): Promise<string> {
   const response = await fetch(`${config.baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
@@ -107,6 +115,7 @@ Generate ONE interview question. Vary the question type from previous rounds. Re
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
+      response_format: { type: "json_object" },
     }),
   });
 
@@ -121,6 +130,10 @@ Generate ONE interview question. Vary the question type from previous rounds. Re
     throw new Error("No content in LLM response");
   }
 
+  return content;
+}
+
+function parseQuestionResult(content: string): QuestionResult {
   let parsed: Record<string, unknown>;
   try {
     parsed = JSON.parse(content);
@@ -162,8 +175,45 @@ Generate ONE interview question. Vary the question type from previous rounds. Re
     topic: parsed.topic,
     difficulty,
     questionType,
-    expectedAnswerCriteria: parsed.expectedAnswerCriteria,
+    expectedAnswerCriteria: parsed.expectedAnswerCriteria.filter(
+      (item): item is string => typeof item === "string",
+    ),
   };
+}
+
+async function executeGenerateQuestion(
+  params: z.infer<typeof generateQuestionParams>,
+): Promise<QuestionResult> {
+  const config = {
+    apiKey: process.env.DEEPSEEK_API_KEY || "",
+    baseUrl: process.env.LLM_BASE_URL || "https://api.deepseek.com",
+    model: process.env.LLM_MODEL || "deepseek-chat",
+  };
+
+  if (!config.apiKey) {
+    throw new Error("DEEPSEEK_API_KEY environment variable is required");
+  }
+
+  const { jobProfile, weakSkills, previousQuestions } = params;
+
+  for (const strictLanguageRetry of [false, true]) {
+    const { systemPrompt, userPrompt, languageCode } = buildPrompts(
+      jobProfile,
+      weakSkills,
+      previousQuestions,
+      strictLanguageRetry,
+    );
+    const content = await callQuestionLlm(config, systemPrompt, userPrompt);
+    const result = parseQuestionResult(content);
+
+    if (questionMatchesLanguage(result, languageCode)) {
+      return result;
+    }
+  }
+
+  throw new Error(
+    `Generated question is not in required language: ${jobProfile.language}`,
+  );
 }
 
 export const generateQuestionTool = new FunctionTool({

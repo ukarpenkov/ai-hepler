@@ -109,6 +109,124 @@ describe("generateQuestionTool", () => {
     expect(resultObj.expectedAnswerCriteria).toHaveLength(2);
   });
 
+  it("includes interview language in prompt for Russian job profiles", async () => {
+    const mockResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              question: "Как бы вы оптимизировали React-компонент с частыми обновлениями?",
+              topic: "React",
+              difficulty: "medium",
+              questionType: "debugging_scenario",
+              expectedAnswerCriteria: [
+                "Использование React Profiler",
+                "Мемоизация и разделение state",
+              ],
+            }),
+          },
+        },
+      ],
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      }),
+    );
+
+    await generateQuestionTool.runAsync({
+      args: {
+        jobProfile: {
+          role: "Frontend Developer",
+          level: "middle" as const,
+          skills: ["React", "TypeScript"],
+          softSkills: [],
+          keywords: ["игровая платформа"],
+          domain: "gaming",
+          language: "ru",
+          minYearsExperience: 3,
+        },
+        weakSkills: [],
+        previousQuestions: [],
+      },
+    } as never);
+
+    const body = JSON.parse(
+      (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
+    );
+    expect(body.messages[0].content).toContain("Russian");
+    expect(body.messages[0].content).toContain("(ru)");
+    expect(body.messages[1].content).toContain("Interview language: Russian (ru)");
+  });
+
+  it("retries when first question is in the wrong language", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    question: "How would you optimize a React stats component?",
+                    topic: "React",
+                    difficulty: "medium",
+                    questionType: "debugging_scenario",
+                    expectedAnswerCriteria: ["Use React Profiler"],
+                  }),
+                },
+              },
+            ],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    question: "Как бы вы оптимизировали React-компонент со статистикой?",
+                    topic: "React",
+                    difficulty: "medium",
+                    questionType: "debugging_scenario",
+                    expectedAnswerCriteria: ["Использовать React Profiler"],
+                  }),
+                },
+              },
+            ],
+          }),
+      });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await generateQuestionTool.runAsync({
+      args: {
+        jobProfile: {
+          role: "Frontend Developer",
+          level: "middle" as const,
+          skills: ["React"],
+          softSkills: [],
+          keywords: [],
+          domain: "gaming",
+          language: "ru",
+          minYearsExperience: null,
+        },
+        weakSkills: [],
+        previousQuestions: [],
+      },
+    } as never);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect((result as Record<string, unknown>).question).toContain("Как");
+  });
+
   it("handles invalid JSON response", async () => {
     const mockResponse = {
       choices: [{ message: { content: "This is not valid JSON" } }],
