@@ -62,6 +62,7 @@ export const evaluatorAgent = new LlmAgent({
       question,
       answer,
       jobProfile: resolvedProfile,
+      jobText,
     });
   },
 });

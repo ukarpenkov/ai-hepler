@@ -59,6 +59,7 @@ export const interviewerAgent = new LlmAgent({
       jobProfile: resolvedProfile,
       weakSkills: state.weakSkills ?? [],
       previousQuestions: extractPreviousQuestions(state),
+      jobText,
     });
   },
 });

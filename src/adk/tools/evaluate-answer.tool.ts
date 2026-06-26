@@ -10,6 +10,7 @@ import {
   buildEvaluatorPersona,
   buildScoringRubric,
 } from "../utils/evaluation-prompts.js";
+import { buildEvaluatorVacancyGrounding } from "../utils/interview-prompts.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
@@ -30,6 +31,10 @@ const evaluateAnswerParams = z.object({
   question: z.string().describe("The interview question"),
   answer: z.string().describe("The user's answer"),
   jobProfile: jobProfileSchema.describe("The parsed job profile"),
+  jobText: z
+    .string()
+    .optional()
+    .describe("Original job posting text for vacancy-grounded evaluation"),
 });
 
 function buildParaphrasingEvaluation(language: string): EvaluationResult {
@@ -106,8 +111,8 @@ async function executeEvaluateAnswer(
     throw new Error("DEEPSEEK_API_KEY environment variable is required");
   }
 
-  const { question, answer, jobProfile } = params;
-  const interviewLanguage = resolveInterviewLanguage(jobProfile);
+  const { question, answer, jobProfile, jobText } = params;
+  const interviewLanguage = resolveInterviewLanguage(jobProfile, jobText);
 
   if (isParaphrasingQuestion(question, answer)) {
     return buildParaphrasingEvaluation(interviewLanguage);
@@ -124,6 +129,8 @@ ${buildEvaluationPhilosophy()}
 ${buildAntiCheatRules()}
 
 ${buildScoringRubric()}
+
+${buildEvaluatorVacancyGrounding(jobText)}
 
 OUTPUT QUALITY:
 - strengths: 1-3 specific observations about what the candidate did well (effort, insight, experience, honest reasoning). Empty only for blank copies.

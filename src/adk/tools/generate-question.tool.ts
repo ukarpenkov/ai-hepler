@@ -2,11 +2,14 @@ import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 import type { QuestionResult } from "../types.js";
 import {
-  getLanguageName,
   normalizeLanguageCode,
   questionMatchesLanguage,
   resolveInterviewLanguage,
 } from "../utils/language.js";
+import {
+  buildInterviewerSystemPrompt,
+  buildInterviewerUserPrompt,
+} from "../utils/interview-prompts.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
@@ -35,6 +38,10 @@ const generateQuestionParams = z.object({
   jobProfile: jobProfileSchema.describe("The parsed job profile"),
   weakSkills: z.array(z.string()).describe("Skills the user is weak in"),
   previousQuestions: z.array(z.string()).describe("Questions already asked"),
+  jobText: z
+    .string()
+    .optional()
+    .describe("Original job posting text for vacancy-grounded questions"),
 });
 
 interface LlmConfig {
@@ -48,55 +55,19 @@ function buildPrompts(
   weakSkills: string[],
   previousQuestions: string[],
   strictLanguageRetry: boolean,
+  jobText?: string,
 ) {
-  const weakText = weakSkills.length > 0 ? weakSkills.join(", ") : "none";
-  const previousText =
-    previousQuestions.length > 0 ? previousQuestions.join("; ") : "none";
   const languageCode = normalizeLanguageCode(jobProfile.language);
-  const langName = getLanguageName(languageCode);
 
-  const languageRule = strictLanguageRetry
-    ? `CRITICAL: Your previous attempt used the wrong language. You MUST write question, topic, and every expectedAnswerCriteria entry ONLY in ${langName} (${languageCode}). Do NOT use English or any other language.`
-    : `CRITICAL LANGUAGE RULE: The interview language is ${langName} (${languageCode}). You MUST write question, topic, and every expectedAnswerCriteria entry ONLY in ${langName}. Never switch to English or another language. Tech terms may stay in Latin script when commonly used (React, API, Docker), but the sentence structure and wording must be ${langName}.`;
-
-  const systemPrompt = `You are a seasoned technical interviewer at a top tech company. You conduct interviews for ${jobProfile.level} ${jobProfile.role} positions. Your questions should be challenging, relevant, and reveal true competence — not just memorized answers.
-
-${languageRule}
-
-QUESTION DESIGN PRINCIPLES:
-1. Ask questions that require THINKING, not recall. Avoid "What is X?" — prefer "When would you use X over Y?" or "How would you design a system for..."
-2. Vary question types between: theoretical_explanation, practical_implementation, system_design, debugging_scenario, behavioral_experience.
-3. Each question MUST include 3-5 expected_answer_criteria — key points a strong answer must cover (used internally by the evaluator, NEVER shown to the candidate).
-4. Use specific technologies and scenarios from the job's domain and keywords. Contextualize questions to the actual role.
-5. For ${jobProfile.level} level: junior=fundamentals, middle=architecture+tradeoffs, senior=system design+leadership.
-
-DIFFICULTY GUIDELINES:
-- easy: Single concept, direct question, expects clear explanation of a fundamental
-- medium: Compare/contrast, practical scenario, expects reasoning and concrete examples
-- hard: System design, tradeoff analysis, edge cases, expects deep thinking and original solutions
-
-AVOID:
-- Questions that can be answered with a one-word or one-sentence response
-- Trivia questions about syntax or API method names
-- Questions that have already been asked: ${previousText}`;
-
-  const userPrompt = `Position: ${jobProfile.role} (${jobProfile.level})
-Interview language: ${langName} (${languageCode})
-Domain: ${jobProfile.domain}
-Tech stack / required skills: ${jobProfile.skills.join(", ")}
-Keywords from job description: ${jobProfile.keywords.join(", ")}
-Weak areas of candidate (focus on these): ${weakText}
-
-Generate ONE interview question in ${langName}. Vary the question type from previous rounds. Return ONLY valid JSON (no markdown, no explanation outside the JSON):
-{
-  "question": "<string: the question text in ${langName}>",
-  "topic": "<string: specific topic/skill this question tests, in ${langName}>",
-  "difficulty": "easy"|"medium"|"hard",
-  "questionType": "theoretical_explanation"|"practical_implementation"|"system_design"|"debugging_scenario"|"behavioral_experience",
-  "expectedAnswerCriteria": ["<string: specific point in ${langName}>", ...]
-}`;
-
-  return { systemPrompt, userPrompt, languageCode };
+  return {
+    systemPrompt: buildInterviewerSystemPrompt(
+      jobProfile,
+      previousQuestions,
+      strictLanguageRetry,
+    ),
+    userPrompt: buildInterviewerUserPrompt(jobProfile, weakSkills, jobText),
+    languageCode,
+  };
 }
 
 async function callQuestionLlm(
@@ -195,10 +166,10 @@ async function executeGenerateQuestion(
     throw new Error("DEEPSEEK_API_KEY environment variable is required");
   }
 
-  const { jobProfile, weakSkills, previousQuestions } = params;
+  const { jobProfile, weakSkills, previousQuestions, jobText } = params;
   const resolvedProfile = {
     ...jobProfile,
-    language: resolveInterviewLanguage(jobProfile),
+    language: resolveInterviewLanguage(jobProfile, jobText),
   };
 
   for (const strictLanguageRetry of [false, true]) {
@@ -207,6 +178,7 @@ async function executeGenerateQuestion(
       weakSkills,
       previousQuestions,
       strictLanguageRetry,
+      jobText,
     );
     const content = await callQuestionLlm(config, systemPrompt, userPrompt);
     const result = parseQuestionResult(content);

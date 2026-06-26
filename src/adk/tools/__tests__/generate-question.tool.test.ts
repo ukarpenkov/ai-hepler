@@ -162,6 +162,60 @@ describe("generateQuestionTool", () => {
     expect(body.messages[1].content).toContain("Interview language: Russian (ru)");
   });
 
+  it("uses vacancy-grounded prompts for non-IT roles with job text", async () => {
+    const mockResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              question: "Как вы проведёте инвентаризацию при расхождении остатков?",
+              topic: "Инвентаризация",
+              difficulty: "medium",
+              questionType: "practical_implementation",
+              expectedAnswerCriteria: [
+                "Сверка с WMS",
+                "Документирование расхождений",
+              ],
+            }),
+          },
+        },
+      ],
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      }),
+    );
+
+    await generateQuestionTool.runAsync({
+      args: {
+        jobProfile: {
+          role: "Warehouse Worker",
+          level: "middle" as const,
+          skills: ["WMS", "inventory management"],
+          softSkills: ["attention to detail"],
+          keywords: ["FIFO"],
+          domain: "logistics",
+          language: "ru",
+          minYearsExperience: 2,
+        },
+        weakSkills: [],
+        previousQuestions: [],
+        jobText: "Требуется кладовщик. Опыт работы с WMS, проведение инвентаризации.",
+      },
+    } as never);
+
+    const body = JSON.parse(
+      (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
+    );
+    expect(body.messages[0].content).toContain("hiring manager");
+    expect(body.messages[1].content).toContain("ORIGINAL JOB POSTING");
+    expect(body.messages[1].content).toContain("кладовщик");
+  });
+
   it("retries when first question is in the wrong language", async () => {
     const fetchMock = vi
       .fn()

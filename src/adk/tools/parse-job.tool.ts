@@ -24,9 +24,9 @@ async function executeParseJob(
     throw new Error("DEEPSEEK_API_KEY environment variable is required");
   }
 
-  const systemPrompt = `You are a job description and resume analyzer. Extract structured data from the posting or candidate resume text.
+  const systemPrompt = `You are a job description and resume analyzer. Extract structured data from the posting or candidate resume text for ANY profession — IT, logistics, retail, manufacturing, healthcare, finance, and others.
 
-Be precise. Extract exact technology names as they appear. Separate hard/technical skills from soft skills. Note any experience requirements.
+Be precise. Extract exact skill and tool names as they appear in the text. Separate hard/professional skills from soft skills. Note any experience requirements.
 
 LANGUAGE DETECTION (critical):
 - Detect the language of the INPUT TEXT itself — the language the candidate or employer wrote in.
@@ -36,12 +36,12 @@ LANGUAGE DETECTION (critical):
 
   const userPrompt = `Analyze this job description or resume text. Extract:
 
-- role: normalized job title (e.g. "Frontend Developer", "Backend Developer", "DevOps Engineer")
-- level: junior | middle | senior (based on required experience, title, and responsibilities)
-- skills: concrete technical skills/tools/languages (e.g. "Python", "Docker", "AWS", "React", "Kubernetes")
-- softSkills: soft skills / interpersonal requirements (e.g. "communication", "team leadership", "agile methodology", "mentoring")
-- keywords: key phrases from the description (e.g. "CI/CD", "microservices", "test-driven development")
-- domain: industry or domain (e.g. fintech, healthcare, e-commerce, web, cloud, gaming, etc.)
+- role: normalized job title (e.g. "Frontend Developer", "Warehouse Worker", "Sales Manager", "Accountant")
+- level: junior | middle | senior (based on required experience, title, and responsibilities; use middle when unclear for non-IT roles)
+- skills: concrete professional skills, tools, systems, certifications (e.g. "Python", "1C", "WMS", "forklift license", "inventory management", "Excel")
+- softSkills: soft skills / interpersonal requirements (e.g. "communication", "team leadership", "attention to detail", "customer service")
+- keywords: key phrases from the description (e.g. "CI/CD", "FIFO", "shift work", "quality control", "cold storage")
+- domain: industry or domain (e.g. fintech, logistics, retail, manufacturing, healthcare, web, cloud, gaming, etc.)
 - language: ISO 639-1 code of the language this text is written in (e.g. "en", "ru", "de", "fr", "es", "zh", etc.)
 - minYearsExperience: number of years of experience required if explicitly mentioned, null otherwise
 
