@@ -41,9 +41,48 @@ describe("interview-prompts", () => {
   it("uses vacancy-grounded persona for non-IT roles", () => {
     const prompt = buildInterviewerSystemPrompt(warehouseProfile, [], false);
     expect(prompt).toContain("hiring manager");
-    expect(prompt).toContain("workplace scenarios");
+    expect(prompt).toContain("tradeoffs");
     expect(prompt).toContain("NOT software architecture");
     expect(prompt).not.toContain("top tech company");
+  });
+
+  it("uses professional (non-IT) mode for electrical design engineer", () => {
+    const profile: ParsedJob = {
+      role: "Инженер-проектировщик",
+      level: "middle",
+      skills: ["КОМПАС 3D", "ЕСКД"],
+      softSkills: [],
+      keywords: ["щиты управления", "электрооборудование"],
+      domain: "manufacturing",
+      language: "ru",
+      minYearsExperience: 3,
+    };
+    const prompt = buildInterviewerSystemPrompt(profile, [], false);
+    expect(prompt).toContain("hiring manager");
+    expect(prompt).toContain("NOT software architecture");
+    expect(prompt).toContain("STRICTLY FORBIDDEN");
+    expect(prompt).toContain("AWS");
+    expect(prompt).not.toContain("top tech company");
+  });
+
+  it("adds strict relevance retry rule when requested", () => {
+    const profile: ParsedJob = {
+      role: "Инженер-проектировщик",
+      level: "middle",
+      skills: ["КОМПАС 3D"],
+      softSkills: [],
+      keywords: [],
+      domain: "electrical equipment",
+      language: "ru",
+      minYearsExperience: 3,
+    };
+    const prompt = buildInterviewerSystemPrompt(profile, [], false, {
+      strictRelevanceRetry: true,
+      offendingTerms: ["AWS", "Python"],
+      jobProfile: profile,
+    });
+    expect(prompt).toContain("CRITICAL RELEVANCE RETRY");
+    expect(prompt).toContain("AWS, Python");
   });
 
   it("includes original job posting in user prompt", () => {
@@ -55,7 +94,7 @@ describe("interview-prompts", () => {
       jobText,
     );
 
-    expect(prompt).toContain("ORIGINAL JOB POSTING");
+    expect(prompt).toContain("ORIGINAL VACANCY TEXT");
     expect(prompt).toContain("кладовщик");
     expect(prompt).toContain("Weak areas");
     expect(prompt).toContain("attention to detail");
@@ -70,6 +109,28 @@ describe("interview-prompts", () => {
     const grounding = buildEvaluatorVacancyGrounding("Warehouse shift lead role");
     expect(grounding).toContain("original job posting");
     expect(grounding).toContain("Warehouse shift lead role");
+  });
+
+  it("includes English assessment hint when posting requires English", () => {
+    const profile: ParsedJob = {
+      role: "Sales Manager",
+      level: "middle",
+      skills: ["CRM"],
+      softSkills: ["English B2"],
+      keywords: [],
+      domain: "retail",
+      language: "ru",
+      minYearsExperience: 2,
+    };
+    const jobText =
+      "Менеджер по продажам. Требуется свободный английский язык для работы с клиентами.";
+    const prompt = buildInterviewerSystemPrompt(profile, [], false, {
+      questionLanguage: "en",
+      jobText,
+      jobProfile: profile,
+    });
+    expect(prompt).toContain("English proficiency is required");
+    expect(prompt).toContain("THIS question must be in English");
   });
 
   it("falls back when job text is missing", () => {

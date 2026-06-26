@@ -1,30 +1,78 @@
 import type { ParsedJob } from "../types.js";
 import { getLanguageName } from "./language.js";
 
-const IT_ROLE_PATTERN =
-  /developer|engineer|devops|programmer|architect|frontend|backend|fullstack|full-stack|software|qa|tester|sre|data scientist|ml engineer|аналитик|разработчик|инженер|программист/i;
-
-const IT_DOMAIN_PATTERN =
-  /web|software|it|tech|cloud|fintech|gaming|gamedev|saas|mobile|data|ai|ml|игр|софт/i;
+const NON_IT_ROLE_PATTERN =
+  /проектировщик|конструктор|кладовщик|бухгалтер|продавец|кассир|водитель|электромонтаж|электрик|сварщик|токар|фрезер|оператор|монтажник|technician|technologist|welder|driver|cashier|accountant|warehouse|nurse|teacher|chef|barista|design engineer|electrical engineer/i;
 
 const NON_IT_ENGINEERING_PATTERN =
-  /mechanical|civil|chemical|petroleum|aerospace|structural|механик|металлург|строитель/i;
+  /mechanical|civil|chemical|petroleum|aerospace|structural|electrical|electro|instrumentation|механик|металлург|строитель|электро|проектир|конструкт|черт[её]ж|есскд|ескд|компас|кип|kip|взрывозащ|cad|sapr|сапр|чертеж/i;
 
-export function isItVacancy(jobProfile: ParsedJob): boolean {
-  const haystack = [
-    jobProfile.role,
-    jobProfile.domain,
-    ...jobProfile.skills,
-    ...jobProfile.keywords,
-  ]
+const IT_ROLE_PATTERN =
+  /developer|devops|programmer|frontend|backend|fullstack|full-stack|software|qa engineer|test engineer|tester|sre|data scientist|ml engineer|аналитик|разработчик|программист|инженер-программист/i;
+
+const IT_ENGINEER_PATTERN =
+  /software engineer|backend engineer|frontend engineer|devops engineer|platform engineer|cloud engineer|site reliability|systems engineer|инженер по (данным|разработк|программ)/i;
+
+const IT_SKILL_PATTERN =
+  /react|vue|angular|typescript|javascript|node\.?js|next\.?js|golang|rust|kubernetes|docker|postgresql|mongodb|microservices|ci\/cd|html|css|swift|kotlin|flutter|django|fastapi|spring boot/i;
+
+const IT_DOMAIN_PATTERN =
+  /\b(web|software|saas|gamedev|cloud computing|fintech|it consulting|mobile app)\b|\b(it|tech)\b industry|разработк.*?(po|software)|софт|программ/i;
+
+function buildHaystack(jobProfile: ParsedJob): {
+  roleAndDomain: string;
+  skillsText: string;
+  full: string;
+} {
+  const roleAndDomain = `${jobProfile.role} ${jobProfile.domain}`.toLowerCase();
+  const skillsText = [...jobProfile.skills, ...jobProfile.keywords]
     .join(" ")
     .toLowerCase();
+  return {
+    roleAndDomain,
+    skillsText,
+    full: `${roleAndDomain} ${skillsText}`,
+  };
+}
 
-  if (NON_IT_ENGINEERING_PATTERN.test(haystack)) {
+function isExplicitNonIt(haystack: string): boolean {
+  return (
+    NON_IT_ROLE_PATTERN.test(haystack) ||
+    NON_IT_ENGINEERING_PATTERN.test(haystack)
+  );
+}
+
+function isExplicitIt(roleAndDomain: string, skillsText: string): boolean {
+  return (
+    IT_ROLE_PATTERN.test(roleAndDomain) ||
+    IT_ENGINEER_PATTERN.test(roleAndDomain) ||
+    (IT_SKILL_PATTERN.test(skillsText) &&
+      (IT_DOMAIN_PATTERN.test(`${roleAndDomain} ${skillsText}`) ||
+        /\b(it|tech|software|web|разработк|программ)\b/i.test(
+          roleAndDomain,
+        )))
+  );
+}
+
+export function isItVacancy(jobProfile: ParsedJob): boolean {
+  const { roleAndDomain, skillsText, full } = buildHaystack(jobProfile);
+
+  if (isExplicitNonIt(full)) {
+    if (isExplicitIt(roleAndDomain, skillsText)) {
+      return true;
+    }
     return false;
   }
 
-  return IT_ROLE_PATTERN.test(haystack) || IT_DOMAIN_PATTERN.test(haystack);
+  if (isExplicitIt(roleAndDomain, skillsText)) {
+    return true;
+  }
+
+  if (/engineer|инженер/i.test(jobProfile.role)) {
+    return false;
+  }
+
+  return IT_DOMAIN_PATTERN.test(full) && IT_SKILL_PATTERN.test(skillsText);
 }
 
 export function buildEvaluatorPersona(jobProfile: ParsedJob): string {
@@ -87,6 +135,22 @@ Total score = sum of four dimensions. Match score to level expectations for the 
 export function buildEvaluatorLanguageRule(language: string): string {
   const langName = getLanguageName(language);
   return `LANGUAGE: The interview is in ${langName}. Write strengths, weaknesses, recommendation, and perfectAnswerSummary in ${langName}. Use a natural, professional tone — not robotic checklist language.`;
+}
+
+export function buildEvaluatorRoleRules(jobProfile: ParsedJob): string {
+  if (isItVacancy(jobProfile)) {
+    return `ROLE-SPECIFIC EVALUATION (IT):
+- Benchmark answers against technologies and responsibilities from the job posting.
+- Reward tradeoffs, debugging mindset, and concrete examples from real projects.
+- perfectAnswerSummary should reference stack/tools from the vacancy, not generic buzzwords.`;
+  }
+
+  return `ROLE-SPECIFIC EVALUATION (non-IT — critical):
+- Benchmark answers ONLY against duties, tools, standards, and requirements from the original vacancy text (e.g. КОМПАС, ЕСКД, Э3/Э4, WMS, 1C — whatever the posting lists).
+- Do NOT penalize for lacking software/cloud knowledge unless the posting explicitly requires programming or IT.
+- Do NOT suggest perfect answers about Python, AWS, microservices, or software architecture for non-IT roles.
+- Reward practical judgment, safety/compliance awareness, production support experience, and step-by-step reasoning using the employer's terminology.
+- perfectAnswerSummary must describe an excellent answer using tools and procedures from THIS vacancy — not generic IT advice.`;
 }
 
 export function buildCoachPersona(jobProfile: ParsedJob): string {

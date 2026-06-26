@@ -8,6 +8,7 @@ import {
   buildEvaluationPhilosophy,
   buildEvaluatorLanguageRule,
   buildEvaluatorPersona,
+  buildEvaluatorRoleRules,
   buildScoringRubric,
 } from "../utils/evaluation-prompts.js";
 import { buildEvaluatorVacancyGrounding } from "../utils/interview-prompts.js";
@@ -131,6 +132,8 @@ ${buildAntiCheatRules()}
 ${buildScoringRubric()}
 
 ${buildEvaluatorVacancyGrounding(jobText)}
+
+${buildEvaluatorRoleRules(jobProfile)}
 
 OUTPUT QUALITY:
 - strengths: 1-3 specific observations about what the candidate did well (effort, insight, experience, honest reasoning). Empty only for blank copies.

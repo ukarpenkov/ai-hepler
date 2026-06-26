@@ -2,14 +2,19 @@ import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 import type { QuestionResult } from "../types.js";
 import {
-  normalizeLanguageCode,
   questionMatchesLanguage,
   resolveInterviewLanguage,
+  resolveQuestionLanguage,
+  isEnglishRequired,
 } from "../utils/language.js";
 import {
   buildInterviewerSystemPrompt,
   buildInterviewerUserPrompt,
 } from "../utils/interview-prompts.js";
+import {
+  extractForbiddenItTerms,
+  isQuestionVacancyRelevant,
+} from "../utils/vacancy-relevance.js";
 
 interface LLMResponse {
   choices: Array<{ message: { content: string } }>;
@@ -54,19 +59,43 @@ function buildPrompts(
   jobProfile: z.infer<typeof jobProfileSchema>,
   weakSkills: string[],
   previousQuestions: string[],
-  strictLanguageRetry: boolean,
+  options: {
+    strictLanguageRetry: boolean;
+    strictRelevanceRetry: boolean;
+    offendingTerms?: string[];
+  },
   jobText?: string,
 ) {
-  const languageCode = normalizeLanguageCode(jobProfile.language);
+  const primaryLanguage = resolveInterviewLanguage(jobProfile, jobText);
+  const resolvedProfile = { ...jobProfile, language: primaryLanguage };
+  const englishRequired = isEnglishRequired(resolvedProfile, jobText);
+  const questionLanguage = resolveQuestionLanguage(
+    primaryLanguage,
+    previousQuestions.length,
+    englishRequired,
+  );
 
   return {
     systemPrompt: buildInterviewerSystemPrompt(
-      jobProfile,
+      resolvedProfile,
       previousQuestions,
-      strictLanguageRetry,
+      options.strictLanguageRetry,
+      {
+        questionLanguage,
+        jobText,
+        jobProfile: resolvedProfile,
+        strictRelevanceRetry: options.strictRelevanceRetry,
+        offendingTerms: options.offendingTerms,
+      },
     ),
-    userPrompt: buildInterviewerUserPrompt(jobProfile, weakSkills, jobText),
-    languageCode,
+    userPrompt: buildInterviewerUserPrompt(
+      resolvedProfile,
+      weakSkills,
+      jobText,
+      questionLanguage,
+    ),
+    languageCode: questionLanguage,
+    primaryLanguage,
   };
 }
 
@@ -172,24 +201,58 @@ async function executeGenerateQuestion(
     language: resolveInterviewLanguage(jobProfile, jobText),
   };
 
-  for (const strictLanguageRetry of [false, true]) {
+  const attempts: Array<{
+    strictLanguageRetry: boolean;
+    strictRelevanceRetry: boolean;
+    offendingTerms?: string[];
+  }> = [
+    { strictLanguageRetry: false, strictRelevanceRetry: false },
+    { strictLanguageRetry: true, strictRelevanceRetry: false },
+    { strictLanguageRetry: false, strictRelevanceRetry: true },
+    { strictLanguageRetry: true, strictRelevanceRetry: true },
+  ];
+
+  let lastOffendingTerms: string[] = [];
+
+  for (const attempt of attempts) {
     const { systemPrompt, userPrompt, languageCode } = buildPrompts(
       resolvedProfile,
       weakSkills,
       previousQuestions,
-      strictLanguageRetry,
+      {
+        ...attempt,
+        offendingTerms: attempt.strictRelevanceRetry ? lastOffendingTerms : undefined,
+      },
       jobText,
     );
     const content = await callQuestionLlm(config, systemPrompt, userPrompt);
     const result = parseQuestionResult(content);
 
-    if (questionMatchesLanguage(result, languageCode)) {
+    const languageOk = questionMatchesLanguage(result, languageCode);
+    const relevanceOk = isQuestionVacancyRelevant(result, resolvedProfile, jobText);
+
+    if (!relevanceOk) {
+      lastOffendingTerms = extractForbiddenItTerms(
+        `${result.question} ${result.topic}`,
+        [
+          resolvedProfile.role,
+          resolvedProfile.domain,
+          ...resolvedProfile.skills,
+          ...resolvedProfile.keywords,
+          jobText ?? "",
+        ]
+          .join(" ")
+          .toLowerCase(),
+      );
+    }
+
+    if (languageOk && relevanceOk) {
       return result;
     }
   }
 
   throw new Error(
-    `Generated question is not in required language: ${resolvedProfile.language}`,
+    `Generated question failed language or vacancy relevance checks for ${resolvedProfile.role}`,
   );
 }
 

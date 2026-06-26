@@ -13,6 +13,9 @@ export const LANGUAGE_NAMES: Record<string, string> = {
   ko: "Korean",
 };
 
+const ENGLISH_REQUIREMENT_PATTERN =
+  /english\s*(language|proficiency|skills?|speaking|communication|level)|fluent\s+english|upper[- ]intermediate\s+english|advanced\s+english|english\s+b[12]|business\s+english|английск(ий|ого)\s*(язык|языка)?|знание\s+английск|english[- ]speaking|technical\s+english|опыт\s+.*английск|свободн(ый|о)\s+английск/i;
+
 export function normalizeLanguageCode(code: string): string {
   return code.trim().toLowerCase().split(/[-_]/)[0];
 }
@@ -49,6 +52,22 @@ export function detectLanguageFromText(text: string): string {
     if (cyrillicRatio >= 0.08 || cyrillic >= 15) return "ru";
   }
 
+  if (/[äöüß]|(\b(und|der|die|das|wir|suchen|erfahrung|stellenangebot|aufgaben)\b)/i.test(
+    sample,
+  )) {
+    return "de";
+  }
+
+  if (/(\b(nous|cherchons|expérience|poste|entreprise|français)\b)|[àâçéèêëîïôùûü]/i.test(
+    sample,
+  )) {
+    return "fr";
+  }
+
+  if (/(\b(buscamos|experiencia|empresa|puesto|español)\b)|[áéíóúñ¿¡]/i.test(sample)) {
+    return "es";
+  }
+
   return "en";
 }
 
@@ -75,22 +94,19 @@ export function buildInterviewLanguageText(
   ].join(" ");
 }
 
-export function resolveInterviewLanguage(
-  jobProfile: InterviewLanguageSource,
-  sourceText?: string,
-): string {
-  const combinedText = buildInterviewLanguageText(jobProfile, sourceText);
-  return resolveLanguage(jobProfile.language, combinedText);
-}
-
 export function resolveLanguage(
   llmLanguage: string | undefined,
   sourceText: string,
 ): string {
-  const detected = detectLanguageFromText(sourceText);
+  const trimmed = sourceText.trim();
+  const detected = detectLanguageFromText(trimmed);
   const normalized = llmLanguage ? normalizeLanguageCode(llmLanguage) : "";
 
-  if (normalized && normalized !== "en") {
+  if (trimmed.length >= 30) {
+    return detected;
+  }
+
+  if (normalized && normalized === detected) {
     return normalized;
   }
 
@@ -98,7 +114,52 @@ export function resolveLanguage(
     return detected;
   }
 
+  if (normalized && normalized !== "en") {
+    return normalized;
+  }
+
   return normalized || "en";
+}
+
+export function resolveInterviewLanguage(
+  jobProfile: InterviewLanguageSource,
+  sourceText?: string,
+): string {
+  const trimmedSource = sourceText?.trim();
+  if (trimmedSource) {
+    return resolveLanguage(jobProfile.language, trimmedSource);
+  }
+
+  return resolveLanguage(
+    jobProfile.language,
+    buildInterviewLanguageText(jobProfile),
+  );
+}
+
+export function isEnglishRequired(
+  jobProfile: InterviewLanguageSource,
+  sourceText?: string,
+): boolean {
+  const haystack = buildInterviewLanguageText(jobProfile, sourceText);
+  return ENGLISH_REQUIREMENT_PATTERN.test(haystack);
+}
+
+export function resolveQuestionLanguage(
+  primaryLanguage: string,
+  previousQuestionCount: number,
+  englishRequired: boolean,
+): string {
+  const primary = normalizeLanguageCode(primaryLanguage);
+
+  if (primary === "en" || !englishRequired) {
+    return primary;
+  }
+
+  if (previousQuestionCount > 0 && previousQuestionCount % 3 === 2) {
+    return "en";
+  }
+
+  return primary;
 }
 
 export function textMatchesLanguage(text: string, language: string): boolean {
@@ -124,6 +185,10 @@ export function textMatchesLanguage(text: string, language: string): boolean {
 
   if (lang === "en") {
     return /[A-Za-z]/.test(combined);
+  }
+
+  if (lang === "de" || lang === "fr" || lang === "es" || lang === "it" || lang === "pl") {
+    return /[A-Za-zÀ-ÿ]/.test(combined);
   }
 
   return true;

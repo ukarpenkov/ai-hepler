@@ -159,7 +159,9 @@ describe("generateQuestionTool", () => {
     );
     expect(body.messages[0].content).toContain("Russian");
     expect(body.messages[0].content).toContain("(ru)");
-    expect(body.messages[1].content).toContain("Interview language: Russian (ru)");
+    expect(body.messages[1].content).toContain(
+      "Job posting language / primary interview language: Russian (ru)",
+    );
   });
 
   it("uses vacancy-grounded prompts for non-IT roles with job text", async () => {
@@ -212,7 +214,7 @@ describe("generateQuestionTool", () => {
       (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
     );
     expect(body.messages[0].content).toContain("hiring manager");
-    expect(body.messages[1].content).toContain("ORIGINAL JOB POSTING");
+    expect(body.messages[1].content).toContain("ORIGINAL VACANCY TEXT");
     expect(body.messages[1].content).toContain("кладовщик");
   });
 
@@ -274,11 +276,84 @@ describe("generateQuestionTool", () => {
         },
         weakSkills: [],
         previousQuestions: [],
+        jobText: "Ищем frontend-разработчика с опытом React и TypeScript.",
       },
     } as never);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect((result as Record<string, unknown>).question).toContain("Как");
+  });
+
+  it("retries when question is off-topic for non-IT vacancy", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    question:
+                      "Как бы вы организовали микросервисы на Python и AWS для щита освещения?",
+                    topic: "Python, AWS",
+                    difficulty: "hard",
+                    questionType: "system_design",
+                    expectedAnswerCriteria: ["Микросервисы", "AWS Lambda"],
+                  }),
+                },
+              },
+            ],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    question:
+                      "На производстве расхождение между Э3 и сборкой щита освещения — ваши действия?",
+                    topic: "ЕСКД, Э3, КОМПАС 3D",
+                    difficulty: "medium",
+                    questionType: "debugging_scenario",
+                    expectedAnswerCriteria: [
+                      "Сверка с принципиальной схемой",
+                      "Оформление документации",
+                    ],
+                  }),
+                },
+              },
+            ],
+          }),
+      });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await generateQuestionTool.runAsync({
+      args: {
+        jobProfile: {
+          role: "Инженер-проектировщик",
+          level: "middle" as const,
+          skills: ["КОМПАС 3D", "ЕСКД"],
+          softSkills: [],
+          keywords: ["щиты освещения"],
+          domain: "electrical equipment",
+          language: "ru",
+          minYearsExperience: 3,
+        },
+        weakSkills: [],
+        previousQuestions: [],
+        jobText:
+          "Инженер-проектировщик. Проектирование щитов освещения до 1000В. КОМПАС 3D, ЕСКД, Э3/Э4.",
+      },
+    } as never);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect((result as Record<string, unknown>).question).toContain("Э3");
   });
 
   it("handles invalid JSON response", async () => {

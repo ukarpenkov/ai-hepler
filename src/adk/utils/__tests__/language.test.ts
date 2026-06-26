@@ -2,10 +2,12 @@ import { describe, it, expect } from "vitest";
 import {
   detectLanguageFromText,
   getLanguageName,
+  isEnglishRequired,
   normalizeLanguageCode,
   questionMatchesLanguage,
   resolveInterviewLanguage,
   resolveLanguage,
+  resolveQuestionLanguage,
   textMatchesLanguage,
 } from "../language.js";
 
@@ -38,20 +40,53 @@ describe("language utils", () => {
     expect(detectLanguageFromText(text)).toBe("ru");
   });
 
-  it("resolves interview language from profile fields when LLM stored en", () => {
+  it("resolves interview language from job posting text, not English skill names", () => {
     expect(
       resolveInterviewLanguage(
         {
           language: "en",
           role: "Frontend Developer",
           domain: "gaming",
-          skills: ["React", "TypeScript"],
-          softSkills: ["коммуникация"],
-          keywords: ["оптимизация", "интерфейсы"],
+          skills: ["React", "TypeScript", "Node.js"],
+          softSkills: [],
+          keywords: ["microservices"],
         },
-        "Ищем frontend-разработчика с опытом React и TypeScript.",
+        "Ищем frontend-разработчика. Требования: опыт React, TypeScript, Node.js.",
       ),
     ).toBe("ru");
+  });
+
+  it("keeps English when the job posting text is in English", () => {
+    const text =
+      "We are looking for a Senior Frontend Developer with React and TypeScript experience.";
+    expect(resolveInterviewLanguage({ language: "ru", role: "Developer" }, text)).toBe(
+      "en",
+    );
+    expect(detectLanguageFromText(text)).toBe("en");
+  });
+
+  it("detects English language requirement in Russian postings", () => {
+    expect(
+      isEnglishRequired(
+        { softSkills: ["коммуникация"] },
+        "Требуется менеджер. Свободный английский язык обязателен.",
+      ),
+    ).toBe(true);
+    expect(
+      isEnglishRequired(
+        { softSkills: [] },
+        "Инженер-проектировщик. Опыт работы с КОМПАС 3D.",
+      ),
+    ).toBe(false);
+  });
+
+  it("schedules English assessment questions when English is required", () => {
+    expect(resolveQuestionLanguage("ru", 0, true)).toBe("ru");
+    expect(resolveQuestionLanguage("ru", 1, true)).toBe("ru");
+    expect(resolveQuestionLanguage("ru", 2, true)).toBe("en");
+    expect(resolveQuestionLanguage("ru", 5, true)).toBe("en");
+    expect(resolveQuestionLanguage("en", 2, true)).toBe("en");
+    expect(resolveQuestionLanguage("ru", 2, false)).toBe("ru");
   });
 
   it("prefers detected non-English language when LLM returns en", () => {
@@ -60,9 +95,11 @@ describe("language utils", () => {
     expect(resolveLanguage("en", text)).toBe("ru");
   });
 
-  it("keeps explicit non-English language from LLM", () => {
-    const text = "We are hiring a backend developer.";
-    expect(resolveLanguage("de", text)).toBe("de");
+  it("detects German from German job posting text", () => {
+    const text =
+      "Wir suchen einen Backend-Entwickler mit Erfahrung in Node.js und PostgreSQL für unser Team in Berlin.";
+    expect(resolveLanguage("en", text)).toBe("de");
+    expect(detectLanguageFromText(text)).toBe("de");
   });
 
   it("validates Russian question text", () => {
