@@ -208,7 +208,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 4 — Create ADK Tool: generateQuestion
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -274,7 +274,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 5 — Create ADK Tool: evaluateAnswer
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -338,7 +338,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 6 — Create ADK Tool: updateMemory
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -394,7 +394,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 7 — Create ADK Tool: fetchWeakTopics
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -443,7 +443,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 8 — Create ADK Agent: JobParserAgent
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
