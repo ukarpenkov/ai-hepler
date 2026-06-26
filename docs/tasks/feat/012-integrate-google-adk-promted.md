@@ -505,7 +505,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 9 — Create ADK Agent: InterviewerAgent
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -561,7 +561,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 10 — Create ADK Agent: EvaluatorAgent
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -621,7 +621,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 11 — Create ADK Agent: CoachAgent
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -677,7 +677,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 12 — Create ADK Agent: MemoryAgent
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -733,7 +733,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 13 — Create SequentialAgent Pipeline
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -788,7 +788,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 14 — Create ADK Runner + Session Service
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
