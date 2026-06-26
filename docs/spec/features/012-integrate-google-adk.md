@@ -42,13 +42,13 @@ Migrate the agent system from custom hand-rolled LLM orchestration to Google Age
 
 ## What To Do
 
-### 1. Install Dependencies
+### 1. Install Dependencies ✅
 
 ```bash
 npm install @google/adk @google/genai
 ```
 
-### 2. Rewrite Agents as `LlmAgent`
+### 2. Rewrite Agents as `LlmAgent` ✅
 
 **Current** (`src/agents/job-parser.agent.ts`):
 ```typescript
@@ -84,7 +84,7 @@ export const jobParserAgent = new LlmAgent({
 | `CoachAgent` | `coach.agent.ts` | `coachFeedback` |
 | `MemoryAgent` | `memory.agent.ts` | `memoryUpdate` |
 
-### 3. Rewrite Tools as `FunctionTool`
+### 3. Rewrite Tools as `FunctionTool` ✅
 
 **Current** (`src/tools/parse-job-description.tool.ts`):
 ```typescript
@@ -323,3 +323,17 @@ const coach = new LlmAgent({
 | ADK FunctionTool | https://adk.dev/tools-custom/function-tools/ |
 | ADK API Reference (TS) | https://adk.dev/api-reference/typescript/ |
 | GitHub: @google/adk | https://github.com/google/adk-js |
+
+---
+
+## HTTPS Frontend Deployment
+
+**Target URL:** `https://interview-sim-frontend-606232140580.us-central1.run.app/`
+
+Для доступности сайта по этому URL необходимо:
+
+1. **`output: 'standalone'`** в `next.config.ts` — обязательно для сборки Docker-контейнера Cloud Run.
+2. **`NEXT_PUBLIC_API_URL` env var** — фронтенд должен знать URL бэкенда (например, `https://interview-sim-backend-XXXXXXX-uc.a.run.app`) через переменную окружения при сборке, без хардкода `localhost`.
+3. **CORS на бэкенде** — Fastify должен разрешать запросы с `https://interview-sim-frontend-606232140580.us-central1.run.app`.
+4. **Cloud Run deploy** — сервис деплоится в `us-central1` с `--allow-unauthenticated` для публичного доступа. HTTPS предоставляется автоматически на `*.run.app`.
+5. **Нет hardcoded `localhost`** — все API-эндпоинты используют env-based URL бэкенда.

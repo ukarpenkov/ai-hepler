@@ -25,7 +25,7 @@
 
 ## Step 1 — Install ADK Dependencies
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -61,7 +61,7 @@ Read docs/spec/features/012-integrate-google-adk.md for reference on ADK APIs:
 
 ## Step 2 — Create Custom DeepSeekLlm Class
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.
@@ -144,7 +144,7 @@ Run npm run typecheck, npm run lint, npm run test after implementation.
 
 ## Step 3 — Create ADK Tool: parseJobDescription
 
-**Status:**
+**Status: Done**
 
 > **General rules (apply to EACH step):**
 > 1. Code language — TypeScript.

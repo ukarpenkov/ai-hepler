@@ -22,16 +22,21 @@ export default [
         clearInterval: "readonly",
         clearTimeout: "readonly",
         console: "readonly",
+        TextEncoder: "readonly",
+        TextDecoder: "readonly",
       },
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
     },
     rules: {
-      "no-unused-vars": "error",
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       "no-undef": "error",
       "prefer-const": "error",
-      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
     },
   },
 ];
