@@ -1,0 +1,23 @@
+# Exclude node_modules (Docker build uses npm ci)
+**/node_modules
+**/node_modules/**
+
+# Exclude dist (Docker build compiles TS)
+dist
+dist/**
+
+# Exclude .git
+.git
+.git/**
+
+# Exclude frontend build artifacts
+packages/web/.next
+packages/web/.next/**
+
+# Exclude .env files
+.env
+.env.*
+
+# Exclude VSCode and IDE files
+.vscode
+.idea

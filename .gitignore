@@ -11,3 +11,4 @@ out
 packages/web/.next
 packages/web/.env.example
 mimocode.json
+docs/spec/capstone/video-script.md
